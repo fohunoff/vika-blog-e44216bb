@@ -1,85 +1,54 @@
 
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChefHat, Clock, Filter, Search, Tag, UtensilsCrossed } from 'lucide-react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import BlogHeader from '../components/BlogHeader';
-import Footer from '../components/Footer';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from '../hooks/use-toast';
+import { Recipe, Category, Tag } from '../types';
 
-// Типы для рецептов
-interface Recipe {
-  id: string;
-  title: string;
-  description: string;
-  category: Category;
-  time: string;
-  difficulty: 'Легко' | 'Средне' | 'Сложно';
-  imageSrc: string;
-  tags: Tag[];
-}
+// API-запросы
+const API_URL = 'http://localhost:3000/api';
 
-interface Category {
-  id: string;
-  name: string;
-  displayName: string;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-}
-
-// Функции для работы с API
-const fetchRecipes = async (categoryId?: string, search?: string): Promise<Recipe[]> => {
-  try {
-    let url = 'http://localhost:3000/api/recipes';
-    const params = new URLSearchParams();
-    
-    if (categoryId) params.append('categoryId', categoryId);
-    if (search) params.append('search', search);
-    
-    if (params.toString()) url += `?${params.toString()}`;
-    
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Не удалось загрузить рецепты');
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching recipes:', error);
-    return [];
+const fetchRecipes = async (categoryId: string | null, search: string | null): Promise<Recipe[]> => {
+  let url = `${API_URL}/recipes`;
+  const params = new URLSearchParams();
+  
+  if (categoryId) {
+    params.append('categoryId', categoryId);
   }
+  
+  if (search) {
+    params.append('search', search);
+  }
+  
+  const queryString = params.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Не удалось загрузить рецепты');
+  }
+  return response.json();
 };
 
 const fetchCategories = async (): Promise<Category[]> => {
-  try {
-    const response = await fetch('http://localhost:3000/api/recipes/categories');
-    if (!response.ok) throw new Error('Не удалось загрузить категории');
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    return [];
+  const response = await fetch(`${API_URL}/recipes/categories`);
+  if (!response.ok) {
+    throw new Error('Не удалось загрузить категории');
   }
+  return response.json();
 };
 
 const fetchTags = async (): Promise<Tag[]> => {
-  try {
-    const response = await fetch('http://localhost:3000/api/recipes/tags');
-    if (!response.ok) throw new Error('Не удалось загрузить теги');
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching tags:', error);
-    return [];
+  const response = await fetch(`${API_URL}/recipes/tags`);
+  if (!response.ok) {
+    throw new Error('Не удалось загрузить теги');
   }
+  return response.json();
 };
 
-const Recipes = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
+const RecipesPage: React.FC = () => {
+  const toast = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
@@ -87,189 +56,126 @@ const Recipes = () => {
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
-    meta: {
-      onError: () => {
-        toast({ 
-          title: "Ошибка",
-          description: "Не удалось загрузить категории рецептов",
-          variant: "destructive" 
-        });
-      }
-    }
+    meta: undefined, // Удаляем проблемные onError
   });
 
   const { data: recipes = [], isLoading } = useQuery({
     queryKey: ['recipes', activeCategory, searchQuery],
     queryFn: () => fetchRecipes(activeCategory, searchQuery),
-    meta: {
-      onError: () => {
-        toast({ 
-          title: "Ошибка",
-          description: "Не удалось загрузить рецепты",
-          variant: "destructive" 
-        });
-      }
-    }
+    meta: undefined, // Удаляем проблемные onError
   });
 
   const { data: tags = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: fetchTags,
-    meta: {
-      onError: () => {
-        toast({ 
-          title: "Ошибка",
-          description: "Не удалось загрузить теги",
-          variant: "destructive" 
-        });
-      }
-    }
+    meta: undefined, // Удаляем проблемные onError
   });
 
-  // Обработчик изменения категории
-  const handleCategoryChange = (categoryId: string) => {
-    setActiveCategory(activeCategory === categoryId ? null : categoryId);
+  // Функция для обработки ошибок API (может быть перенесена в глобальный обработчик)
+  const handleError = (message: string) => {
+    toast({
+      title: "Ошибка",
+      description: message,
+      variant: "destructive"
+    });
   };
 
-  // Обработчик формы поиска
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Поиск происходит автоматически через useQuery
+  // Обработчик изменения категории
+  const handleCategoryChange = (categoryId: string | null) => {
+    setActiveCategory(categoryId);
+  };
+
+  // Обработчик изменения поиска
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
-    <main className="min-h-screen pt-24">
-      <BlogHeader />
-      
-      {/* Заголовок и поиск */}
-      <div className="blog-container py-12">
-        <h1 className="section-title mb-8 text-center">
-          РЕЦЕПТЫ
-        </h1>
-        <p className="text-center text-xl mb-12 max-w-3xl mx-auto">
-          Коллекция моих любимых рецептов — от простых повседневных блюд до особенных угощений для праздничного стола.
-        </p>
-        
-        <form className="relative max-w-md mx-auto mb-16" onSubmit={handleSearch}>
-          <Input
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Все рецепты</h1>
+
+      {/* Поиск и фильтрация */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="w-full md:w-1/3">
+          <input
             type="text"
-            placeholder="Найти рецепт..."
-            className="pl-10 pr-4 py-3 rounded-full border-2 border-blog-yellow bg-white"
+            placeholder="Поиск рецептов..."
+            className="w-full p-2 border rounded-md"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-        </form>
-      </div>
-      
-      {/* Фильтры по категориям */}
-      <div className="bg-blog-black py-8">
-        <div className="blog-container">
-          <div className="flex items-center gap-2 mb-4 text-blog-white">
-            <Filter size={20} />
-            <h2 className="text-xl font-bold">Категории</h2>
-          </div>
-          
-          <div className="flex flex-wrap gap-3">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={activeCategory === category.id ? "default" : "outline"}
-                className={`rounded-full ${
-                  activeCategory === category.id 
-                    ? "bg-blog-yellow text-blog-black hover:bg-blog-yellow-dark" 
-                    : "bg-transparent text-blog-white border-blog-white hover:bg-blog-white/10"
-                }`}
-                onClick={() => handleCategoryChange(category.id)}
-              >
-                {category.displayName}
-              </Button>
-            ))}
-          </div>
+        </div>
+        <div className="w-full md:w-2/3 flex gap-2 flex-wrap">
+          <button
+            className={`px-3 py-1 rounded-full ${
+              activeCategory === null ? 'bg-primary text-white' : 'bg-gray-200'
+            }`}
+            onClick={() => handleCategoryChange(null)}
+          >
+            Все
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              className={`px-3 py-1 rounded-full ${
+                activeCategory === category.id ? 'bg-primary text-white' : 'bg-gray-200'
+              }`}
+              onClick={() => handleCategoryChange(category.id)}
+            >
+              {category.displayName}
+            </button>
+          ))}
         </div>
       </div>
-      
+
       {/* Список рецептов */}
-      <div className="blog-container py-16">
-        {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blog-yellow"></div>
-          </div>
-        ) : recipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {recipes.map((recipe, index) => (
-              <div key={recipe.id} className="animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                <Link to={`/recipes/${recipe.id}`} className="block">
-                  <article className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 h-full">
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <img 
-                        src={recipe.imageSrc} 
-                        alt={recipe.title} 
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-blog-yellow hover:bg-blog-yellow-dark text-blog-black">
-                          {recipe.category?.displayName}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold mb-2">{recipe.title}</h3>
-                      <p className="text-gray-600 mb-4">{recipe.description}</p>
-                      
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Clock size={16} />
-                          <span>{recipe.time}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <ChefHat size={16} />
-                          <span>{recipe.difficulty}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                </Link>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <p className="text-lg">Загрузка рецептов...</p>
+        </div>
+      ) : recipes.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {recipes.map((recipe) => (
+            <div key={recipe.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <img 
+                src={recipe.imageSrc} 
+                alt={recipe.title} 
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <h3 className="text-xl font-semibold mb-2">{recipe.title}</h3>
+                <p className="text-gray-600 mb-4 line-clamp-3">{recipe.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500">{recipe.time}</span>
+                  <span className={`text-sm ${
+                    recipe.difficulty === 'Легко' ? 'text-green-500' :
+                    recipe.difficulty === 'Средне' ? 'text-yellow-500' : 'text-red-500'
+                  }`}>{recipe.difficulty}</span>
+                </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <UtensilsCrossed size={64} className="mx-auto mb-4 text-gray-400" />
-            <h3 className="text-2xl font-bold mb-2">Рецепты не найдены</h3>
-            <p className="text-gray-600">
-              Попробуйте изменить параметры поиска или выбрать другую категорию.
-            </p>
-          </div>
-        )}
-      </div>
-      
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium">Рецепты не найдены</h3>
+          <p className="text-gray-500 mt-2">Попробуйте изменить параметры поиска</p>
+        </div>
+      )}
+
       {/* Популярные теги */}
-      <div className="bg-blog-yellow-light py-12">
-        <div className="blog-container">
-          <div className="flex items-center gap-2 mb-6">
-            <Tag size={20} />
-            <h2 className="text-xl font-bold">Популярные теги</h2>
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <Badge 
-                key={tag.id} 
-                variant="secondary" 
-                className="bg-white hover:bg-gray-100 text-blog-black cursor-pointer"
-              >
-                {tag.name}
-              </Badge>
-            ))}
-          </div>
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-4">Популярные теги</h2>
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span key={tag.id} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+              {tag.name}
+            </span>
+          ))}
         </div>
       </div>
-      
-      <Footer />
-    </main>
+    </div>
   );
 };
 
-export default Recipes;
+export default RecipesPage;
