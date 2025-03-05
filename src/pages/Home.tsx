@@ -1,28 +1,16 @@
 
 import { useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Search, Armchair, Lamp, Sprout, Coffee, Bath, Smartphone } from 'lucide-react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
-import HomeArticleCard from '../components/HomeArticleCard';
-import HomeHighlightCard from '../components/HomeHighlightCard';
-import { Button } from "@/components/ui/button";
+import SearchCategoriesSection from '../components/home/SearchCategoriesSection';
+import HighlightsSection from '../components/home/HighlightsSection';
+import ArticlesTabsSection from '../components/home/ArticlesTabsSection';
+import PopularTagsSection from '../components/home/PopularTagsSection';
 
 const Home = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const categories = [
-    { icon: <Armchair size={16} />, label: "Мебель" },
-    { icon: <Lamp size={16} />, label: "Освещение" },
-    { icon: <Sprout size={16} />, label: "Растения" },
-    { icon: <Coffee size={16} />, label: "Кухня" },
-    { icon: <Bath size={16} />, label: "Ванная" },
-    { icon: <Smartphone size={16} />, label: "Умный дом" },
-  ];
 
   const featuredArticles = [
     {
@@ -117,113 +105,10 @@ const Home = () => {
             </p>
           </div>
           
-          {/* Search and categories */}
-          <div className="bg-white p-8 rounded-lg shadow-sm mb-16">
-            <div className="relative mb-8">
-              <Input 
-                type="text" 
-                placeholder="Поиск идей для дома..." 
-                className="pl-10 pr-4 py-3 w-full"
-              />
-              <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-            </div>
-            
-            <div className="flex flex-wrap gap-3">
-              {categories.map((category, index) => (
-                <Button 
-                  key={index} 
-                  variant="outline" 
-                  className="flex items-center gap-2 hover:bg-blog-yellow-light hover:text-blog-black transition-colors"
-                >
-                  {category.icon}
-                  <span>{category.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Highlights */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            {highlights.map((highlight) => (
-              <HomeHighlightCard key={highlight.id} {...highlight} />
-            ))}
-          </div>
-          
-          {/* Tabs with article categories */}
-          <Tabs defaultValue="all" className="mb-16">
-            <TabsList className="mb-8 bg-transparent border-b border-gray-200 w-full justify-start space-x-8 px-0">
-              <TabsTrigger value="all" className="data-[state=active]:border-blog-yellow data-[state=active]:text-blog-black border-b-2 border-transparent pb-2 rounded-none">
-                Все статьи
-              </TabsTrigger>
-              <TabsTrigger value="interior" className="data-[state=active]:border-blog-yellow data-[state=active]:text-blog-black border-b-2 border-transparent pb-2 rounded-none">
-                Интерьер
-              </TabsTrigger>
-              <TabsTrigger value="plants" className="data-[state=active]:border-blog-yellow data-[state=active]:text-blog-black border-b-2 border-transparent pb-2 rounded-none">
-                Растения
-              </TabsTrigger>
-              <TabsTrigger value="diy" className="data-[state=active]:border-blog-yellow data-[state=active]:text-blog-black border-b-2 border-transparent pb-2 rounded-none">
-                Своими руками
-              </TabsTrigger>
-              <TabsTrigger value="tech" className="data-[state=active]:border-blog-yellow data-[state=active]:text-blog-black border-b-2 border-transparent pb-2 rounded-none">
-                Технологии
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="all" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredArticles.map((article) => (
-                  <HomeArticleCard key={article.id} {...article} />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="interior" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredArticles.filter(a => ["Интерьер", "Дизайн", "Спальня"].includes(a.category)).map((article) => (
-                  <HomeArticleCard key={article.id} {...article} />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="plants" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredArticles.filter(a => a.category === "Растения").map((article) => (
-                  <HomeArticleCard key={article.id} {...article} />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="diy" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredArticles.filter(a => a.category === "DIY").map((article) => (
-                  <HomeArticleCard key={article.id} {...article} />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="tech" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredArticles.filter(a => a.category === "Технологии").map((article) => (
-                  <HomeArticleCard key={article.id} {...article} />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-          
-          {/* Popular tags */}
-          <div className="bg-white p-8 rounded-lg shadow-sm">
-            <h3 className="text-xl font-bold mb-6">Популярные темы</h3>
-            <div className="flex flex-wrap gap-2">
-              {popularTags.map((tag, index) => (
-                <Badge 
-                  key={index}
-                  className="bg-blog-gray text-gray-700 hover:bg-blog-yellow hover:text-blog-black cursor-pointer px-3 py-1.5"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
+          <SearchCategoriesSection />
+          <HighlightsSection highlights={highlights} />
+          <ArticlesTabsSection articles={featuredArticles} />
+          <PopularTagsSection tags={popularTags} />
         </div>
       </div>
       
