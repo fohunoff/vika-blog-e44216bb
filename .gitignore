@@ -1,24 +1,75 @@
-# Logs
-logs
+# Зависимости
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Директории сборки
+/dist/
+/build/
+/out/
+/.nest/
+
+# Директории TypeScript
+/.tsbuildinfo
+/*.tsbuildinfo
+
+# Логи и временные файлы
+logs/
 *.log
+*.log.*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 lerna-debug.log*
+.pnpm-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Кэши
+.eslintcache
+.stylelintcache
+.node_repl_history
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Файлы среды выполнения
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+!.env.example
+
+# Директории IDE
+/.idea/
+/.vscode/
+*.code-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+
+# Файлы ОС
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+*.swo
+
+# Тесты
+/coverage/
+/.nyc_output/
+junit.xml
+
+# Другие директории NestJS
+/client/
+/tmp/
+/temp/
+
+# Конфигурации базы данных
+/ormconfig.json
+/ormconfig.js
+/typeorm-model-generator.json
