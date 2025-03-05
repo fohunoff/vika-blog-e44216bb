@@ -27,6 +27,7 @@
     "src/server/recipes/entities",
     "src/server/recipes/recipes.controller.ts",
     "src/server/recipes/recipes.service.ts",
+    "src/server/recipes/recipes.module.ts",
     "src/server/main.ts",
     "src/server/app.module.ts"
   ]

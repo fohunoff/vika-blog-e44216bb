@@ -48,7 +48,7 @@ const fetchTags = async (): Promise<Tag[]> => {
 };
 
 const RecipesPage: React.FC = () => {
-  const toast = useToast();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
@@ -56,22 +56,19 @@ const RecipesPage: React.FC = () => {
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
-    meta: undefined, // Удаляем проблемные onError
   });
 
   const { data: recipes = [], isLoading } = useQuery({
     queryKey: ['recipes', activeCategory, searchQuery],
     queryFn: () => fetchRecipes(activeCategory, searchQuery),
-    meta: undefined, // Удаляем проблемные onError
   });
 
   const { data: tags = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: fetchTags,
-    meta: undefined, // Удаляем проблемные onError
   });
 
-  // Функция для обработки ошибок API (может быть перенесена в глобальный обработчик)
+  // Функция для обработки ошибок API
   const handleError = (message: string) => {
     toast({
       title: "Ошибка",
