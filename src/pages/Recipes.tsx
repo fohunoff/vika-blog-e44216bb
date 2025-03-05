@@ -87,36 +87,42 @@ const Recipes = () => {
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
-    onError: () => {
-      toast({ 
-        title: "Ошибка",
-        description: "Не удалось загрузить категории рецептов",
-        variant: "destructive" 
-      });
+    onSettled: (data, error) => {
+      if (error) {
+        toast({ 
+          title: "Ошибка",
+          description: "Не удалось загрузить категории рецептов",
+          variant: "destructive" 
+        });
+      }
     }
   });
 
   const { data: recipes = [], isLoading } = useQuery({
     queryKey: ['recipes', activeCategory, searchQuery],
     queryFn: () => fetchRecipes(activeCategory, searchQuery),
-    onError: () => {
-      toast({ 
-        title: "Ошибка",
-        description: "Не удалось загрузить рецепты",
-        variant: "destructive" 
-      });
+    onSettled: (data, error) => {
+      if (error) {
+        toast({ 
+          title: "Ошибка",
+          description: "Не удалось загрузить рецепты",
+          variant: "destructive" 
+        });
+      }
     }
   });
 
   const { data: tags = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: fetchTags,
-    onError: () => {
-      toast({ 
-        title: "Ошибка",
-        description: "Не удалось загрузить теги",
-        variant: "destructive" 
-      });
+    onSettled: (data, error) => {
+      if (error) {
+        toast({ 
+          title: "Ошибка",
+          description: "Не удалось загрузить теги",
+          variant: "destructive" 
+        });
+      }
     }
   });
 
