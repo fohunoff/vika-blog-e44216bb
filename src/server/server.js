@@ -1,5 +1,5 @@
 
-const http = require('http');
+import http from 'http';
 
 // Mock data for our API
 const recipes = [

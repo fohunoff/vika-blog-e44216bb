@@ -1,7 +1,7 @@
 
-const { exec } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { exec } from 'child_process';
+import path from 'path';
+import fs from 'fs';
 
 // First compile the TypeScript files
 console.log('Compiling TypeScript files...');
