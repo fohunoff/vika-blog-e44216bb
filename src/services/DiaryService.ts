@@ -1,85 +1,68 @@
 
-import { DiaryEntry, DiaryMood } from '../types';
+import { DiaryEntry, DiaryMood } from "../types";
+
+export interface DiaryTag {
+  name: string;
+  count: number;
+}
 
 const API_URL = 'http://localhost:3000/api';
 
 export const DiaryService = {
-  /**
-   * Get all diary entries with optional filters
-   */
-  async getAllEntries(searchQuery: string = '', mood: string | null = null): Promise<DiaryEntry[]> {
-    let url = `${API_URL}/diary`;
-    const params = new URLSearchParams();
+  async getDiaryEntries(search?: string, mood?: string): Promise<DiaryEntry[]> {
+    let url = `${API_URL}/diaries`;
+    const params: string[] = [];
     
-    if (searchQuery) {
-      params.append('search', searchQuery);
+    if (search) {
+      params.push(`search=${encodeURIComponent(search)}`);
     }
     
     if (mood) {
-      params.append('mood', mood);
+      params.push(`mood=${encodeURIComponent(mood)}`);
     }
     
-    if (params.toString()) {
-      url += `?${params.toString()}`;
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
     }
     
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to fetch diary entries');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching diary entries:', error);
-      return [];
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch diary entries');
     }
+    
+    return response.json();
   },
   
-  /**
-   * Get a diary entry by ID
-   */
-  async getEntryById(id: string): Promise<DiaryEntry | null> {
-    try {
-      const response = await fetch(`${API_URL}/diary/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch diary entry');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching diary entry:', error);
-      return null;
+  async getDiaryEntryById(id: string): Promise<DiaryEntry> {
+    const response = await fetch(`${API_URL}/diaries/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch diary entry with id ${id}`);
     }
+    
+    return response.json();
   },
   
-  /**
-   * Get all moods
-   */
-  async getAllMoods(): Promise<DiaryMood[]> {
-    try {
-      const response = await fetch(`${API_URL}/diary/moods`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch moods');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching moods:', error);
-      return [];
+  async getMoods(): Promise<DiaryMood[]> {
+    const response = await fetch(`${API_URL}/diaries/moods`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch moods');
     }
+    
+    return response.json();
   },
   
-  /**
-   * Get all tags with counts
-   */
-  async getAllTags(): Promise<{ name: string; count: number }[]> {
-    try {
-      const response = await fetch(`${API_URL}/diary/tags`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch tags');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching tags:', error);
-      return [];
+  async getTags(): Promise<DiaryTag[]> {
+    const response = await fetch(`${API_URL}/diaries/tags`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch tags');
     }
+    
+    return response.json();
   }
 };
+
+export default DiaryService;

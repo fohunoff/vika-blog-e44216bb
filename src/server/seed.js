@@ -1,4 +1,3 @@
-
 import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -21,6 +20,9 @@ exec('npx tsc -p tsconfig.server.json', async (error, stdout, stderr) => {
     const { Recipe } = require('../../dist/server/recipes/entities/recipe.entity');
     const { Category } = require('../../dist/server/recipes/entities/category.entity');
     const { Tag } = require('../../dist/server/recipes/entities/tag.entity');
+    const { DiaryEntry } = require('../../dist/server/diaries/entities/diary-entry.entity');
+    const { DiaryMood } = require('../../dist/server/diaries/entities/diary-mood.entity');
+    const { DiaryTag } = require('../../dist/server/diaries/entities/diary-tag.entity');
     const dotenv = require('dotenv');
     
     // Load environment variables
@@ -34,14 +36,13 @@ exec('npx tsc -p tsconfig.server.json', async (error, stdout, stderr) => {
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'food_blog',
-      entities: [Recipe, Category, Tag],
+      entities: [Recipe, Category, Tag, DiaryEntry, DiaryMood, DiaryTag],
       synchronize: true,
     });
     
-    // Create category repository
+    // Create category repository and seed recipes data
     const categoryRepository = connection.getRepository(Category);
     
-    // Seed categories
     const categories = [
       { name: 'breakfast', displayName: 'Завтраки' },
       { name: 'soups', displayName: 'Супы' },
@@ -64,10 +65,9 @@ exec('npx tsc -p tsconfig.server.json', async (error, stdout, stderr) => {
       savedCategories[category.name] = category;
     }
     
-    // Create tag repository
+    // Create tag repository and seed tags data
     const tagRepository = connection.getRepository(Tag);
     
-    // Seed tags
     const tags = [
       'Вегетарианское', 'Быстрый ужин', 'Без глютена', 'Праздничное', 
       'Полезное', 'Детское', 'Веганское', 'Сезонное', 'Выпечка', 'На гриле'
@@ -87,10 +87,9 @@ exec('npx tsc -p tsconfig.server.json', async (error, stdout, stderr) => {
       savedTags[tag.name] = tag;
     }
     
-    // Create recipe repository
+    // Create recipe repository and seed recipes data
     const recipeRepository = connection.getRepository(Recipe);
     
-    // Seed recipes
     const recipes = [
       {
         title: 'Тыквенный суп-пюре с имбирем',
@@ -173,6 +172,139 @@ exec('npx tsc -p tsconfig.server.json', async (error, stdout, stderr) => {
         
         await recipeRepository.save(recipe);
         console.log(`Created recipe: ${recipe.title}`);
+      }
+    }
+    
+    // Seed diary moods
+    const diaryMoodRepository = connection.getRepository(DiaryMood);
+    
+    const moods = [
+      { name: 'Радость' },
+      { name: 'Умиротворение' },
+      { name: 'Вдохновение' },
+      { name: 'Ностальгия' },
+      { name: 'Задумчивость' },
+      { name: 'Предвкушение' },
+      { name: 'Грусть' },
+      { name: 'Любопытство' }
+    ];
+    
+    const savedMoods = {};
+    
+    for (const moodData of moods) {
+      let mood = await diaryMoodRepository.findOne({ where: { name: moodData.name } });
+      
+      if (!mood) {
+        mood = diaryMoodRepository.create(moodData);
+        mood = await diaryMoodRepository.save(mood);
+        console.log(`Created mood: ${mood.name}`);
+      }
+      
+      savedMoods[mood.name] = mood;
+    }
+    
+    // Seed diary tags
+    const diaryTagRepository = connection.getRepository(DiaryTag);
+    
+    const diaryTags = [
+      'осень', 'зима', 'книги', 'прогулки', 'кулинария', 'эксперименты', 
+      'осенние рецепты', 'планы', 'хобби', 'друзья', 'погода', 'уют',
+      'утро', 'ритуалы', 'медитация', 'новый год', 'рефлексия'
+    ];
+    
+    const savedDiaryTags = {};
+    
+    for (const tagName of diaryTags) {
+      let tag = await diaryTagRepository.findOne({ where: { name: tagName } });
+      
+      if (!tag) {
+        tag = diaryTagRepository.create({ name: tagName });
+        tag = await diaryTagRepository.save(tag);
+        console.log(`Created diary tag: ${tag.name}`);
+      }
+      
+      savedDiaryTags[tag.name] = tag;
+    }
+    
+    // Seed diary entries
+    const diaryEntryRepository = connection.getRepository(DiaryEntry);
+    
+    const diaryEntries = [
+      {
+        title: 'Осенние размышления',
+        date: '2023-10-15',
+        content: 'Сегодня я гуляла по парку и наблюдала, как желтеют листья. Осень всегда навевает на меня особое настроение — смесь меланхолии и умиротворения. Решила начать новую книгу и заварить любимый чай с корицей.',
+        moodName: 'Умиротворение',
+        tagNames: ['осень', 'книги', 'прогулки'],
+        imageSrc: 'https://images.unsplash.com/photo-1506202687253-52e1b29d3527?auto=format&fit=crop&q=80&w=2000',
+      },
+      {
+        title: 'Эксперименты на кухне',
+        date: '2023-11-02',
+        content: 'Пробовала приготовить новый рецепт тыквенного пирога. Добавила немного имбиря и корицы — получилось восхитительно! Домашние оценили, особенно с чашкой горячего какао.',
+        moodName: 'Вдохновение',
+        tagNames: ['кулинария', 'эксперименты', 'осенние рецепты'],
+        imageSrc: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=2000',
+      },
+      {
+        title: 'Планы на выходные',
+        date: '2023-11-10',
+        content: 'Составила список дел на предстоящие выходные: посетить новую выставку в галерее, встретиться с друзьями в том уютном кафе на углу и закончить вязать шарф, который начала еще месяц назад.',
+        moodName: 'Предвкушение',
+        tagNames: ['планы', 'хобби', 'друзья'],
+        imageSrc: 'https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&q=80&w=2000',
+      },
+      {
+        title: 'Приближение зимы',
+        date: '2023-11-28',
+        content: 'Сегодня выпал первый снег. Я люблю это волшебное время, когда природа замирает в ожидании зимы. Достала теплые свитера и решила, что пора обновить зимний гардероб.',
+        moodName: 'Ностальгия',
+        tagNames: ['зима', 'погода', 'уют'],
+        imageSrc: 'https://images.unsplash.com/photo-1491002052546-bf38f186af56?auto=format&fit=crop&q=80&w=2000',
+      },
+      {
+        title: 'Утренние ритуалы',
+        date: '2023-12-05',
+        content: 'Начала практиковать новый утренний ритуал - вставать на 30 минут раньше, чтобы выпить чашку чая в тишине и помедитировать. Всего неделя, а уже чувствую себя более сосредоточенной и спокойной.',
+        moodName: 'Умиротворение',
+        tagNames: ['утро', 'ритуалы', 'медитация'],
+        imageSrc: 'https://images.unsplash.com/photo-1495214783159-3503fd1b572d?auto=format&fit=crop&q=80&w=2000',
+      },
+      {
+        title: 'Мысли о новом годе',
+        date: '2023-12-20',
+        content: 'Задумалась о том, как быстро пролетел этот год. Столько всего произошло, столько планов реализовано, но и многое осталось незавершенным. Пора составлять список целей на следующий год.',
+        moodName: 'Задумчивость',
+        tagNames: ['новый год', 'планы', 'рефлексия'],
+        imageSrc: 'https://images.unsplash.com/photo-1482330454287-3cf6209df976?auto=format&fit=crop&q=80&w=2000',
+      }
+    ];
+    
+    for (const entryData of diaryEntries) {
+      // Check if entry already exists
+      const existingEntry = await diaryEntryRepository.findOne({ 
+        where: { title: entryData.title },
+        relations: ['mood', 'tags']
+      });
+      
+      if (!existingEntry) {
+        const { moodName, tagNames, ...restEntryData } = entryData;
+        
+        // Get mood
+        const mood = savedMoods[moodName];
+        
+        // Get tags
+        const entryTags = tagNames.map(name => savedDiaryTags[name]);
+        
+        // Create entry
+        const entry = diaryEntryRepository.create({
+          ...restEntryData,
+          mood,
+          tags: entryTags,
+        });
+        
+        await diaryEntryRepository.save(entry);
+        console.log(`Created diary entry: ${entry.title}`);
       }
     }
     

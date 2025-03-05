@@ -19,12 +19,14 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/server/server.js"],
+  "include": [
+    "src/server/server.js",
+    "src/server/diaries/**/*.ts",
+    "src/server/recipes/**/*.ts",
+    "src/server/app.module.ts"
+  ],
   "exclude": [
     "node_modules", 
-    "dist", 
-    "src/server/recipes/**/*",
-    "src/server/main.ts",
-    "src/server/app.module.ts"
+    "dist"
   ]
 }
