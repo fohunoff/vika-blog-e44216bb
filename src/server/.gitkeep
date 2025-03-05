@@ -1,3 +1,2 @@
 
-# This file is used to keep the directory structure in git
-# The NestJS implementation is planned for future use
+# This file is used to keep the server directory in git even if it's empty
