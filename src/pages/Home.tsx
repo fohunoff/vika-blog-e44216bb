@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Armchair, Lamp, Plant, Coffee, Bath, Smartphone } from 'lucide-react';
+import { Search, Armchair, Lamp, Sprout, Coffee, Bath, Smartphone } from 'lucide-react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
 import HomeArticleCard from '../components/HomeArticleCard';
@@ -18,7 +18,7 @@ const Home = () => {
   const categories = [
     { icon: <Armchair size={16} />, label: "Мебель" },
     { icon: <Lamp size={16} />, label: "Освещение" },
-    { icon: <Plant size={16} />, label: "Растения" },
+    { icon: <Sprout size={16} />, label: "Растения" },
     { icon: <Coffee size={16} />, label: "Кухня" },
     { icon: <Bath size={16} />, label: "Ванная" },
     { icon: <Smartphone size={16} />, label: "Умный дом" },
