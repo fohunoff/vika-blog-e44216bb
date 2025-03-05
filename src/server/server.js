@@ -1,73 +1,126 @@
 
-const { exec } = require('child_process');
-const path = require('path');
+const http = require('http');
 const fs = require('fs');
+const path = require('path');
 
-// Path to the TypeScript compiler
-const tscPath = path.resolve(__dirname, '../../node_modules/.bin/tsc');
+// Mock data for our API
+const recipes = [
+  {
+    id: '1',
+    title: 'Паста Карбонара',
+    description: 'Классическая итальянская паста с беконом и сливочным соусом',
+    category: { id: '1', name: 'pasta', displayName: 'Паста' },
+    time: '30 минут',
+    difficulty: 'Легко',
+    imageSrc: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80',
+    tags: [{ id: '1', name: 'Итальянская кухня' }, { id: '2', name: 'Быстрые рецепты' }]
+  },
+  {
+    id: '2',
+    title: 'Борщ',
+    description: 'Традиционный украинский борщ со свежей зеленью и сметаной',
+    category: { id: '2', name: 'soups', displayName: 'Супы' },
+    time: '1 час 30 минут',
+    difficulty: 'Средне',
+    imageSrc: 'https://images.unsplash.com/photo-1584949602334-4e99f98286a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+    tags: [{ id: '3', name: 'Русская кухня' }, { id: '4', name: 'Первые блюда' }]
+  },
+  {
+    id: '3',
+    title: 'Шоколадный брауни',
+    description: 'Влажный шоколадный брауни с орехами и карамелью',
+    category: { id: '3', name: 'desserts', displayName: 'Десерты' },
+    time: '45 минут',
+    difficulty: 'Легко',
+    imageSrc: 'https://images.unsplash.com/photo-1564355808539-22fda35bed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+    tags: [{ id: '5', name: 'Выпечка' }, { id: '6', name: 'Сладости' }]
+  }
+];
 
-// Path to the server tsconfig file
-const tsconfigPath = path.resolve(__dirname, '../../tsconfig.server.json');
+const categories = [
+  { id: '1', name: 'pasta', displayName: 'Паста' },
+  { id: '2', name: 'soups', displayName: 'Супы' },
+  { id: '3', name: 'desserts', displayName: 'Десерты' },
+  { id: '4', name: 'salads', displayName: 'Салаты' },
+  { id: '5', name: 'breakfast', displayName: 'Завтраки' }
+];
 
-// Ensure server directory exists
-const serverDistDir = path.resolve(__dirname, '../../dist');
-if (!fs.existsSync(serverDistDir)) {
-  fs.mkdirSync(serverDistDir, { recursive: true });
+const tags = [
+  { id: '1', name: 'Итальянская кухня' },
+  { id: '2', name: 'Быстрые рецепты' },
+  { id: '3', name: 'Русская кухня' },
+  { id: '4', name: 'Первые блюда' },
+  { id: '5', name: 'Выпечка' },
+  { id: '6', name: 'Сладости' },
+  { id: '7', name: 'Веганские блюда' },
+  { id: '8', name: 'Низкокалорийные' }
+];
+
+// Helper to filter recipes by category and/or search query
+function filterRecipes(categoryId, search) {
+  return recipes.filter(recipe => {
+    const matchesCategory = categoryId ? recipe.category.id === categoryId : true;
+    const matchesSearch = search 
+      ? recipe.title.toLowerCase().includes(search.toLowerCase()) || 
+        recipe.description.toLowerCase().includes(search.toLowerCase())
+      : true;
+    return matchesCategory && matchesSearch;
+  });
 }
 
-// Compile TypeScript files using the server tsconfig
-console.log('Compiling server TypeScript files...');
-const compile = exec(`"${tscPath}" -p "${tsconfigPath}"`, (error, stdout, stderr) => {
-  if (error) {
-    console.error(`Compilation error: ${error.message}`);
+// Create a server
+const server = http.createServer((req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
     return;
   }
-  
-  if (stderr) {
-    console.error(`Compilation stderr: ${stderr}`);
-  }
-  
-  console.log('TypeScript compilation completed successfully.');
-  
-  // Run the compiled server
-  console.log('Starting server...');
-  
-  // Path to the compiled main.js file
-  const mainJsPath = path.resolve(__dirname, '../../dist/server/main.js');
-  
-  // Check if the main.js file exists
-  if (!fs.existsSync(mainJsPath)) {
-    console.error(`Server entry point not found: ${mainJsPath}`);
-    return;
-  }
-  
-  // Run the server
-  const server = exec(`node "${mainJsPath}"`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Server error: ${error.message}`);
-      return;
-    }
+
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = url.pathname;
+
+  // API routes
+  if (pathname === '/api/recipes' && req.method === 'GET') {
+    const categoryId = url.searchParams.get('categoryId');
+    const search = url.searchParams.get('search');
+    const filteredRecipes = filterRecipes(categoryId, search);
     
-    if (stderr) {
-      console.error(`Server stderr: ${stderr}`);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(filteredRecipes));
+  } 
+  else if (pathname === '/api/recipes/categories' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(categories));
+  } 
+  else if (pathname === '/api/recipes/tags' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(tags));
+  }
+  else if (pathname.match(/^\/api\/recipes\/\w+$/) && req.method === 'GET') {
+    const id = pathname.split('/').pop();
+    const recipe = recipes.find(r => r.id === id);
+    
+    if (recipe) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(recipe));
+    } else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Recipe not found' }));
     }
-  });
-  
-  // Forward stdout and stderr
-  server.stdout.on('data', (data) => {
-    console.log(data.toString().trim());
-  });
-  
-  server.stderr.on('data', (data) => {
-    console.error(data.toString().trim());
-  });
+  }
+  else {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Not found' }));
+  }
 });
 
-// Forward stdout and stderr from the compilation process
-compile.stdout.on('data', (data) => {
-  console.log(data.toString().trim());
-});
+const PORT = process.env.PORT || 3000;
 
-compile.stderr.on('data', (data) => {
-  console.error(data.toString().trim());
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
