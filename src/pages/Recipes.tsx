@@ -83,49 +83,46 @@ const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Получение данных с использованием React Query - исправление ошибок
+  // Получение данных с использованием React Query
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
-    onSuccess: (data) => {
-      console.log('Categories loaded successfully:', data);
-    },
-    onError: () => {
-      toast({ 
-        title: "Ошибка",
-        description: "Не удалось загрузить категории рецептов",
-        variant: "destructive" 
-      });
+    meta: {
+      onError: () => {
+        toast({ 
+          title: "Ошибка",
+          description: "Не удалось загрузить категории рецептов",
+          variant: "destructive" 
+        });
+      }
     }
   });
 
   const { data: recipes = [], isLoading } = useQuery({
     queryKey: ['recipes', activeCategory, searchQuery],
     queryFn: () => fetchRecipes(activeCategory, searchQuery),
-    onSuccess: (data) => {
-      console.log('Recipes loaded successfully:', data);
-    },
-    onError: () => {
-      toast({ 
-        title: "Ошибка",
-        description: "Не удалось загрузить рецепты",
-        variant: "destructive" 
-      });
+    meta: {
+      onError: () => {
+        toast({ 
+          title: "Ошибка",
+          description: "Не удалось загрузить рецепты",
+          variant: "destructive" 
+        });
+      }
     }
   });
 
   const { data: tags = [] } = useQuery({
     queryKey: ['tags'],
     queryFn: fetchTags,
-    onSuccess: (data) => {
-      console.log('Tags loaded successfully:', data);
-    },
-    onError: () => {
-      toast({ 
-        title: "Ошибка",
-        description: "Не удалось загрузить теги",
-        variant: "destructive" 
-      });
+    meta: {
+      onError: () => {
+        toast({ 
+          title: "Ошибка",
+          description: "Не удалось загрузить теги",
+          variant: "destructive" 
+        });
+      }
     }
   });
 

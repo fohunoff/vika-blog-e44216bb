@@ -1,7 +1,5 @@
 
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
 
 // Mock data for our API
 const recipes = [
