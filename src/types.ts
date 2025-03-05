@@ -1,4 +1,3 @@
-
 export interface Recipe {
   id: string;
   title: string;
@@ -19,6 +18,21 @@ export interface ICategory {
 }
 
 export interface ITag {
+  id: string;
+  name: string;
+}
+
+export interface DiaryEntry {
+  id: string;
+  title: string;
+  date: string;
+  content: string;
+  mood: string;
+  tags: string[];
+  imageSrc?: string;
+}
+
+export interface DiaryMood {
   id: string;
   name: string;
 }
