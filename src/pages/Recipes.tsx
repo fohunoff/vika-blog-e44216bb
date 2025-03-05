@@ -2,22 +2,78 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChefHat, Clock, Filter, Search, Tag, UtensilsCrossed } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/use-toast";
 
 // Типы для рецептов
 interface Recipe {
   id: string;
   title: string;
   description: string;
-  category: string;
+  category: Category;
   time: string;
   difficulty: 'Легко' | 'Средне' | 'Сложно';
   imageSrc: string;
+  tags: Tag[];
 }
+
+interface Category {
+  id: string;
+  name: string;
+  displayName: string;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+}
+
+// Функции для работы с API
+const fetchRecipes = async (categoryId?: string, search?: string): Promise<Recipe[]> => {
+  try {
+    let url = 'http://localhost:3000/api/recipes';
+    const params = new URLSearchParams();
+    
+    if (categoryId) params.append('categoryId', categoryId);
+    if (search) params.append('search', search);
+    
+    if (params.toString()) url += `?${params.toString()}`;
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Не удалось загрузить рецепты');
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching recipes:', error);
+    return [];
+  }
+};
+
+const fetchCategories = async (): Promise<Category[]> => {
+  try {
+    const response = await fetch('http://localhost:3000/api/recipes/categories');
+    if (!response.ok) throw new Error('Не удалось загрузить категории');
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+};
+
+const fetchTags = async (): Promise<Tag[]> => {
+  try {
+    const response = await fetch('http://localhost:3000/api/recipes/tags');
+    if (!response.ok) throw new Error('Не удалось загрузить теги');
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    return [];
+  }
+};
 
 const Recipes = () => {
   useEffect(() => {
@@ -27,84 +83,52 @@ const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Категории рецептов
-  const categories = [
-    { id: 'breakfast', name: 'Завтраки' },
-    { id: 'soups', name: 'Супы' },
-    { id: 'main', name: 'Основные блюда' },
-    { id: 'desserts', name: 'Десерты' },
-    { id: 'drinks', name: 'Напитки' },
-  ];
+  // Получение данных с использованием React Query
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories,
+    onError: () => {
+      toast({ 
+        title: "Ошибка",
+        description: "Не удалось загрузить категории рецептов",
+        variant: "destructive" 
+      });
+    }
+  });
 
-  // Примеры рецептов
-  const allRecipes: Recipe[] = [
-    {
-      id: 'pumpkin-soup',
-      title: 'Тыквенный суп-пюре с имбирем',
-      description: 'Нежный, согревающий суп с ароматом осенних специй и ноткой имбиря.',
-      category: 'soups',
-      time: '30 минут',
-      difficulty: 'Легко',
-      imageSrc: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&q=80&w=2574',
-    },
-    {
-      id: 'avocado-toast',
-      title: 'Тост с авокадо и яйцом пашот',
-      description: 'Идеальный питательный завтрак для энергичного начала дня.',
-      category: 'breakfast',
-      time: '15 минут',
-      difficulty: 'Легко',
-      imageSrc: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'ratatouille',
-      title: 'Рататуй с прованскими травами',
-      description: 'Яркое овощное блюдо с ароматными травами для любителей средиземноморской кухни.',
-      category: 'main',
-      time: '60 минут',
-      difficulty: 'Средне',
-      imageSrc: 'https://images.unsplash.com/photo-1572453800999-e8d2d0d95b2b?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'berry-pavlova',
-      title: 'Павлова с летними ягодами',
-      description: 'Воздушный десерт с хрустящей корочкой, нежным кремом и свежими ягодами.',
-      category: 'desserts',
-      time: '90 минут',
-      difficulty: 'Сложно',
-      imageSrc: 'https://images.unsplash.com/photo-1488477181946-6428a0a36077?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'matcha-latte',
-      title: 'Латте с чаем матча',
-      description: 'Бодрящий и полезный напиток с антиоксидантами и нежной молочной пенкой.',
-      category: 'drinks',
-      time: '10 минут',
-      difficulty: 'Легко',
-      imageSrc: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'borsch',
-      title: 'Классический борщ с говядиной',
-      description: 'Наваристый, ароматный суп со свеклой, овощами и нежной говядиной.',
-      category: 'soups',
-      time: '120 минут',
-      difficulty: 'Средне',
-      imageSrc: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&q=80&w=2000',
-    },
-  ];
+  const { data: recipes = [], isLoading } = useQuery({
+    queryKey: ['recipes', activeCategory, searchQuery],
+    queryFn: () => fetchRecipes(activeCategory, searchQuery),
+    onError: () => {
+      toast({ 
+        title: "Ошибка",
+        description: "Не удалось загрузить рецепты",
+        variant: "destructive" 
+      });
+    }
+  });
 
-  // Фильтрация рецептов по поиску и категории
-  const filteredRecipes = allRecipes.filter(recipe => {
-    const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         recipe.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !activeCategory || recipe.category === activeCategory;
-    return matchesSearch && matchesCategory;
+  const { data: tags = [] } = useQuery({
+    queryKey: ['tags'],
+    queryFn: fetchTags,
+    onError: () => {
+      toast({ 
+        title: "Ошибка",
+        description: "Не удалось загрузить теги",
+        variant: "destructive" 
+      });
+    }
   });
 
   // Обработчик изменения категории
   const handleCategoryChange = (categoryId: string) => {
     setActiveCategory(activeCategory === categoryId ? null : categoryId);
+  };
+
+  // Обработчик формы поиска
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Поиск происходит автоматически через useQuery
   };
 
   return (
@@ -120,7 +144,7 @@ const Recipes = () => {
           Коллекция моих любимых рецептов — от простых повседневных блюд до особенных угощений для праздничного стола.
         </p>
         
-        <div className="relative max-w-md mx-auto mb-16">
+        <form className="relative max-w-md mx-auto mb-16" onSubmit={handleSearch}>
           <Input
             type="text"
             placeholder="Найти рецепт..."
@@ -129,7 +153,7 @@ const Recipes = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-        </div>
+        </form>
       </div>
       
       {/* Фильтры по категориям */}
@@ -152,7 +176,7 @@ const Recipes = () => {
                 }`}
                 onClick={() => handleCategoryChange(category.id)}
               >
-                {category.name}
+                {category.displayName}
               </Button>
             ))}
           </div>
@@ -161,9 +185,13 @@ const Recipes = () => {
       
       {/* Список рецептов */}
       <div className="blog-container py-16">
-        {filteredRecipes.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blog-yellow"></div>
+          </div>
+        ) : recipes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredRecipes.map((recipe, index) => (
+            {recipes.map((recipe, index) => (
               <div key={recipe.id} className="animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
                 <Link to={`/recipes/${recipe.id}`} className="block">
                   <article className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 h-full">
@@ -175,7 +203,7 @@ const Recipes = () => {
                       />
                       <div className="absolute top-4 left-4">
                         <Badge className="bg-blog-yellow hover:bg-blog-yellow-dark text-blog-black">
-                          {categories.find(cat => cat.id === recipe.category)?.name}
+                          {recipe.category?.displayName}
                         </Badge>
                       </div>
                     </div>
@@ -220,14 +248,13 @@ const Recipes = () => {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {["Вегетарианское", "Быстрый ужин", "Без глютена", "Праздничное", "Полезное", 
-              "Детское", "Веганское", "Сезонное", "Выпечка", "На гриле"].map((tag) => (
+            {tags.map((tag) => (
               <Badge 
-                key={tag} 
+                key={tag.id} 
                 variant="secondary" 
                 className="bg-white hover:bg-gray-100 text-blog-black cursor-pointer"
               >
-                {tag}
+                {tag.name}
               </Badge>
             ))}
           </div>
