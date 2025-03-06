@@ -14,7 +14,7 @@ import {
 import { RecipeCategory, RecipeTag, RecipeDifficultyLevel } from '../../types/models';
 
 export function createRecipesApi() {
-  return {
+  const api = {
     /**
      * Get all recipes
      */
@@ -106,8 +106,10 @@ export function createRecipesApi() {
      * Get paginated enriched recipes
      */
     getPaginatedEnrichedRecipes: async (options?: PaginationOptions) => {
-      const enrichedRecipes = await this.getEnrichedRecipes();
+      const enrichedRecipes = await api.getEnrichedRecipes();
       return paginateData(enrichedRecipes, options);
     }
   };
+
+  return api;
 }

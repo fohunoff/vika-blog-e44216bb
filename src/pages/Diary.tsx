@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
 import BlogFooter from '../components/Footer';
@@ -17,6 +18,7 @@ const Diary = () => {
   const { data: enrichedEntriesData, isLoading, error } = usePaginatedEnrichedDiaryEntries(
     { page: currentPage, limit: itemsPerPage },
     {
+      // No need to specify queryKey as it's already set in the hook
       meta: {
         onError: (error) => {
           toast({

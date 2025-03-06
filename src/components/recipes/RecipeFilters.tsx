@@ -37,7 +37,7 @@ const RecipeFilters = ({
             Все категории
           </Button>
           
-          {categories.map((category) => (
+          {categories && categories.map((category) => (
             <Button
               key={category.id}
               variant={selectedCategory === category.id ? "default" : "outline"}
@@ -65,7 +65,7 @@ const RecipeFilters = ({
             Любая сложность
           </Button>
           
-          {difficultyLevels.map((level) => (
+          {difficultyLevels && difficultyLevels.map((level) => (
             <Button
               key={level.id}
               variant={selectedDifficulty === level.id ? "default" : "outline"}
