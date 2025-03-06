@@ -6,7 +6,7 @@ import CategorySection from '../components/main/CategorySection.tsx';
 import LatestPosts from '../components/main/LatestPosts.tsx';
 import AboutSection from '../components/main/AboutSection.tsx';
 import NewsletterSection from '../components/main/NewsletterSection.tsx';
-import Footer from '../components/Footer';
+import BlogFooter from '../components/BlogFooter';
 
 const Index = () => {
   useEffect(() => {
@@ -21,7 +21,7 @@ const Index = () => {
       <LatestPosts />
       <AboutSection />
       <NewsletterSection />
-      <Footer />
+      <BlogFooter />
     </main>
   );
 };

@@ -1,15 +1,12 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
-import { Category } from '@/services/api/mainApi';
+import { useNavigationCategories } from '@/hooks/useNavigationCategories';
 
 const BlogHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const { api } = useApi();
+  const { categories } = useNavigationCategories();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,19 +16,6 @@ const BlogHeader = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await api.main.getIndexCategories();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-
-    fetchCategories();
-  }, [api.main]);
 
   return (
     <header
