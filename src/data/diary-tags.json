@@ -2,74 +2,62 @@
 [
   {
     "id": "tag-diary-1",
-    "name": "осень"
+    "name": "Осень"
   },
   {
     "id": "tag-diary-2",
-    "name": "зима"
+    "name": "Книги"
   },
   {
     "id": "tag-diary-3",
-    "name": "весна"
+    "name": "Прогулки"
   },
   {
     "id": "tag-diary-4",
-    "name": "лето"
+    "name": "Саморазвитие"
   },
   {
     "id": "tag-diary-5",
-    "name": "книги"
+    "name": "Кофе"
   },
   {
     "id": "tag-diary-6",
-    "name": "путешествия"
+    "name": "Музыка"
   },
   {
     "id": "tag-diary-7",
-    "name": "мысли"
+    "name": "Воспоминания"
   },
   {
     "id": "tag-diary-8",
-    "name": "хобби"
+    "name": "Дружба"
   },
   {
     "id": "tag-diary-9",
-    "name": "прогулки"
+    "name": "Путешествия"
   },
   {
     "id": "tag-diary-10",
-    "name": "уют"
+    "name": "Вдохновение"
   },
   {
     "id": "tag-diary-11",
-    "name": "друзья"
+    "name": "Фотография"
   },
   {
     "id": "tag-diary-12",
-    "name": "кофе"
+    "name": "Искусство"
   },
   {
     "id": "tag-diary-13",
-    "name": "музыка"
+    "name": "Природа"
   },
   {
     "id": "tag-diary-14",
-    "name": "кулинария"
+    "name": "Город"
   },
   {
     "id": "tag-diary-15",
-    "name": "природа"
-  },
-  {
-    "id": "tag-diary-16",
-    "name": "рецепты"
-  },
-  {
-    "id": "tag-diary-17",
-    "name": "эксперименты"
-  },
-  {
-    "id": "tag-diary-18",
-    "name": "планы"
+    "name": "Уют"
   }
 ]

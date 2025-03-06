@@ -59,5 +59,25 @@
   {
     "id": "category-cafe-15",
     "name": "пицца"
+  },
+  {
+    "id": "category-cafe-16",
+    "name": "азиатская кухня"
+  },
+  {
+    "id": "category-cafe-17",
+    "name": "восточная кухня"
+  },
+  {
+    "id": "category-cafe-18",
+    "name": "мексиканская кухня"
+  },
+  {
+    "id": "category-cafe-19",
+    "name": "суши"
+  },
+  {
+    "id": "category-cafe-20",
+    "name": "здоровое питание"
   }
 ]

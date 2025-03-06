@@ -1,0 +1,35 @@
+
+[
+  {
+    "id": "category-diary-1",
+    "name": "Путешествия"
+  },
+  {
+    "id": "category-diary-2",
+    "name": "Размышления"
+  },
+  {
+    "id": "category-diary-3",
+    "name": "Здоровье и спорт"
+  },
+  {
+    "id": "category-diary-4",
+    "name": "Хобби"
+  },
+  {
+    "id": "category-diary-5",
+    "name": "Личное развитие"
+  },
+  {
+    "id": "category-diary-6",
+    "name": "Кулинария"
+  },
+  {
+    "id": "category-diary-7",
+    "name": "Книги и фильмы"
+  },
+  {
+    "id": "category-diary-8",
+    "name": "Городская жизнь"
+  }
+]
