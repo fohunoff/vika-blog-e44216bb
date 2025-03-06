@@ -55,7 +55,9 @@ const CategorySection = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await api.home.getCategories();
+        const data = await api.home.getIndexCategories();
+        // The data returned from api.home.getIndexCategories() is already in the format
+        // that matches the Category interface, so we can safely set it
         setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);

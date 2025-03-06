@@ -1,4 +1,3 @@
-
 import homeArticles from '../../data/home/home-articles.json';
 import homeCategories from '../../data/home/home-categories.json';
 import homeTags from '../../data/home/home-tags.json';
@@ -11,6 +10,15 @@ import heroData from '../../data/home/hero.json';
 import newsletterData from '../../data/home/newsletter.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { HomeCategory, HomeHighlight, HomeHighlightType, HomeTag, HomeArticle, HomeFeaturedSection } from '../../types/models';
+
+interface Category {
+  id: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  link: string;
+  bgColor: 'black' | 'white' | 'yellow';
+}
 
 export function createHomeApi() {
   return {
@@ -114,8 +122,8 @@ export function createHomeApi() {
     /**
      * Get category sections for index page
      */
-    getIndexCategories: (): Promise<any[]> => {
-      return getData(categories);
+    getIndexCategories: (): Promise<Category[]> => {
+      return getData(categories as Category[]);
     },
 
     /**
