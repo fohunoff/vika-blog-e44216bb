@@ -1,39 +1,42 @@
 
 import { useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { useHomeArticles, useHomeHighlights, useHomeCategories, useHomeTags } from '@/hooks/useApi';
+import { useCozyArticles, useCozyHighlights, useCozyCategories, useCozyTags } from '@/hooks/useApi';
+
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
-import SearchCategoriesSection from '../components/home/SearchCategoriesSection';
-import HighlightsSection from '../components/home/HighlightsSection';
-import ArticlesTabsSection from '../components/home/ArticlesTabsSection';
-import PopularTagsSection from '../components/home/PopularTagsSection';
+
+import CozySearchCategoriesSection from '../components/cozy/CozySearchCategoriesSection.tsx';
+import CozyHighlightsSection from '../components/cozy/CozyHighlightsSection.tsx';
+import CozyArticlesTabsSection from '../components/cozy/CozyArticlesTabsSection.tsx';
+import CozyPopularTagsSection from '../components/cozy/CozyPopularTagsSection.tsx';
+
 import { Loader2 } from 'lucide-react';
 
-const Home = () => {
+const Cozy = () => {
   const { toast } = useToast();
-  
-  const { 
-    data: allArticles = [], 
+
+  const {
+    data: allArticles = [],
     isLoading: isLoadingArticles,
-    error: articlesError 
-  } = useHomeArticles();
-  
-  const { 
-    data: highlights = [], 
+    error: articlesError
+  } = useCozyArticles();
+
+  const {
+    data: highlights = [],
     isLoading: isLoadingHighlights,
-    error: highlightsError 
-  } = useHomeHighlights();
-  
-  const { 
-    data: categories = [], 
-    isLoading: isLoadingCategories 
-  } = useHomeCategories();
-  
-  const { 
-    data: tags = [], 
-    isLoading: isLoadingTags 
-  } = useHomeTags();
+    error: highlightsError
+  } = useCozyHighlights();
+
+  const {
+    data: categories = [],
+    isLoading: isLoadingCategories
+  } = useCozyCategories();
+
+  const {
+    data: tags = [],
+    isLoading: isLoadingTags
+  } = useCozyTags();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -64,30 +67,30 @@ const Home = () => {
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
-      
+
       <div className="bg-blog-gray">
         <div className="blog-container py-16">
           <h1 className="section-title mb-8 text-center">
             ДОМ И УЮТ
           </h1>
-          
+
           <div className="max-w-2xl mx-auto mb-16 text-center">
             <p className="text-lg text-gray-600">
-              Идеи для создания красивого и функционального интерьера, советы по уходу за растениями, 
+              Идеи для создания красивого и функционального интерьера, советы по уходу за растениями,
               лайфхаки по организации пространства и вдохновение для вашего дома.
             </p>
           </div>
-          
-          <SearchCategoriesSection categories={categories} />
-          <HighlightsSection highlights={highlights} />
-          <ArticlesTabsSection articles={allArticles} />
-          <PopularTagsSection tags={popularTags} />
+
+          <CozySearchCategoriesSection categories={categories} />
+          <CozyHighlightsSection highlights={highlights} />
+          <CozyArticlesTabsSection articles={allArticles} />
+          <CozyPopularTagsSection tags={popularTags} />
         </div>
       </div>
-      
+
       <Footer />
     </main>
   );
 };
 
-export default Home;
+export default Cozy;

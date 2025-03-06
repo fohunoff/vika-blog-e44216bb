@@ -1,16 +1,20 @@
 
 import { useEffect, useState } from 'react';
+
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
+
 import { useApi } from '../hooks/useApi';
 import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '@/types/models';
+
 import CafeSearch from '../components/cafes/CafeSearch';
 import CafeFilters from '../components/cafes/CafeFilters';
 import CafesList from '../components/cafes/CafesList';
-import PopularTags from '../components/cafes/PopularTags';
+import CafePopularTags from '../components/cafes/CafePopularTags.tsx';
 
 const Cafes = () => {
   const { api } = useApi();
+
   const [cafes, setCafes] = useState<(Cafe & { categories?: string[], tags?: string[] })[]>([]);
   const [categories, setCategories] = useState<CafeCategory[]>([]);
   const [tags, setTags] = useState<CafeTag[]>([]);
@@ -31,11 +35,12 @@ const Cafes = () => {
         const categoriesData = await api.cafes.getCategories();
         const tagsData = await api.cafes.getTags();
         const priceRangesData = await api.cafes.getPriceRanges();
-        
+
         setCafes(enrichedCafes);
         setCategories(categoriesData);
         setTags(tagsData);
         setPriceRanges(priceRangesData);
+
       } catch (error) {
         console.error('Error fetching cafe data:', error);
       } finally {
@@ -54,17 +59,17 @@ const Cafes = () => {
 
   // Filter cafes by search query, category, and price range
   const filteredCafes = cafes.filter(cafe => {
-    const matchesSearch = 
+    const matchesSearch =
       cafe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (cafe.description && cafe.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (cafe.location && cafe.location.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesCategory = !selectedCategory || 
-      (cafe.categories && Array.isArray(cafe.categories) && 
+
+    const matchesCategory = !selectedCategory ||
+      (cafe.categories && Array.isArray(cafe.categories) &&
        cafe.categories.some(cat => cat.toLowerCase() === selectedCategory.toLowerCase()));
-    
+
     const matchesPriceRange = !selectedPriceRange || cafe.priceRange === selectedPriceRange;
-    
+
     return matchesSearch && matchesCategory && matchesPriceRange;
   });
 
@@ -74,15 +79,15 @@ const Cafes = () => {
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
-      
+
       {/* Заголовок и поиск */}
-      <CafeSearch 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
+      <CafeSearch
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
-      
+
       {/* Фильтры */}
-      <CafeFilters 
+      <CafeFilters
         categories={allCategories}
         priceRanges={priceRangesList}
         selectedCategory={selectedCategory}
@@ -90,21 +95,21 @@ const Cafes = () => {
         setSelectedCategory={setSelectedCategory}
         setSelectedPriceRange={setSelectedPriceRange}
       />
-      
+
       {/* Список кафе */}
       <div className="blog-container py-16">
-        <CafesList 
-          cafes={filteredCafes} 
-          isLoading={isLoading} 
+        <CafesList
+          cafes={filteredCafes}
+          isLoading={isLoading}
         />
       </div>
-      
+
       {/* Популярные категории */}
-      <PopularTags 
-        tags={popularTags} 
-        onTagClick={setSearchQuery} 
+      <CafePopularTags
+        tags={popularTags}
+        onTagClick={setSearchQuery}
       />
-      
+
       <Footer />
     </main>
   );

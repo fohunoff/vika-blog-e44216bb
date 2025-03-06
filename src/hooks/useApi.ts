@@ -42,17 +42,17 @@ export const useApiMutation = <T, V>(
  * Example usage hooks for specific endpoints
  */
 
-// Home
-export const useHomeHighlights = (options?: UseQueryOptions<any, Error, any, string[]>) => {
-  return useApiQuery(['homeHighlights'], () => api.home.getHighlights(), options);
+// Cozy
+export const useCozyHighlights = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+  return useApiQuery(['cozyHighlights'], () => api.cozy.getHighlights(), options);
 };
 
-export const useHomeCategories = (options?: UseQueryOptions<any, Error, any, string[]>) => {
-  return useApiQuery(['homeCategories'], () => api.home.getCategories(), options);
+export const useCozyCategories = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+  return useApiQuery(['cozyCategories'], () => api.cozy.getCategories(), options);
 };
 
-export const useHomeTags = (options?: UseQueryOptions<any, Error, any, string[]>) => {
-  return useApiQuery(['homeTags'], () => api.home.getTags(), options);
+export const useCozyTags = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+  return useApiQuery(['cozyTags'], () => api.cozy.getTags(), options);
 };
 
 // Cafes
@@ -86,13 +86,13 @@ export const useRecipes = (options?: UseQueryOptions<any, Error, any, string[]>)
 };
 
 /**
- * Get home articles
+ * Get cozy articles
  */
-export const useHomeArticles = () => {
+export const useCozyArticles = () => {
   const { api } = useApi();
-  
+
   return useQuery({
-    queryKey: ['home', 'articles'],
-    queryFn: () => api.home.getArticles()
+    queryKey: ['cozy', 'articles'],
+    queryFn: () => api.cozy.getArticles()
   });
 };

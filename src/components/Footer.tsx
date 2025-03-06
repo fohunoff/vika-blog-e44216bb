@@ -33,7 +33,7 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-bold mb-4 uppercase">Категории</h4>
             <ul className="space-y-2">
@@ -53,13 +53,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/home" className="text-gray-400 hover:text-blog-yellow transition-colors">
+                <Link to="/cozy" className="text-gray-400 hover:text-blog-yellow transition-colors">
                   Дом и уют
                 </Link>
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-bold mb-4 uppercase">Ссылки</h4>
             <ul className="space-y-2">
@@ -81,7 +81,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
           <p>&copy; {currentYear} МОЙБЛОГ. Все права защищены.</p>
         </div>

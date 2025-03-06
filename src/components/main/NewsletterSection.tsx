@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Send } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
+import { useApi } from '@/hooks/useApi.ts';
 
 interface NewsletterData {
   title: string;
@@ -20,7 +20,7 @@ const NewsletterSection = () => {
   useEffect(() => {
     const fetchNewsletterData = async () => {
       try {
-        const data = await api.home.getNewsletterData();
+        const data = await api.main.getNewsletterData();
         setNewsletterData(data);
       } catch (error) {
         console.error('Error fetching newsletter data:', error);
@@ -30,7 +30,7 @@ const NewsletterSection = () => {
     };
 
     fetchNewsletterData();
-  }, [api.home]);
+  }, [api.cozy]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +55,7 @@ const NewsletterSection = () => {
           <p className="text-lg mb-10">
             {newsletterData.description}
           </p>
-          
+
           <form onSubmit={handleSubmit} className="relative max-w-lg mx-auto">
             <input
               type="email"
@@ -73,7 +73,7 @@ const NewsletterSection = () => {
               <Send size={20} />
             </button>
           </form>
-          
+
           {submitted && (
             <div className="mt-4 bg-blog-black text-blog-white px-4 py-2 rounded-full inline-block animate-fade-in">
               {newsletterData.successMessage}

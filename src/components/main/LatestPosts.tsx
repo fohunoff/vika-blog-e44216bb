@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useApi } from '@/hooks/useApi';
+import { useApi } from '@/hooks/useApi.ts';
 
 interface Post {
   id: string;
@@ -20,14 +20,14 @@ interface PostCardProps {
 
 const PostCard = ({ post }: PostCardProps) => {
   const { title, excerpt, date, category, imageSrc, link } = post;
-  
+
   return (
     <article className="bg-blog-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
       <Link to={link} className="block">
         <div className="relative aspect-[16/9] overflow-hidden">
-          <img 
-            src={imageSrc} 
-            alt={title} 
+          <img
+            src={imageSrc}
+            alt={title}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           />
           <div className="absolute top-4 left-4">
@@ -60,7 +60,7 @@ const LatestPosts = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const data = await api.home.getLatestPosts();
+        const data = await api.main.getLatestPosts();
         setPosts(data);
       } catch (error) {
         console.error('Error fetching latest posts:', error);
@@ -70,7 +70,7 @@ const LatestPosts = () => {
     };
 
     fetchPosts();
-  }, [api.home]);
+  }, [api.cozy]);
 
   if (isLoading) {
     return <section className="py-24 bg-blog-black text-blog-white"><div className="blog-container">Загрузка последних записей...</div></section>;
@@ -90,8 +90,8 @@ const LatestPosts = () => {
           ))}
         </div>
         <div className="text-center mt-16">
-          <Link 
-            to="/all-posts" 
+          <Link
+            to="/all-posts"
             className="inline-block bg-blog-yellow text-blog-black px-8 py-4 rounded-full hover:bg-blog-yellow-dark transition-colors"
           >
             Все записи

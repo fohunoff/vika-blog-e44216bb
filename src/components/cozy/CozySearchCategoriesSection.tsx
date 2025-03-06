@@ -2,13 +2,13 @@
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HomeCategory } from '@/types/models';
+import { CozyCategory } from '@/types/models';
 
 interface SearchCategoriesSectionProps {
-  categories: HomeCategory[];
+  categories: CozyCategory[];
 }
 
-const SearchCategoriesSection = ({ categories }: SearchCategoriesSectionProps) => {
+const CozySearchCategoriesSection = ({ categories }: SearchCategoriesSectionProps) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -24,17 +24,17 @@ const SearchCategoriesSection = ({ categories }: SearchCategoriesSectionProps) =
           />
           <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         </div>
-        
+
         <button className="w-full md:w-1/3 bg-blog-yellow hover:bg-blog-yellow/90 text-white py-3 px-6 rounded-lg transition-colors">
           Искать
         </button>
       </div>
-      
+
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
         {categories.map((category) => (
-          <Link 
+          <Link
             key={category.id}
-            to={`/home/category/${category.id}`}
+            to={`/cozy/category/${category.id}`}
             className="bg-white hover:bg-blog-yellow hover:text-white rounded-lg py-3 text-center transition-colors shadow-sm"
           >
             {category.name}
@@ -45,4 +45,4 @@ const SearchCategoriesSection = ({ categories }: SearchCategoriesSectionProps) =
   );
 };
 
-export default SearchCategoriesSection;
+export default CozySearchCategoriesSection;

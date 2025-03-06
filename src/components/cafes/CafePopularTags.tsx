@@ -7,7 +7,7 @@ interface PopularTagsProps {
   onTagClick: (tag: string) => void;
 }
 
-const PopularTags = ({ tags, onTagClick }: PopularTagsProps) => {
+const CafePopularTags = ({ tags, onTagClick }: PopularTagsProps) => {
   return (
     <div className="bg-blog-yellow-light py-12">
       <div className="blog-container">
@@ -15,12 +15,12 @@ const PopularTags = ({ tags, onTagClick }: PopularTagsProps) => {
           <MessageSquare size={20} />
           <h2 className="text-xl font-bold">Популярные запросы</h2>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <Badge 
-              key={tag} 
-              variant="secondary" 
+            <Badge
+              key={tag}
+              variant="secondary"
               className="bg-white hover:bg-gray-100 text-blog-black cursor-pointer"
               onClick={() => onTagClick(tag)}
             >
@@ -33,4 +33,4 @@ const PopularTags = ({ tags, onTagClick }: PopularTagsProps) => {
   );
 };
 
-export default PopularTags;
+export default CafePopularTags;

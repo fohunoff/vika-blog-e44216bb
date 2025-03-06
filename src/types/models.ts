@@ -1,21 +1,28 @@
+export interface MainFeaturedSection {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+}
 
-export interface HomeCategory {
+// Cozy Models
+export interface CozyCategory {
   id: string;
   name: string;
   image: string;
 }
 
-export interface HomeTag {
+export interface CozyTag {
   id: string;
   name: string;
 }
 
-export interface HomeHighlightType {
+export interface CozyHighlightType {
   id: string;
   name: string;
 }
 
-export interface HomeArticle {
+export interface CozyArticle {
   id: string;
   title: string;
   content: string;
@@ -28,17 +35,10 @@ export interface HomeArticle {
   type: string | null;
 }
 
-export interface HomeHighlight extends HomeArticle {
+export interface CozyHighlight extends CozyArticle {
   typeId: string;
   type: string;
   isHighlight: true;
-}
-
-export interface HomeFeaturedSection {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
 }
 
 // Recipe Models

@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useApi } from '@/hooks/useApi';
+import { useApi } from '@/hooks/useApi.ts';
 
 interface Category {
   id: string;
@@ -18,7 +18,7 @@ interface CategoryCardProps {
 
 const CategoryCard = ({ category }: CategoryCardProps) => {
   const { title, description, imageSrc, link, bgColor } = category;
-  
+
   const bgColorClass = {
     black: 'bg-blog-black text-blog-white',
     white: 'bg-blog-white text-blog-black',
@@ -29,9 +29,9 @@ const CategoryCard = ({ category }: CategoryCardProps) => {
     <div className={`category-card ${bgColorClass} group`}>
       <Link to={link} className="block h-full">
         <div className="relative h-60 overflow-hidden">
-          <img 
-            src={imageSrc} 
-            alt={title} 
+          <img
+            src={imageSrc}
+            alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
@@ -55,8 +55,8 @@ const CategorySection = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await api.home.getIndexCategories();
-        // The data returned from api.home.getIndexCategories() is already in the format
+        const data = await api.main.getIndexCategories();
+        // The data returned from api.cozy.getIndexCategories() is already in the format
         // that matches the Category interface, so we can safely set it
         setCategories(data);
       } catch (error) {
@@ -67,7 +67,7 @@ const CategorySection = () => {
     };
 
     fetchCategories();
-  }, [api.home]);
+  }, [api.cozy]);
 
   if (isLoading) {
     return <section className="py-24 bg-blog-gray"><div className="blog-container">Загрузка категорий...</div></section>;

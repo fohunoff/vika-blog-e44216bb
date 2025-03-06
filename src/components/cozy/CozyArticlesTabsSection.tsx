@@ -1,13 +1,13 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import HomeArticleCard from '../HomeArticleCard';
-import { HomeArticle } from '@/types/models';
+import CozyArticleCard from './CozyArticleCard.tsx';
+import { CozyArticle } from '@/types/models';
 
 interface ArticlesTabsSectionProps {
-  articles: HomeArticle[];
+  articles: CozyArticle[];
 }
 
-const ArticlesTabsSection = ({ articles }: ArticlesTabsSectionProps) => {
+const CozyArticlesTabsSection = ({ articles }: ArticlesTabsSectionProps) => {
   return (
     <Tabs defaultValue="all" className="mb-16">
       <TabsList className="mb-8 bg-transparent border-b border-gray-200 w-full justify-start space-x-8 px-0">
@@ -27,43 +27,43 @@ const ArticlesTabsSection = ({ articles }: ArticlesTabsSectionProps) => {
           Технологии
         </TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="all" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.filter(a => !a.isHighlight).map((article) => (
-            <HomeArticleCard key={article.id} article={article} />
+            <CozyArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
-      
+
       <TabsContent value="interior" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.filter(a => !a.isHighlight && ["Интерьер", "Дизайн", "Спальня"].includes(a.category)).map((article) => (
-            <HomeArticleCard key={article.id} article={article} />
+            <CozyArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
-      
+
       <TabsContent value="plants" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.filter(a => !a.isHighlight && a.category === "Растения").map((article) => (
-            <HomeArticleCard key={article.id} article={article} />
+            <CozyArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
-      
+
       <TabsContent value="diy" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.filter(a => !a.isHighlight && a.category === "DIY").map((article) => (
-            <HomeArticleCard key={article.id} article={article} />
+            <CozyArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
-      
+
       <TabsContent value="tech" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.filter(a => !a.isHighlight && a.category === "Технологии").map((article) => (
-            <HomeArticleCard key={article.id} article={article} />
+            <CozyArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
@@ -71,4 +71,4 @@ const ArticlesTabsSection = ({ articles }: ArticlesTabsSectionProps) => {
   );
 };
 
-export default ArticlesTabsSection;
+export default CozyArticlesTabsSection;
