@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import BlogHeader from '../components/BlogHeader';
-import Footer from '../components/Footer';
+import BlogFooter from '../components/BlogFooter';
 import { useApi } from '../hooks/useApi';
 import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '@/types/models';
 import { Category } from '@/services/api/mainApi';
@@ -28,7 +28,6 @@ const Cafes = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Use the enriched cafes endpoint that has categories and tags
         const [enrichedCafes, categoriesData, tagsData, priceRangesData, navCategories] = await Promise.all([
           api.cafes.getEnrichedCafes(),
           api.cafes.getCategories(),
@@ -37,7 +36,6 @@ const Cafes = () => {
           api.main.getIndexCategories()
         ]);
 
-        // Get page info from navigation categories
         const cafesPageInfo = navCategories.find(cat => cat.link === '/cafes');
         setPageInfo(cafesPageInfo || null);
 
@@ -56,13 +54,10 @@ const Cafes = () => {
     fetchData();
   }, [api.cafes, api.main]);
 
-  // Get all unique categories from cafe data
   const allCategories = categories.map(cat => cat.name);
 
-  // List of price ranges from our mock data
   const priceRangesList = priceRanges.map(range => range.name);
 
-  // Filter cafes by search query, category, and price range
   const filteredCafes = cafes.filter(cafe => {
     const matchesSearch =
       cafe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -78,22 +73,19 @@ const Cafes = () => {
     return matchesSearch && matchesCategory && matchesPriceRange;
   });
 
-  // Get popular tags from our cafes
   const popularTags = tags.slice(0, 10).map(tag => tag.name);
 
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
 
-      {/* Заголовок и поиск */}
       <CafeSearch
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         pageTitle={pageInfo?.title || "ОБЗОРЫ КАФЕ"}
-        pageDescription={pageInfo?.pageDescription || "Здесь вы найдете мои впечатления о различных кафе и ресторанах, атмосфере и кухне. Делюсь любимыми местами и новыми открытиями."}
+        pageDescription={pageInfo?.pageDescription || "Здесь вы найдете мои впечатления о различных кафе и ресторанах, атм��сфере и кухне. Делюсь любимыми местами и новыми открытиями."}
       />
 
-      {/* Фильтры */}
       <CafeFilters
         categories={allCategories}
         priceRanges={priceRangesList}
@@ -103,7 +95,6 @@ const Cafes = () => {
         setSelectedPriceRange={setSelectedPriceRange}
       />
 
-      {/* Список кафе */}
       <div className="blog-container py-16">
         <CafesList
           cafes={filteredCafes}
@@ -111,13 +102,12 @@ const Cafes = () => {
         />
       </div>
 
-      {/* Популярные категории */}
       <CafePopularTags
         tags={popularTags}
         onTagClick={setSearchQuery}
       />
 
-      <Footer />
+      <BlogFooter />
     </main>
   );
 };

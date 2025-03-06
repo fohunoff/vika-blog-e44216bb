@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import BlogHeader from '../components/BlogHeader';
-import Footer from '../components/Footer';
+import BlogFooter from '../components/BlogFooter';
 import { useEnrichedDiaryEntries, useApi } from '../hooks/useApi';
 import DiarySearch from '../components/diary/DiarySearch';
 import MoodFilter from '../components/diary/MoodFilter';
@@ -83,7 +83,7 @@ const Diary = () => {
       {/* Популярные теги */}
       <DiaryTags tags={allTags.slice(0, 12)} onTagClick={setSearchQuery} />
       
-      <Footer />
+      <BlogFooter />
     </main>
   );
 };
