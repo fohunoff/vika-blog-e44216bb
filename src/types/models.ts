@@ -75,6 +75,12 @@ export interface CafeTag {
   name: string;
 }
 
+export interface CafePriceRange {
+  id: string;
+  name: string;
+  description: string;
+}
+
 export interface Cafe {
   id: string;
   name: string;

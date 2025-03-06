@@ -2,8 +2,9 @@
 import cafes from '../../data/cafes.json';
 import cafeCategories from '../../data/cafe-categories.json';
 import cafeTags from '../../data/cafe-tags.json';
+import cafePriceRanges from '../../data/cafe-price-ranges.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
-import { Cafe, CafeCategory, CafeTag } from '../../types/models';
+import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '../../types/models';
 
 export function createCafesApi() {
   return {
@@ -61,6 +62,28 @@ export function createCafesApi() {
      */
     getTagsByIds: (ids: string[]): Promise<CafeTag[]> => {
       return getByIds(cafeTags as CafeTag[], ids);
+    },
+    
+    /**
+     * Get all cafe price ranges
+     */
+    getPriceRanges: (): Promise<CafePriceRange[]> => {
+      return getData(cafePriceRanges as CafePriceRange[]);
+    },
+    
+    /**
+     * Get a single cafe price range by ID
+     */
+    getPriceRangeById: (id: string): Promise<CafePriceRange | undefined> => {
+      return getById(cafePriceRanges as CafePriceRange[], id);
+    },
+    
+    /**
+     * Get price range by name
+     */
+    getPriceRangeByName: (name: string): Promise<CafePriceRange | undefined> => {
+      return getData(cafePriceRanges as CafePriceRange[])
+        .then(ranges => ranges.find(range => range.name === name));
     },
     
     /**

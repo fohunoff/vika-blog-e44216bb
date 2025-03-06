@@ -1,0 +1,18 @@
+
+[
+  {
+    "id": "price-range-1",
+    "name": "$",
+    "description": "Недорого"
+  },
+  {
+    "id": "price-range-2",
+    "name": "$$",
+    "description": "Средняя цена"
+  },
+  {
+    "id": "price-range-3",
+    "name": "$$$",
+    "description": "Премиум"
+  }
+]

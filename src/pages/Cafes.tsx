@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
 import { useApi } from '../hooks/useApi';
-import { Cafe, CafeCategory, CafeTag } from '@/types/models';
+import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '@/types/models';
 import CafeSearch from '../components/cafes/CafeSearch';
 import CafeFilters from '../components/cafes/CafeFilters';
 import CafesList from '../components/cafes/CafesList';
@@ -14,6 +14,7 @@ const Cafes = () => {
   const [cafes, setCafes] = useState<(Cafe & { categories?: string[], tags?: string[] })[]>([]);
   const [categories, setCategories] = useState<CafeCategory[]>([]);
   const [tags, setTags] = useState<CafeTag[]>([]);
+  const [priceRanges, setPriceRanges] = useState<CafePriceRange[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
@@ -29,10 +30,12 @@ const Cafes = () => {
         const enrichedCafes = await api.cafes.getEnrichedCafes();
         const categoriesData = await api.cafes.getCategories();
         const tagsData = await api.cafes.getTags();
+        const priceRangesData = await api.cafes.getPriceRanges();
         
         setCafes(enrichedCafes);
         setCategories(categoriesData);
         setTags(tagsData);
+        setPriceRanges(priceRangesData);
       } catch (error) {
         console.error('Error fetching cafe data:', error);
       } finally {
@@ -46,8 +49,8 @@ const Cafes = () => {
   // Get all unique categories from cafe data
   const allCategories = categories.map(cat => cat.name);
 
-  // List of price ranges
-  const priceRanges = ['$', '$$', '$$$'];
+  // List of price ranges from our mock data
+  const priceRangesList = priceRanges.map(range => range.name);
 
   // Filter cafes by search query, category, and price range
   const filteredCafes = cafes.filter(cafe => {
@@ -81,7 +84,7 @@ const Cafes = () => {
       {/* Фильтры */}
       <CafeFilters 
         categories={allCategories}
-        priceRanges={priceRanges}
+        priceRanges={priceRangesList}
         selectedCategory={selectedCategory}
         selectedPriceRange={selectedPriceRange}
         setSelectedCategory={setSelectedCategory}
