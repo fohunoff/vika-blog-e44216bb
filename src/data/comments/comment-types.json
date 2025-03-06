@@ -1,0 +1,23 @@
+
+[
+  {
+    "id": "comment-type-1",
+    "name": "Вопрос",
+    "icon": "help-circle"
+  },
+  {
+    "id": "comment-type-2",
+    "name": "Отзыв",
+    "icon": "message-square"
+  },
+  {
+    "id": "comment-type-3",
+    "name": "Предложение",
+    "icon": "lightbulb"
+  },
+  {
+    "id": "comment-type-4",
+    "name": "Благодарность",
+    "icon": "heart"
+  }
+]

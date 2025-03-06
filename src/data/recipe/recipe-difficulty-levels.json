@@ -1,0 +1,18 @@
+
+[
+  {
+    "id": "difficulty-1",
+    "name": "Легкий",
+    "description": "Подходит для начинающих"
+  },
+  {
+    "id": "difficulty-2",
+    "name": "Средний",
+    "description": "Требует некоторого опыта"
+  },
+  {
+    "id": "difficulty-3",
+    "name": "Сложный",
+    "description": "Для опытных кулинаров"
+  }
+]

@@ -1,0 +1,21 @@
+
+[
+  {
+    "id": "featured-1",
+    "title": "Популярные статьи",
+    "description": "Самые читаемые материалы этого месяца",
+    "type": "popular"
+  },
+  {
+    "id": "featured-2",
+    "title": "Выбор редакции",
+    "description": "Статьи, отобранные нашими редакторами",
+    "type": "editor-choice"
+  },
+  {
+    "id": "featured-3",
+    "title": "Тренды сезона",
+    "description": "Актуальные идеи и рекомендации",
+    "type": "seasonal"
+  }
+]

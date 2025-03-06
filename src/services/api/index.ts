@@ -1,20 +1,25 @@
 
-import { createHomeApi } from "./homeApi";
-import { createRecipesApi } from "./recipesApi";
-import { createDiaryApi } from "./diaryApi";
-import { createCafesApi } from "./cafesApi";
+import { createHomeApi } from './homeApi';
+import { createRecipesApi } from './recipesApi';
+import { createCafesApi } from './cafesApi';
+import { createDiaryApi } from './diaryApi';
+import { createUserApi } from './userApi';
+import { createCommentsApi } from './commentsApi';
 
-/**
- * Creates a unified API object with all endpoints
- */
-export function createApi() {
-  return {
-    home: createHomeApi(),
-    recipes: createRecipesApi(),
-    diary: createDiaryApi(),
-    cafes: createCafesApi(),
-  };
-}
+export const homeApi = createHomeApi();
+export const recipesApi = createRecipesApi();
+export const cafesApi = createCafesApi();
+export const diaryApi = createDiaryApi();
+export const userApi = createUserApi();
+export const commentsApi = createCommentsApi();
 
-// Create a singleton instance of the API
-export const api = createApi();
+export const api = {
+  home: homeApi,
+  recipes: recipesApi,
+  cafes: cafesApi,
+  diary: diaryApi,
+  user: userApi,
+  comments: commentsApi
+};
+
+export default api;

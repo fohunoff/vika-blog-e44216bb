@@ -1,9 +1,10 @@
 
 import recipeCategories from '../../data/recipe/recipe-categories.json';
 import recipeTags from '../../data/recipe/recipe-tags.json';
+import recipeDifficultyLevels from '../../data/recipe/recipe-difficulty-levels.json';
 import recipes from '../../data/recipes.json';
 import { getData, getById, getByIds } from './utils';
-import { RecipeCategory, RecipeTag } from '../../types/models';
+import { RecipeCategory, RecipeTag, RecipeDifficultyLevel } from '../../types/models';
 
 export function createRecipesApi() {
   return {
@@ -54,6 +55,20 @@ export function createRecipesApi() {
      */
     getTagsByIds: (ids: string[]): Promise<RecipeTag[]> => {
       return getByIds(recipeTags as RecipeTag[], ids);
+    },
+    
+    /**
+     * Get all recipe difficulty levels
+     */
+    getDifficultyLevels: (): Promise<RecipeDifficultyLevel[]> => {
+      return getData(recipeDifficultyLevels as RecipeDifficultyLevel[]);
+    },
+    
+    /**
+     * Get a single recipe difficulty level by ID
+     */
+    getDifficultyLevelById: (id: string): Promise<RecipeDifficultyLevel | undefined> => {
+      return getById(recipeDifficultyLevels as RecipeDifficultyLevel[], id);
     }
   };
 }

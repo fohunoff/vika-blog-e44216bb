@@ -34,6 +34,13 @@ export interface HomeHighlight extends HomeArticle {
   isHighlight: true;
 }
 
+export interface HomeFeaturedSection {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+}
+
 // Recipe Models
 export interface RecipeCategory {
   id: string;
@@ -44,6 +51,12 @@ export interface RecipeCategory {
 export interface RecipeTag {
   id: string;
   name: string;
+}
+
+export interface RecipeDifficultyLevel {
+  id: string;
+  name: string;
+  description: string;
 }
 
 export interface Recipe {
@@ -126,4 +139,31 @@ export interface DiaryEntry {
   categoryId: string;
   tagIds: string[];
   moodId: string;
+}
+
+// User Models
+export interface UserPreference {
+  id: string;
+  name: string;
+  type: string;
+  value: string;
+  isEnabled: boolean;
+}
+
+// Comment Models
+export interface CommentType {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+export interface Comment {
+  id: string;
+  userId: string;
+  content: string;
+  date: string;
+  typeId: string;
+  parentId?: string;
+  targetType: 'article' | 'recipe' | 'cafe' | 'diary';
+  targetId: string;
 }

@@ -1,0 +1,31 @@
+
+[
+  {
+    "id": "pref-1",
+    "name": "Темная тема",
+    "type": "theme",
+    "value": "dark",
+    "isEnabled": false
+  },
+  {
+    "id": "pref-2",
+    "name": "Уведомления о новых статьях",
+    "type": "notification",
+    "value": "articles",
+    "isEnabled": true
+  },
+  {
+    "id": "pref-3",
+    "name": "Уведомления о комментариях",
+    "type": "notification",
+    "value": "comments",
+    "isEnabled": true
+  },
+  {
+    "id": "pref-4",
+    "name": "Еженедельная рассылка",
+    "type": "notification",
+    "value": "newsletter",
+    "isEnabled": true
+  }
+]

@@ -3,8 +3,9 @@ import homeArticles from '../../data/home/home-articles.json';
 import homeCategories from '../../data/home/home-categories.json';
 import homeTags from '../../data/home/home-tags.json';
 import highlightTypes from '../../data/home/highlights-types.json';
+import featuredSections from '../../data/home/featured-sections.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
-import { HomeCategory, HomeHighlight, HomeHighlightType, HomeTag, HomeArticle } from '../../types/models';
+import { HomeCategory, HomeHighlight, HomeHighlightType, HomeTag, HomeArticle, HomeFeaturedSection } from '../../types/models';
 
 export function createHomeApi() {
   return {
@@ -76,6 +77,20 @@ export function createHomeApi() {
      */
     getTagsByIds: (ids: string[]): Promise<HomeTag[]> => {
       return getByIds(homeTags as HomeTag[], ids);
+    },
+
+    /**
+     * Get all featured sections
+     */
+    getFeaturedSections: (): Promise<HomeFeaturedSection[]> => {
+      return getData(featuredSections as HomeFeaturedSection[]);
+    },
+    
+    /**
+     * Get a single featured section by ID
+     */
+    getFeaturedSectionById: (id: string): Promise<HomeFeaturedSection | undefined> => {
+      return getById(featuredSections as HomeFeaturedSection[], id);
     },
 
     /**
