@@ -1,0 +1,35 @@
+
+[
+  {
+    "id": "category-home-1",
+    "name": "Интерьер"
+  },
+  {
+    "id": "category-home-2",
+    "name": "Растения"
+  },
+  {
+    "id": "category-home-3",
+    "name": "DIY"
+  },
+  {
+    "id": "category-home-4",
+    "name": "Технологии"
+  },
+  {
+    "id": "category-home-5",
+    "name": "Организация пространства"
+  },
+  {
+    "id": "category-home-6",
+    "name": "Декор"
+  },
+  {
+    "id": "category-home-7",
+    "name": "Ремонт"
+  },
+  {
+    "id": "category-home-8",
+    "name": "Сад и балкон"
+  }
+]

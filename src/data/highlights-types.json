@@ -1,0 +1,27 @@
+
+[
+  {
+    "id": "highlight-type-1",
+    "name": "Тренд сезона"
+  },
+  {
+    "id": "highlight-type-2",
+    "name": "Практические советы"
+  },
+  {
+    "id": "highlight-type-3",
+    "name": "Вдохновение"
+  },
+  {
+    "id": "highlight-type-4",
+    "name": "Новинки"
+  },
+  {
+    "id": "highlight-type-5",
+    "name": "Лайфхаки"
+  },
+  {
+    "id": "highlight-type-6",
+    "name": "Сезонные идеи"
+  }
+]
