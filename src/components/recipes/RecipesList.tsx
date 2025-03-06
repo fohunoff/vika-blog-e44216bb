@@ -11,11 +11,7 @@ const RecipesList = ({ recipes, isLoading }: RecipesListProps) => {
   if (isLoading) {
     return (
       <div className="text-center py-12">
-        <div className="animate-pulse flex flex-col space-y-4">
-          <div className="h-60 bg-gray-200 rounded-md"></div>
-          <div className="h-60 bg-gray-200 rounded-md"></div>
-          <div className="h-60 bg-gray-200 rounded-md"></div>
-        </div>
+        <p>Загрузка рецептов...</p>
       </div>
     );
   }

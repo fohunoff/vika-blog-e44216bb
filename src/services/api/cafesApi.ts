@@ -3,15 +3,7 @@ import cafes from '../../data/cafes.json';
 import cafeCategories from '../../data/cafe/cafe-categories.json';
 import cafeTags from '../../data/cafe/cafe-tags.json';
 import cafePriceRanges from '../../data/cafe/cafe-price-ranges.json';
-import { 
-  getData, 
-  getById, 
-  getByIds, 
-  enrichWithRelated, 
-  paginateData, 
-  PaginationOptions, 
-  PaginatedResponse 
-} from './utils';
+import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '../../types/models';
 
 /**
@@ -49,16 +41,6 @@ export function createCafesApi() {
      */
     getCafes: (): Promise<Cafe[]> => {
       return retryPromise(() => getData(cafes as Cafe[]));
-    },
-    
-    /**
-     * Get paginated cafes
-     */
-    getPaginatedCafes: (options?: PaginationOptions): Promise<PaginatedResponse<Cafe>> => {
-      return retryPromise(async () => {
-        const allCafes = await getData(cafes as Cafe[]);
-        return paginateData(allCafes, options);
-      });
     },
     
     /**
@@ -150,16 +132,6 @@ export function createCafesApi() {
             .map(id => tags.find(t => t.id === id)?.name)
             .filter(Boolean) as string[]
         }));
-      });
-    },
-    
-    /**
-     * Get paginated enriched cafes
-     */
-    getPaginatedEnrichedCafes: async (options?: PaginationOptions): Promise<PaginatedResponse<Cafe & { categories: string[], tags: string[] }>> => {
-      return retryPromise(async () => {
-        const enrichedCafes = await this.getEnrichedCafes();
-        return paginateData(enrichedCafes, options);
       });
     }
   };

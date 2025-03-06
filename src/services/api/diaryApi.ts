@@ -3,15 +3,7 @@ import diaryEntries from '../../data/diary.json';
 import diaryCategories from '../../data/diary/diary-categories.json';
 import diaryTags from '../../data/diary/diary-tags.json';
 import diaryMoods from '../../data/diary/diary-moods.json';
-import { 
-  getData, 
-  getById, 
-  getByIds, 
-  enrichWithRelated, 
-  paginateData, 
-  PaginationOptions, 
-  PaginatedResponse 
-} from './utils';
+import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { DiaryCategory, DiaryEntry, DiaryTag } from '../../types/models';
 
 export function createDiaryApi() {
@@ -21,15 +13,6 @@ export function createDiaryApi() {
      */
     getDiaryEntries: (): Promise<DiaryEntry[]> => {
       return getData(diaryEntries as DiaryEntry[]);
-    },
-    
-    /**
-     * Get paginated diary entries
-     */
-    getPaginatedDiaryEntries: (options?: PaginationOptions): Promise<PaginatedResponse<DiaryEntry>> => {
-      return getData(diaryEntries as DiaryEntry[]).then(entries => {
-        return paginateData(entries, options);
-      });
     },
     
     /**
@@ -109,14 +92,6 @@ export function createDiaryApi() {
           mood: mood?.name
         };
       });
-    },
-    
-    /**
-     * Get paginated enriched diary entries
-     */
-    getPaginatedEnrichedDiaryEntries: async (options?: PaginationOptions) => {
-      const enrichedEntries = await this.getEnrichedDiaryEntries();
-      return paginateData(enrichedEntries, options);
     }
   };
 }
