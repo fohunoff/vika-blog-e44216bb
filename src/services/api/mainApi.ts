@@ -12,6 +12,7 @@ import { MainFeaturedSection } from "@/types/models.ts";
 export interface Category {
     id: string;
     title: string;
+    navTitle: string;
     description: string;
     pageDescription?: string;
     imageSrc: string;

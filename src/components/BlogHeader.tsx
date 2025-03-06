@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -55,7 +56,7 @@ const BlogHeader = () => {
                 to={category.link}
                 className="text-blog-black hover:text-blog-yellow transition-colors"
               >
-                {category.title}
+                {category.navTitle}
               </Link>
             ))}
           </div>
@@ -78,7 +79,7 @@ const BlogHeader = () => {
                 className="text-xl font-medium hover:text-blog-yellow"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {category.title}
+                {category.navTitle}
               </Link>
             ))}
           </div>

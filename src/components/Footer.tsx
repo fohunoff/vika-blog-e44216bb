@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Facebook, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -57,7 +58,7 @@ const Footer = () => {
               {categories.map(category => (
                 <li key={category.id}>
                   <Link to={category.link} className="text-gray-400 hover:text-blog-yellow transition-colors">
-                    {category.title}
+                    {category.navTitle}
                   </Link>
                 </li>
               ))}
