@@ -9,6 +9,7 @@ import RecipeTags from '../components/recipes/RecipeTags';
 import { usePaginatedEnrichedRecipes, useApi } from '../hooks/useApi';
 import { toast } from '@/components/ui/use-toast';
 import PaginationNav from '@/components/ui/pagination-nav';
+import { RecipeTag } from '@/types/models';
 
 const RecipesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,12 +27,14 @@ const RecipesPage = () => {
   const { data, isLoading, error } = usePaginatedEnrichedRecipes(
     { page: currentPage, limit: itemsPerPage },
     {
-      onError: (error) => {
-        toast({
-          title: "Ошибка загрузки рецептов",
-          description: error.message,
-          variant: "destructive",
-        });
+      meta: {
+        onError: (error) => {
+          toast({
+            title: "Ошибка загрузки рецептов",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       }
     }
   );
@@ -40,7 +43,7 @@ const RecipesPage = () => {
   const { api } = useApi();
   const [categories, setCategories] = useState([]);
   const [difficultyLevels, setDifficultyLevels] = useState([]);
-  const [allTags, setAllTags] = useState<string[]>([]);
+  const [allTags, setAllTags] = useState<RecipeTag[]>([]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -57,13 +60,20 @@ const RecipesPage = () => {
         
         // Собираем все уникальные теги из рецептов
         if (allRecipes) {
-          const tags = Array.from(
+          // Получаем все уникальные теги
+          const uniqueTagNames = Array.from(
             new Set(
               allRecipes.flatMap((recipe: any) => recipe.tags || [])
             )
-          ).filter(Boolean) as string[];
+          ).filter(Boolean);
           
-          setAllTags(tags);
+          // Преобразуем строки в объекты RecipeTag
+          const recipeTags: RecipeTag[] = uniqueTagNames.map((tagName: string, index: number) => ({
+            id: `generated-tag-${index}`,
+            name: tagName
+          }));
+          
+          setAllTags(recipeTags);
         }
       } catch (error: any) {
         toast({
@@ -139,7 +149,7 @@ const RecipesPage = () => {
       </div>
       
       {/* Популярные теги */}
-      <RecipeTags tags={allTags.slice(0, 15)} onTagClick={(tag) => setSearchQuery(tag)} />
+      <RecipeTags tags={allTags} onTagClick={(tag) => setSearchQuery(tag.name)} />
       
       <BlogFooter />
     </main>

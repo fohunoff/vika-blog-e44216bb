@@ -16,9 +16,9 @@ export const useApi = () => {
  * Hook for making API queries with React Query
  */
 export const useApiQuery = <T>(
-  queryKey: string[],
+  queryKey: (string | number | null)[],
   queryFn: () => Promise<T>,
-  options?: Omit<UseQueryOptions<T, Error, T, string[]>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<T, Error, T, (string | number | null)[]>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
     queryKey,
@@ -45,11 +45,11 @@ export const useApiMutation = <T, V>(
  */
 
 // Cozy
-export const useCozyHighlights = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useCozyHighlights = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['cozyHighlights'], () => api.cozy.getHighlights(), options);
 };
 
-export const usePaginatedCozyHighlights = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const usePaginatedCozyHighlights = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['cozyHighlights', paginationOptions.page, paginationOptions.limit], 
     () => api.cozy.getPaginatedHighlights(paginationOptions), 
@@ -57,20 +57,20 @@ export const usePaginatedCozyHighlights = (paginationOptions: PaginationOptions 
   );
 };
 
-export const useCozyCategories = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useCozyCategories = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['cozyCategories'], () => api.cozy.getCategories(), options);
 };
 
-export const useCozyTags = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useCozyTags = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['cozyTags'], () => api.cozy.getTags(), options);
 };
 
 // Cafes
-export const useCafes = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useCafes = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['cafes'], () => api.cafes.getCafes(), options);
 };
 
-export const usePaginatedCafes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const usePaginatedCafes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['cafes', paginationOptions.page, paginationOptions.limit], 
     () => api.cafes.getPaginatedCafes(paginationOptions), 
@@ -78,11 +78,11 @@ export const usePaginatedCafes = (paginationOptions: PaginationOptions = {}, que
   );
 };
 
-export const useEnrichedCafes = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useEnrichedCafes = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['enrichedCafes'], () => api.cafes.getEnrichedCafes(), options);
 };
 
-export const usePaginatedEnrichedCafes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const usePaginatedEnrichedCafes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['enrichedCafes', paginationOptions.page, paginationOptions.limit], 
     () => api.cafes.getPaginatedEnrichedCafes(paginationOptions), 
@@ -90,7 +90,7 @@ export const usePaginatedEnrichedCafes = (paginationOptions: PaginationOptions =
   );
 };
 
-export const useCafe = (id: string, options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useCafe = (id: string, options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['cafe', id], () => api.cafes.getCafeById(id), {
     enabled: !!id,
     ...options
@@ -98,11 +98,11 @@ export const useCafe = (id: string, options?: UseQueryOptions<any, Error, any, s
 };
 
 // Diary
-export const useDiaryEntries = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useDiaryEntries = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['diaryEntries'], () => api.diary.getDiaryEntries(), options);
 };
 
-export const usePaginatedDiaryEntries = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const usePaginatedDiaryEntries = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['diaryEntries', paginationOptions.page, paginationOptions.limit], 
     () => api.diary.getPaginatedDiaryEntries(paginationOptions), 
@@ -110,11 +110,11 @@ export const usePaginatedDiaryEntries = (paginationOptions: PaginationOptions = 
   );
 };
 
-export const useEnrichedDiaryEntries = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useEnrichedDiaryEntries = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['enrichedDiaryEntries'], () => api.diary.getEnrichedDiaryEntries(), options);
 };
 
-export const usePaginatedEnrichedDiaryEntries = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const usePaginatedEnrichedDiaryEntries = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['enrichedDiaryEntries', paginationOptions.page, paginationOptions.limit], 
     () => api.diary.getPaginatedEnrichedDiaryEntries(paginationOptions), 
@@ -123,11 +123,11 @@ export const usePaginatedEnrichedDiaryEntries = (paginationOptions: PaginationOp
 };
 
 // Recipes
-export const useRecipes = (options?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useRecipes = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['recipes'], () => api.recipes.getRecipes(), options);
 };
 
-export const usePaginatedRecipes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const usePaginatedRecipes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['recipes', paginationOptions.page, paginationOptions.limit], 
     () => api.recipes.getPaginatedRecipes(paginationOptions), 
@@ -135,7 +135,7 @@ export const usePaginatedRecipes = (paginationOptions: PaginationOptions = {}, q
   );
 };
 
-export const useEnrichedRecipes = (queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const useEnrichedRecipes = (queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['enrichedRecipes'], 
     () => api.recipes.getEnrichedRecipes(), 
@@ -143,7 +143,7 @@ export const useEnrichedRecipes = (queryOptions?: UseQueryOptions<any, Error, an
   );
 };
 
-export const usePaginatedEnrichedRecipes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, string[]>) => {
+export const usePaginatedEnrichedRecipes = (paginationOptions: PaginationOptions = {}, queryOptions?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(
     ['enrichedRecipes', paginationOptions.page, paginationOptions.limit], 
     () => api.recipes.getPaginatedEnrichedRecipes(paginationOptions), 
