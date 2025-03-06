@@ -2,15 +2,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useApi } from '@/hooks/useApi.ts';
-
-interface Category {
-  id: string;
-  title: string;
-  description: string;
-  imageSrc: string;
-  link: string;
-  bgColor: 'black' | 'white' | 'yellow';
-}
+import { Category } from '@/services/api/mainApi';
 
 interface CategoryCardProps {
   category: Category;
@@ -56,8 +48,6 @@ const CategorySection = () => {
     const fetchCategories = async () => {
       try {
         const data = await api.main.getIndexCategories();
-        // The data returned from api.cozy.getIndexCategories() is already in the format
-        // that matches the Category interface, so we can safely set it
         setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -67,7 +57,7 @@ const CategorySection = () => {
     };
 
     fetchCategories();
-  }, [api.cozy]);
+  }, [api.main]);
 
   if (isLoading) {
     return <section className="py-24 bg-blog-gray"><div className="blog-container">Загрузка категорий...</div></section>;

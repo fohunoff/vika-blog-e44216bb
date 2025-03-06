@@ -1,3 +1,4 @@
+
 import aboutData from '../../data/main/about.json';
 import categories from '../../data/main/categories.json';
 import featuredSections from '../../data/main/featured-sections.json';
@@ -8,7 +9,7 @@ import newsletterData from '../../data/main/newsletter.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { MainFeaturedSection } from "@/types/models.ts";
 
-interface Category {
+export interface Category {
     id: string;
     title: string;
     description: string;

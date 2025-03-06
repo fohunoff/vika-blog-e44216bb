@@ -1,9 +1,33 @@
 
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Facebook, Mail } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useApi } from '@/hooks/useApi';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [categories, setCategories] = useState<Array<{
+    id: string;
+    title: string;
+    description: string;
+    imageSrc: string;
+    link: string;
+    bgColor: string;
+  }>>([]);
+  const { api } = useApi();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await api.main.getIndexCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, [api.main]);
 
   return (
     <footer className="bg-blog-black text-blog-white py-16">
@@ -37,26 +61,13 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-bold mb-4 uppercase">Категории</h4>
             <ul className="space-y-2">
-              <li>
-                <Link to="/recipes" className="text-gray-400 hover:text-blog-yellow transition-colors">
-                  Рецепты
-                </Link>
-              </li>
-              <li>
-                <Link to="/diary" className="text-gray-400 hover:text-blog-yellow transition-colors">
-                  Личный дневник
-                </Link>
-              </li>
-              <li>
-                <Link to="/cafes" className="text-gray-400 hover:text-blog-yellow transition-colors">
-                  Обзоры кафе
-                </Link>
-              </li>
-              <li>
-                <Link to="/cozy" className="text-gray-400 hover:text-blog-yellow transition-colors">
-                  Дом и уют
-                </Link>
-              </li>
+              {categories.map(category => (
+                <li key={category.id}>
+                  <Link to={category.link} className="text-gray-400 hover:text-blog-yellow transition-colors">
+                    {category.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
