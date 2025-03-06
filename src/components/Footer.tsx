@@ -1,19 +1,12 @@
-
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Facebook, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useApi } from '@/hooks/useApi';
+import { Category } from '@/services/api/mainApi';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const [categories, setCategories] = useState<Array<{
-    id: string;
-    title: string;
-    description: string;
-    imageSrc: string;
-    link: string;
-    bgColor: string;
-  }>>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const { api } = useApi();
 
   useEffect(() => {

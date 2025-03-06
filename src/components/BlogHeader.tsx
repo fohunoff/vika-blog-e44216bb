@@ -1,20 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
+import { Category } from '@/services/api/mainApi';
 
 const BlogHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<Array<{
-    id: string;
-    title: string;
-    description: string;
-    imageSrc: string;
-    link: string;
-    bgColor: string;
-  }>>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const { api } = useApi();
 
   useEffect(() => {

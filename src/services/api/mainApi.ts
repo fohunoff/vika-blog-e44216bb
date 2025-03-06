@@ -1,6 +1,5 @@
-
 import aboutData from '../../data/main/about.json';
-import categories from '../../data/main/categories.json';
+import navigationCategories from '../../data/main/navigation-categories.json';
 import featuredSections from '../../data/main/featured-sections.json';
 import heroData from '../../data/main/hero.json';
 import latestPosts from '../../data/main/latest-posts.json';
@@ -38,7 +37,7 @@ export function createMainApi() {
          * Get category sections for index page
          */
         getIndexCategories: (): Promise<Category[]> => {
-            return getData(categories as Category[]);
+            return getData(navigationCategories as Category[]);
         },
 
         /**
