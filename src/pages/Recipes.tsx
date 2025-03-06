@@ -1,143 +1,149 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import BlogHeader from '../components/BlogHeader';
-import Footer from '../components/Footer';
-import { useApi } from '../hooks/useApi';
+import BlogFooter from '../components/Footer';
+import RecipesList from '../components/recipes/RecipesList';
 import RecipeSearch from '../components/recipes/RecipeSearch';
 import RecipeFilters from '../components/recipes/RecipeFilters';
-import RecipesList from '../components/recipes/RecipesList';
 import RecipeTags from '../components/recipes/RecipeTags';
-import { Category } from '@/services/api/mainApi';
+import { usePaginatedEnrichedRecipes, useApi } from '../hooks/useApi';
 import { toast } from '@/components/ui/use-toast';
+import PaginationNav from '@/components/ui/pagination-nav';
 
-const Recipes = () => {
-  const { api } = useApi();
-  const [recipes, setRecipes] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [pageInfo, setPageInfo] = useState<Category | null>(null);
+const RecipesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
-
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+  
+  // Сбрасываем пагинацию при изменении фильтров
   useEffect(() => {
-    window.scrollTo(0, 0);
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, selectedDifficulty]);
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [recipesData, categoriesData, tagsData, navCategories] = await Promise.all([
-          api.recipes.getRecipes(),
-          api.recipes.getCategories(),
-          api.recipes.getTags(),
-          api.main.getIndexCategories()
-        ]);
-        
-        // Get page info from navigation categories
-        const recipesPageInfo = navCategories.find(cat => cat.link === '/recipes');
-        setPageInfo(recipesPageInfo || null);
-        
-        // Enrich recipe data with category and tag information
-        const enrichedRecipes = recipesData.map(recipe => {
-          const category = categoriesData.find(c => recipe.categoryId === c.id);
-          const recipeTags = recipe.tagIds 
-            ? recipe.tagIds.map(id => tagsData.find(t => t.id === id)).filter(Boolean) 
-            : [];
-            
-          return {
-            ...recipe,
-            category: category?.id || null,
-            categoryName: category?.name || 'Без категории',
-            tags: recipeTags.map(t => t.name)
-          };
-        });
-        
-        setRecipes(enrichedRecipes);
-        setCategories(categoriesData);
-        setTags(tagsData);
-        setRetryCount(0); // Reset retry count on success
-      } catch (error) {
-        console.error('Error fetching recipe data:', error);
-        
-        // Show error toast to the user
+  // Загружаем рецепты с пагинацией
+  const { data, isLoading, error } = usePaginatedEnrichedRecipes(
+    { page: currentPage, limit: itemsPerPage },
+    {
+      onError: (error) => {
         toast({
-          title: "Ошибка загрузки данных",
-          description: "Не удалось загрузить рецепты. Пробуем снова...",
+          title: "Ошибка загрузки рецептов",
+          description: error.message,
           variant: "destructive",
         });
+      }
+    }
+  );
+
+  // Получаем все необходимые данные из API
+  const { api } = useApi();
+  const [categories, setCategories] = useState([]);
+  const [difficultyLevels, setDifficultyLevels] = useState([]);
+  const [allTags, setAllTags] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Загружаем категории и уровни сложности
+        const [categoriesData, difficultyLevelsData, allRecipes] = await Promise.all([
+          api.recipes.getCategories(),
+          api.recipes.getDifficultyLevels(),
+          api.recipes.getEnrichedRecipes()
+        ]);
         
-        // If less than 3 retries, try again after a delay
-        if (retryCount < 3) {
-          setRetryCount(prev => prev + 1);
-          setTimeout(() => {
-            fetchData();
-          }, 1000); // Wait 1 second before retrying
+        setCategories(categoriesData);
+        setDifficultyLevels(difficultyLevelsData);
+        
+        // Собираем все уникальные теги из рецептов
+        if (allRecipes) {
+          const tags = Array.from(
+            new Set(
+              allRecipes.flatMap((recipe: any) => recipe.tags || [])
+            )
+          ).filter(Boolean) as string[];
+          
+          setAllTags(tags);
         }
-      } finally {
-        setIsLoading(false);
+      } catch (error: any) {
+        toast({
+          title: "Ошибка загрузки данных",
+          description: error.message,
+          variant: "destructive",
+        });
       }
     };
-
+    
     fetchData();
-  }, [api.recipes, api.main, retryCount]);
+  }, [api]);
 
-  // Filter recipes by search query and category
-  const filteredRecipes = recipes.filter(recipe => {
-    const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         recipe.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         recipe.shortDescription?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !activeCategory || recipe.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // Фильтрация рецептов
+  const filteredRecipes = data?.items.filter((recipe: any) => {
+    const matchesSearch = 
+      !searchQuery || 
+      recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipe.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = !selectedCategory || recipe.categoryId === selectedCategory;
+    const matchesDifficulty = !selectedDifficulty || recipe.difficulty === selectedDifficulty;
+    
+    return matchesSearch && matchesCategory && matchesDifficulty;
+  }) || [];
 
-  // Handle category change
-  const handleCategoryChange = (categoryId: string) => {
-    setActiveCategory(activeCategory === categoryId ? null : categoryId);
+  // Обработчик изменения страницы
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Скролл в начало страницы
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  // Handle tag click
-  const handleTagClick = (tagName: string) => {
-    setSearchQuery(tagName);
-  };
-
-  // Get popular tags (limit to 10)
-  const popularTags = tags.slice(0, 10);
 
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
       
-      {/* Заголовок и поиск */}
-      <div className="blog-container py-12">
-        <h1 className="section-title mb-8 text-center">
-          {pageInfo?.title || "РЕЦЕПТЫ"}
-        </h1>
-        <p className="text-center text-xl mb-12 max-w-3xl mx-auto">
-          {pageInfo?.pageDescription || "Коллекция моих любимых рецептов — от простых повседневных блюд до особенных угощений для праздничного стола."}
-        </p>
+      <div className="blog-container py-8">
+        <h1 className="section-title mb-8 text-center">РЕЦЕПТЫ</h1>
         
+        {/* Поиск */}
         <RecipeSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-      </div>
-      
-      {/* Фильтры по категориям */}
-      <RecipeFilters 
-        categories={categories} 
-        activeCategory={activeCategory} 
-        onCategoryChange={handleCategoryChange}
-      />
-      
-      {/* Список рецептов */}
-      <div className="blog-container py-16">
-        <RecipesList recipes={filteredRecipes} isLoading={isLoading} />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-12">
+          {/* Сайдбар с фильтрами */}
+          <div className="col-span-1">
+            <RecipeFilters 
+              categories={categories}
+              difficultyLevels={difficultyLevels}
+              selectedCategory={selectedCategory}
+              selectedDifficulty={selectedDifficulty}
+              setSelectedCategory={setSelectedCategory}
+              setSelectedDifficulty={setSelectedDifficulty}
+            />
+          </div>
+          
+          {/* Список рецептов */}
+          <div className="col-span-1 lg:col-span-3">
+            <RecipesList recipes={filteredRecipes} isLoading={isLoading} />
+            
+            {/* Пагинация */}
+            {!isLoading && data && data.pagination.totalPages > 1 && (
+              <div className="mt-12">
+                <PaginationNav 
+                  currentPage={currentPage}
+                  totalPages={data.pagination.totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       
       {/* Популярные теги */}
-      <RecipeTags tags={popularTags} onTagClick={handleTagClick} />
+      <RecipeTags tags={allTags.slice(0, 15)} onTagClick={(tag) => setSearchQuery(tag)} />
       
-      <Footer />
+      <BlogFooter />
     </main>
   );
 };
 
-export default Recipes;
+export default RecipesPage;

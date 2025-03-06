@@ -1,9 +1,18 @@
+
 import cozyArticles from '../../data/cozy.json';
 import cozyCategories from '../../data/cozy/cozy-categories.json';
 import cozyTags from '../../data/cozy/cozy-tags.json';
 import cozyHighlightTypes from '../../data/cozy/cozy-highlights-types.json';
 
-import { getData, getById, getByIds, enrichWithRelated } from './utils';
+import { 
+  getData, 
+  getById, 
+  getByIds, 
+  enrichWithRelated, 
+  paginateData, 
+  PaginationOptions, 
+  PaginatedResponse 
+} from './utils';
 
 import { CozyCategory, CozyHighlight, CozyHighlightType, CozyTag, CozyArticle, MainFeaturedSection } from '../../types/models';
 
@@ -17,10 +26,29 @@ export function createCozyApi() {
     },
 
     /**
+     * Get paginated cozy articles
+     */
+    getPaginatedArticles: (options?: PaginationOptions): Promise<PaginatedResponse<CozyArticle>> => {
+      return getData(cozyArticles as CozyArticle[]).then(articles => {
+        return paginateData(articles, options);
+      });
+    },
+
+    /**
      * Get highlighted articles (for the Highlights section)
      */
     getHighlights: (): Promise<CozyArticle[]> => {
       return getData((cozyArticles as CozyArticle[]).filter(article => article.isHighlight));
+    },
+
+    /**
+     * Get paginated highlighted articles
+     */
+    getPaginatedHighlights: (options?: PaginationOptions): Promise<PaginatedResponse<CozyArticle>> => {
+      return getData((cozyArticles as CozyArticle[]).filter(article => article.isHighlight))
+        .then(highlights => {
+          return paginateData(highlights, options);
+        });
     },
 
     /**
@@ -91,5 +119,13 @@ export function createCozyApi() {
         type: article.typeId ? types.find(type => type.id === article.typeId)?.name || article.type : article.type
       }));
     },
+
+    /**
+     * Get paginated enriched articles
+     */
+    getPaginatedEnrichedArticles: async (options?: PaginationOptions): Promise<PaginatedResponse<CozyArticle>> => {
+      const enrichedArticles = await this.getEnrichedArticles();
+      return paginateData(enrichedArticles, options);
+    }
   };
 }

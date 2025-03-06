@@ -1,23 +1,44 @@
 
 import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
-import Footer from '../components/Footer';
-import { useEnrichedDiaryEntries, useApi } from '../hooks/useApi';
+import BlogFooter from '../components/Footer';
+import { usePaginatedEnrichedDiaryEntries, useApi } from '../hooks/useApi';
 import DiarySearch from '../components/diary/DiarySearch';
 import MoodFilter from '../components/diary/MoodFilter';
 import DiaryEntries from '../components/diary/DiaryEntries';
 import DiaryTags from '../components/diary/DiaryTags';
 import { Category } from '@/services/api/mainApi';
 import { toast } from '@/components/ui/use-toast';
+import PaginationNav from '@/components/ui/pagination-nav';
 
 const Diary = () => {
-  const { data: enrichedEntries, isLoading, error } = useEnrichedDiaryEntries();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+  
+  const { data: enrichedEntriesData, isLoading, error } = usePaginatedEnrichedDiaryEntries(
+    { page: currentPage, limit: itemsPerPage },
+    {
+      onError: (error) => {
+        toast({
+          title: "Ошибка загрузки записей",
+          description: "Не удалось загрузить записи дневника. Пожалуйста, обновите страницу.",
+          variant: "destructive",
+        });
+      }
+    }
+  );
+  
   const { api } = useApi();
   const [allMoods, setAllMoods] = useState<{id: string, name: string}[]>([]);
   const [pageInfo, setPageInfo] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+
+  // Сбрасываем пагинацию при изменении фильтров
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedMood]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -72,8 +93,8 @@ const Diary = () => {
   }, [error]);
 
   // Filter entries based on search query and selected mood
-  const filteredEntries = enrichedEntries
-    ? enrichedEntries.filter(entry => {
+  const filteredEntries = enrichedEntriesData?.items
+    ? enrichedEntriesData.items.filter(entry => {
         const matchesSearch = entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             entry.content.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesMood = !selectedMood || entry.mood === selectedMood;
@@ -86,10 +107,29 @@ const Diary = () => {
     setSelectedMood(selectedMood === mood ? null : mood);
   };
 
-  // Collect all tags from diary entries
-  const allTags = enrichedEntries
-    ? Array.from(new Set(enrichedEntries.flatMap(entry => entry.tags || []))).filter(Boolean) as string[]
-    : [];
+  // Collect all tags from diary entries (для этого нам нужны все записи)
+  const [allTags, setAllTags] = useState<string[]>([]);
+  
+  useEffect(() => {
+    const fetchAllEntries = async () => {
+      try {
+        const allEntries = await api.diary.getEnrichedDiaryEntries();
+        const tags = Array.from(new Set(allEntries.flatMap(entry => entry.tags || []))).filter(Boolean) as string[];
+        setAllTags(tags);
+      } catch (error) {
+        console.error("Error fetching all entries for tags:", error);
+      }
+    };
+    
+    fetchAllEntries();
+  }, [api.diary]);
+
+  // Обработчик изменения страницы
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Скролл в начало страницы
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <main className="min-h-screen pt-24">
@@ -117,12 +157,23 @@ const Diary = () => {
       {/* Записи дневника */}
       <div className="blog-container py-16">
         <DiaryEntries entries={filteredEntries} isLoading={isLoading} />
+        
+        {/* Пагинация */}
+        {!isLoading && enrichedEntriesData && enrichedEntriesData.pagination.totalPages > 1 && (
+          <div className="mt-12">
+            <PaginationNav 
+              currentPage={currentPage}
+              totalPages={enrichedEntriesData.pagination.totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
       
       {/* Популярные теги */}
       <DiaryTags tags={allTags.slice(0, 12)} onTagClick={setSearchQuery} />
       
-      <Footer />
+      <BlogFooter />
     </main>
   );
 };
