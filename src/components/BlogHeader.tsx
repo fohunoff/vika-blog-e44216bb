@@ -30,7 +30,8 @@ const BlogHeader = () => {
             <h1 className="text-2xl font-display font-bold tracking-tight">
               МОЙ<span className="text-blog-yellow">БЛОГ</span>
             </h1>
-          </Link>          
+          </Link>
+          
           <div className="hidden md:flex gap-8 items-center">
             <Link 
               to="/recipes" 

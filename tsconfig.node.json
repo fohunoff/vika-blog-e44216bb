@@ -10,8 +10,7 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "composite": true,
-    "outDir": "./dist/node",
+    "noEmit": true,
 
     /* Linting */
     "strict": true,

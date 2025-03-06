@@ -4,13 +4,9 @@ import { Link } from 'react-router-dom';
 import { ChefHat, Clock, Filter, Search, Tag, UtensilsCrossed } from 'lucide-react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { ICategory, ITag } from '@/types';
 
 // Типы для рецептов
 interface Recipe {
@@ -23,107 +19,22 @@ interface Recipe {
   imageSrc: string;
 }
 
-// API-запросы
-const API_URL = 'http://localhost:3000/api';
-
-const fetchRecipes = async (categoryId: string | null, search: string | null): Promise<Recipe[]> => {
-  let url = `${API_URL}/recipes`;
-  const params = new URLSearchParams();
-  
-  if (categoryId) {
-    params.append('categoryId', categoryId);
-  }
-  
-  if (search) {
-    params.append('search', search);
-  }
-  
-  const queryString = params.toString();
-  if (queryString) {
-    url += `?${queryString}`;
-  }
-  
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Не удалось загрузить рецепты');
-  }
-  return response.json();
-};
-
-const fetchCategories = async (): Promise<ICategory[]> => {
-  const response = await fetch(`${API_URL}/recipes/categories`);
-  if (!response.ok) {
-    throw new Error('Не удалось загрузить категории');
-  }
-  return response.json();
-};
-
-const fetchTags = async (): Promise<ITag[]> => {
-  const response = await fetch(`${API_URL}/recipes/tags`);
-  if (!response.ok) {
-    throw new Error('Не удалось загрузить теги');
-  }
-  return response.json();
-};
-
-const RecipessPage: React.FC = () => {
-  const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-
-  // Получение данных с использованием React Query
-  const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
-    queryFn: fetchCategories,
-  });
-
-  const { data: recipes = [], isLoading } = useQuery({
-    queryKey: ['recipes', activeCategory, searchQuery],
-    queryFn: () => fetchRecipes(activeCategory, searchQuery),
-  });
-
-  const { data: tags = [] } = useQuery({
-    queryKey: ['tags'],
-    queryFn: fetchTags,
-  });
-
-  // Функция для обработки ошибок API
-  const handleError = (message: string) => {
-    toast({
-      title: "Ошибка",
-      description: message,
-      variant: "destructive"
-    });
-  };
-
-  // Обработчик изменения категории
-  const handleCategoryChange = (categoryId: string | null) => {
-    setActiveCategory(categoryId);
-  };
-
-  // Обработчик изменения поиска
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-
-
-
+const Recipes = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-//   const [searchQuery, setSearchQuery] = useState('');
-//   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   // Категории рецептов
-//   const categories = [
-//     { id: 'breakfast', name: 'Завтраки' },
-//     { id: 'soups', name: 'Супы' },
-//     { id: 'main', name: 'Основные блюда' },
-//     { id: 'desserts', name: 'Десерты' },
-//     { id: 'drinks', name: 'Напитки' },
-//   ];
+  const categories = [
+    { id: 'breakfast', name: 'Завтраки' },
+    { id: 'soups', name: 'Супы' },
+    { id: 'main', name: 'Основные блюда' },
+    { id: 'desserts', name: 'Десерты' },
+    { id: 'drinks', name: 'Напитки' },
+  ];
 
   // Примеры рецептов
   const allRecipes: Recipe[] = [
@@ -191,10 +102,10 @@ const RecipessPage: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-//   // Обработчик изменения категории
-//   const handleCategoryChange = (categoryId: string) => {
-//     setActiveCategory(activeCategory === categoryId ? null : categoryId);
-//   };
+  // Обработчик изменения категории
+  const handleCategoryChange = (categoryId: string) => {
+    setActiveCategory(activeCategory === categoryId ? null : categoryId);
+  };
 
   return (
     <main className="min-h-screen pt-24">
@@ -208,14 +119,14 @@ const RecipessPage: React.FC = () => {
         <p className="text-center text-xl mb-12 max-w-3xl mx-auto">
           Коллекция моих любимых рецептов — от простых повседневных блюд до особенных угощений для праздничного стола.
         </p>
-
+        
         <div className="relative max-w-md mx-auto mb-16">
           <Input
             type="text"
             placeholder="Найти рецепт..."
             className="pl-10 pr-4 py-3 rounded-full border-2 border-blog-yellow bg-white"
             value={searchQuery}
-            onChange={handleSearchChange}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         </div>
@@ -230,44 +141,29 @@ const RecipessPage: React.FC = () => {
           </div>
           
           <div className="flex flex-wrap gap-3">
+            {categories.map((category) => (
               <Button
-                variant={activeCategory === null ? "default" : "outline"}
+                key={category.id}
+                variant={activeCategory === category.id ? "default" : "outline"}
                 className={`rounded-full ${
-                  activeCategory === null 
+                  activeCategory === category.id 
                     ? "bg-blog-yellow text-blog-black hover:bg-blog-yellow-dark" 
                     : "bg-transparent text-blog-white border-blog-white hover:bg-blog-white/10"
                 }`}
-                onClick={() => handleCategoryChange(null)}
+                onClick={() => handleCategoryChange(category.id)}
               >
-                Все
+                {category.name}
               </Button>
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
-                  variant={activeCategory === category.id ? "default" : "outline"}
-                  className={`rounded-full ${
-                    activeCategory === category.id 
-                      ? "bg-blog-yellow text-blog-black hover:bg-blog-yellow-dark" 
-                      : "bg-transparent text-blog-white border-blog-white hover:bg-blog-white/10"
-                  }`}
-                  onClick={() => handleCategoryChange(category.id)}
-                >
-                  {category.displayName}
-                </Button>
-              ))}
+            ))}
           </div>
         </div>
       </div>
-
+      
       {/* Список рецептов */}
       <div className="blog-container py-16">
-        {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <p className="text-lg">Загрузка рецептов...</p>
-        </div>
-      ) : recipes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recipes.map((recipe, index) => (
+        {filteredRecipes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredRecipes.map((recipe, index) => (
               <div key={recipe.id} className="animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
                 <Link to={`/recipes/${recipe.id}`} className="block">
                   <article className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 h-full">
@@ -302,19 +198,19 @@ const RecipessPage: React.FC = () => {
                   </article>
                 </Link>
               </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <UtensilsCrossed size={64} className="mx-auto mb-4 text-gray-400" />
-          <h3 className="text-2xl font-bold mb-2">Рецепты не найдены</h3>
-          <p className="text-gray-600">
-            Попробуйте изменить параметры поиска или выбрать другую категорию.
-          </p>
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <UtensilsCrossed size={64} className="mx-auto mb-4 text-gray-400" />
+            <h3 className="text-2xl font-bold mb-2">Рецепты не найдены</h3>
+            <p className="text-gray-600">
+              Попробуйте изменить параметры поиска или выбрать другую категорию.
+            </p>
+          </div>
+        )}
       </div>
-
+      
       {/* Популярные теги */}
       <div className="bg-blog-yellow-light py-12">
         <div className="blog-container">
@@ -324,13 +220,14 @@ const RecipessPage: React.FC = () => {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
+            {["Вегетарианское", "Быстрый ужин", "Без глютена", "Праздничное", "Полезное", 
+              "Детское", "Веганское", "Сезонное", "Выпечка", "На гриле"].map((tag) => (
               <Badge 
-                key={tag.id} 
+                key={tag} 
                 variant="secondary" 
                 className="bg-white hover:bg-gray-100 text-blog-black cursor-pointer"
               >
-                {tag.name}
+                {tag}
               </Badge>
             ))}
           </div>
@@ -342,4 +239,4 @@ const RecipessPage: React.FC = () => {
   );
 };
 
-export default RecipessPage;
+export default Recipes;
