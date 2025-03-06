@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
@@ -7,6 +8,7 @@ import RecipeFilters from '../components/recipes/RecipeFilters';
 import RecipesList from '../components/recipes/RecipesList';
 import RecipeTags from '../components/recipes/RecipeTags';
 import { Category } from '@/services/api/mainApi';
+import { toast } from '@/components/ui/use-toast';
 
 const Recipes = () => {
   const { api } = useApi();
@@ -17,6 +19,7 @@ const Recipes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -53,15 +56,31 @@ const Recipes = () => {
         setRecipes(enrichedRecipes);
         setCategories(categoriesData);
         setTags(tagsData);
+        setRetryCount(0); // Reset retry count on success
       } catch (error) {
         console.error('Error fetching recipe data:', error);
+        
+        // Show error toast to the user
+        toast({
+          title: "Ошибка загрузки данных",
+          description: "Не удалось загрузить рецепты. Пробуем снова...",
+          variant: "destructive",
+        });
+        
+        // If less than 3 retries, try again after a delay
+        if (retryCount < 3) {
+          setRetryCount(prev => prev + 1);
+          setTimeout(() => {
+            fetchData();
+          }, 1000); // Wait 1 second before retrying
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [api.recipes, api.main]);
+  }, [api.recipes, api.main, retryCount]);
 
   // Filter recipes by search query and category
   const filteredRecipes = recipes.filter(recipe => {

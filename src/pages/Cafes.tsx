@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
@@ -8,6 +9,7 @@ import CafeSearch from '../components/cafes/CafeSearch';
 import CafeFilters from '../components/cafes/CafeFilters';
 import CafesList from '../components/cafes/CafesList';
 import CafePopularTags from '../components/cafes/CafePopularTags.tsx';
+import { toast } from '@/components/ui/use-toast';
 
 const Cafes = () => {
   const { api } = useApi();
@@ -21,6 +23,7 @@ const Cafes = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -45,16 +48,32 @@ const Cafes = () => {
         setCategories(categoriesData);
         setTags(tagsData);
         setPriceRanges(priceRangesData);
+        setRetryCount(0); // Reset retry count on success
 
       } catch (error) {
         console.error('Error fetching cafe data:', error);
+        
+        // Show error toast to the user
+        toast({
+          title: "Ошибка загрузки данных",
+          description: "Не удалось загрузить информацию о кафе. Пробуем снова...",
+          variant: "destructive",
+        });
+        
+        // If less than 3 retries, try again after a delay
+        if (retryCount < 3) {
+          setRetryCount(prev => prev + 1);
+          setTimeout(() => {
+            fetchData();
+          }, 1000); // Wait 1 second before retrying
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [api.cafes, api.main]);
+  }, [api.cafes, api.main, retryCount]);
 
   // Get all unique categories from cafe data
   const allCategories = categories.map(cat => cat.name);

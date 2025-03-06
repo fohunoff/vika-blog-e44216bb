@@ -10,7 +10,7 @@ export const delay = (ms: number = 500) => new Promise(resolve => setTimeout(res
  * @param errorProbability Chance of error (0-1)
  * @param errorMessage Error message to throw
  */
-export const simulateError = (errorProbability: number = 0.1, errorMessage: string = "API Error") => {
+export const simulateError = (errorProbability: number = 0.02, errorMessage: string = "API Error") => {
   if (Math.random() < errorProbability) {
     throw new Error(errorMessage);
   }
@@ -22,7 +22,7 @@ export const simulateError = (errorProbability: number = 0.1, errorMessage: stri
  */
 export const getData = <T>(data: T): Promise<T> => {
   return delay(300).then(() => {
-    simulateError(0.05);
+    simulateError(0.02);
     return data;
   });
 };
@@ -34,7 +34,7 @@ export const getData = <T>(data: T): Promise<T> => {
  */
 export const getById = <T extends { id: string }>(items: T[], id: string): Promise<T | undefined> => {
   return delay(200).then(() => {
-    simulateError(0.05);
+    simulateError(0.02);
     return items.find(item => item.id === id);
   });
 };
@@ -46,7 +46,7 @@ export const getById = <T extends { id: string }>(items: T[], id: string): Promi
  */
 export const getByIds = <T extends { id: string }>(items: T[], ids: string[]): Promise<T[]> => {
   return delay(200).then(() => {
-    simulateError(0.05);
+    simulateError(0.02);
     return items.filter(item => ids.includes(item.id));
   });
 };
