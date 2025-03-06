@@ -1,0 +1,63 @@
+
+[
+  {
+    "id": "category-cafe-1",
+    "name": "кофейня"
+  },
+  {
+    "id": "category-cafe-2",
+    "name": "выпечка"
+  },
+  {
+    "id": "category-cafe-3",
+    "name": "вегетарианское"
+  },
+  {
+    "id": "category-cafe-4",
+    "name": "завтраки"
+  },
+  {
+    "id": "category-cafe-5",
+    "name": "органик"
+  },
+  {
+    "id": "category-cafe-6",
+    "name": "ланчи"
+  },
+  {
+    "id": "category-cafe-7",
+    "name": "десерты"
+  },
+  {
+    "id": "category-cafe-8",
+    "name": "кондитерская"
+  },
+  {
+    "id": "category-cafe-9",
+    "name": "ресторан"
+  },
+  {
+    "id": "category-cafe-10",
+    "name": "бар"
+  },
+  {
+    "id": "category-cafe-11",
+    "name": "ужины"
+  },
+  {
+    "id": "category-cafe-12",
+    "name": "бранчи"
+  },
+  {
+    "id": "category-cafe-13",
+    "name": "американская кухня"
+  },
+  {
+    "id": "category-cafe-14",
+    "name": "итальянская кухня"
+  },
+  {
+    "id": "category-cafe-15",
+    "name": "пицца"
+  }
+]

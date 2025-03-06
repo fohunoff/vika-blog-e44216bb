@@ -1,0 +1,75 @@
+
+[
+  {
+    "id": "tag-diary-1",
+    "name": "осень"
+  },
+  {
+    "id": "tag-diary-2",
+    "name": "зима"
+  },
+  {
+    "id": "tag-diary-3",
+    "name": "весна"
+  },
+  {
+    "id": "tag-diary-4",
+    "name": "лето"
+  },
+  {
+    "id": "tag-diary-5",
+    "name": "книги"
+  },
+  {
+    "id": "tag-diary-6",
+    "name": "путешествия"
+  },
+  {
+    "id": "tag-diary-7",
+    "name": "мысли"
+  },
+  {
+    "id": "tag-diary-8",
+    "name": "хобби"
+  },
+  {
+    "id": "tag-diary-9",
+    "name": "прогулки"
+  },
+  {
+    "id": "tag-diary-10",
+    "name": "уют"
+  },
+  {
+    "id": "tag-diary-11",
+    "name": "друзья"
+  },
+  {
+    "id": "tag-diary-12",
+    "name": "кофе"
+  },
+  {
+    "id": "tag-diary-13",
+    "name": "музыка"
+  },
+  {
+    "id": "tag-diary-14",
+    "name": "кулинария"
+  },
+  {
+    "id": "tag-diary-15",
+    "name": "природа"
+  },
+  {
+    "id": "tag-diary-16",
+    "name": "рецепты"
+  },
+  {
+    "id": "tag-diary-17",
+    "name": "эксперименты"
+  },
+  {
+    "id": "tag-diary-18",
+    "name": "планы"
+  }
+]

@@ -1,0 +1,63 @@
+
+[
+  {
+    "id": "tag-recipe-1",
+    "name": "Вегетарианское"
+  },
+  {
+    "id": "tag-recipe-2",
+    "name": "Быстрый ужин"
+  },
+  {
+    "id": "tag-recipe-3",
+    "name": "Без глютена"
+  },
+  {
+    "id": "tag-recipe-4",
+    "name": "Праздничное"
+  },
+  {
+    "id": "tag-recipe-5",
+    "name": "Полезное"
+  },
+  {
+    "id": "tag-recipe-6",
+    "name": "Детское"
+  },
+  {
+    "id": "tag-recipe-7",
+    "name": "Веганское"
+  },
+  {
+    "id": "tag-recipe-8",
+    "name": "Сезонное"
+  },
+  {
+    "id": "tag-recipe-9",
+    "name": "Выпечка"
+  },
+  {
+    "id": "tag-recipe-10",
+    "name": "На гриле"
+  },
+  {
+    "id": "tag-recipe-11",
+    "name": "Низкокалорийное"
+  },
+  {
+    "id": "tag-recipe-12",
+    "name": "Постное"
+  },
+  {
+    "id": "tag-recipe-13",
+    "name": "Для перекуса"
+  },
+  {
+    "id": "tag-recipe-14",
+    "name": "Русская кухня"
+  },
+  {
+    "id": "tag-recipe-15",
+    "name": "Итальянская кухня"
+  }
+]
