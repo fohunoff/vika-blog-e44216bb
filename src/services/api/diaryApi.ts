@@ -1,8 +1,8 @@
 
 import diaryEntries from '../../data/diary.json';
-import diaryCategories from '../../data/diary-categories.json';
-import diaryTags from '../../data/diary-tags.json';
-import diaryMoods from '../../data/diary-moods.json';
+import diaryCategories from '../../data/diary/diary-categories.json';
+import diaryTags from '../../data/diary/diary-tags.json';
+import diaryMoods from '../../data/diary/diary-moods.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { DiaryCategory, DiaryEntry, DiaryTag } from '../../types/models';
 

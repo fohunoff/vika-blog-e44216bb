@@ -1,8 +1,8 @@
 
 import cafes from '../../data/cafes.json';
-import cafeCategories from '../../data/cafe-categories.json';
-import cafeTags from '../../data/cafe-tags.json';
-import cafePriceRanges from '../../data/cafe-price-ranges.json';
+import cafeCategories from '../../data/cafe/cafe-categories.json';
+import cafeTags from '../../data/cafe/cafe-tags.json';
+import cafePriceRanges from '../../data/cafe/cafe-price-ranges.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '../../types/models';
 

@@ -1,8 +1,8 @@
 
-import homeArticles from '../../data/home-articles.json';
-import homeCategories from '../../data/home-categories.json';
-import homeTags from '../../data/home-tags.json';
-import highlightTypes from '../../data/highlights-types.json';
+import homeArticles from '../../data/home/home-articles.json';
+import homeCategories from '../../data/home/home-categories.json';
+import homeTags from '../../data/home/home-tags.json';
+import highlightTypes from '../../data/home/highlights-types.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { HomeCategory, HomeHighlight, HomeHighlightType, HomeTag, HomeArticle } from '../../types/models';
 

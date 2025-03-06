@@ -1,6 +1,6 @@
 
-import recipeCategories from '../../data/recipe-categories.json';
-import recipeTags from '../../data/recipe-tags.json';
+import recipeCategories from '../../data/recipe/recipe-categories.json';
+import recipeTags from '../../data/recipe/recipe-tags.json';
 import recipes from '../../data/recipes.json';
 import { getData, getById, getByIds } from './utils';
 import { RecipeCategory, RecipeTag } from '../../types/models';
