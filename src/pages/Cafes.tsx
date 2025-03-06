@@ -7,118 +7,66 @@ import Footer from '../components/Footer';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-// Типы для кафе
-interface Cafe {
-  id: string;
-  name: string;
-  location: string;
-  rating: number;
-  priceRange: string;
-  description: string;
-  categories: string[];
-  imageSrc: string;
-  openHours: string;
-}
+import { useApi } from '../hooks/useApi';
+import { Cafe, CafeCategory, CafeTag } from '@/types/models';
 
 const Cafes = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
+  const { api } = useApi();
+  const [cafes, setCafes] = useState<Cafe[]>([]);
+  const [categories, setCategories] = useState<CafeCategory[]>([]);
+  const [tags, setTags] = useState<CafeTag[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Примеры кафе
-  const cafes: Cafe[] = [
-    {
-      id: 'coffee-lab',
-      name: 'Coffee Lab',
-      location: 'ул. Пушкина, 15',
-      rating: 4.7,
-      priceRange: '$$',
-      description: 'Уютное кафе с отличным кофе и домашней выпечкой. Идеальное место для работы или встречи с друзьями.',
-      categories: ['кофейня', 'выпечка', 'завтраки'],
-      imageSrc: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=2000',
-      openHours: '08:00-22:00',
-    },
-    {
-      id: 'green-bistro',
-      name: 'Green Bistro',
-      location: 'ул. Ленина, 42',
-      rating: 4.5,
-      priceRange: '$$$',
-      description: 'Вегетарианское бистро с сезонным меню и органическими продуктами. Приятная атмосфера и внимательный персонал.',
-      categories: ['вегетарианское', 'органик', 'ланчи'],
-      imageSrc: 'https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?auto=format&fit=crop&q=80&w=2000',
-      openHours: '10:00-21:00',
-    },
-    {
-      id: 'sweet-corner',
-      name: 'Sweet Corner',
-      location: 'пр. Мира, 78',
-      rating: 4.8,
-      priceRange: '$$',
-      description: 'Кондитерская с авторскими десертами и необычными вкусами. Здесь можно найти как классические сладости, так и экспериментальные варианты.',
-      categories: ['десерты', 'кондитерская', 'кофейня'],
-      imageSrc: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=2000',
-      openHours: '09:00-20:00',
-    },
-    {
-      id: 'urban-kitchen',
-      name: 'Urban Kitchen',
-      location: 'ул. Гагарина, 31',
-      rating: 4.4,
-      priceRange: '$$$',
-      description: 'Современный ресторан с открытой кухней и интернациональным меню. Потрясающий интерьер и панорамные окна.',
-      categories: ['ресторан', 'бар', 'ужины'],
-      imageSrc: 'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?auto=format&fit=crop&q=80&w=2000',
-      openHours: '12:00-23:00',
-    },
-    {
-      id: 'breakfast-club',
-      name: 'Breakfast Club',
-      location: 'ул. Солнечная, 5',
-      rating: 4.6,
-      priceRange: '$$',
-      description: 'Специализируется на завтраках со всего мира. Большие порции и дружелюбная атмосфера.',
-      categories: ['завтраки', 'бранчи', 'американская кухня'],
-      imageSrc: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=2000',
-      openHours: '07:00-16:00',
-    },
-    {
-      id: 'pasta-paradise',
-      name: 'Pasta Paradise',
-      location: 'пр. Октября, 120',
-      rating: 4.9,
-      priceRange: '$$$',
-      description: 'Итальянский ресторан с домашней пастой и настоящей пиццей из дровяной печи. Большой выбор вин.',
-      categories: ['итальянская кухня', 'ресторан', 'пицца'],
-      imageSrc: 'https://images.unsplash.com/photo-1458644267420-66bc8a5f21e4?auto=format&fit=crop&q=80&w=2000',
-      openHours: '11:00-22:00',
-    },
-  ];
+  useEffect(() => {
+    window.scrollTo(0, 0);
 
-  // Список категорий для фильтрации
-  const allCategories = Array.from(
-    new Set(cafes.flatMap(cafe => cafe.categories))
-  ).sort();
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Use the enriched cafes endpoint that has categories and tags
+        const enrichedCafes = await api.cafes.getEnrichedCafes();
+        const categoriesData = await api.cafes.getCategories();
+        const tagsData = await api.cafes.getTags();
+        
+        setCafes(enrichedCafes);
+        setCategories(categoriesData);
+        setTags(tagsData);
+      } catch (error) {
+        console.error('Error fetching cafe data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Список ценовых категорий
+    fetchData();
+  }, [api.cafes]);
+
+  // Get all unique categories from cafe data
+  const allCategories = categories.map(cat => cat.name);
+
+  // List of price ranges
   const priceRanges = ['$', '$$', '$$$'];
 
-  // Фильтрация кафе
+  // Filter cafes by search query, category, and price range
   const filteredCafes = cafes.filter(cafe => {
-    const matchesSearch = cafe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          cafe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          cafe.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || cafe.categories.includes(selectedCategory);
+    const matchesSearch = 
+      cafe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (cafe.description && cafe.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (cafe.location && cafe.location.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesCategory = !selectedCategory || 
+      (cafe.categories && Array.isArray(cafe.categories) && 
+       cafe.categories.some(cat => cat.toLowerCase() === selectedCategory.toLowerCase()));
+    
     const matchesPriceRange = !selectedPriceRange || cafe.priceRange === selectedPriceRange;
+    
     return matchesSearch && matchesCategory && matchesPriceRange;
   });
 
-  // Функция для отображения звездного рейтинга
+  // Function to render star rating
   const renderStars = (rating: number) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -144,6 +92,9 @@ const Cafes = () => {
 
     return <div className="flex">{stars}</div>;
   };
+
+  // Get popular tags from our cafes
+  const popularTags = tags.slice(0, 10).map(tag => tag.name);
 
   return (
     <main className="min-h-screen pt-24">
@@ -229,7 +180,11 @@ const Cafes = () => {
       
       {/* Список кафе */}
       <div className="blog-container py-16">
-        {filteredCafes.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p>Загрузка кафе...</p>
+          </div>
+        ) : filteredCafes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {filteredCafes.map((cafe, index) => (
               <article 
@@ -262,16 +217,18 @@ const Cafes = () => {
                       <MapPin size={16} />
                       <span>{cafe.location}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock size={16} />
-                      <span>{cafe.openHours}</span>
-                    </div>
+                    {cafe.openHours && (
+                      <div className="flex items-center gap-1">
+                        <Clock size={16} />
+                        <span>{cafe.openHours}</span>
+                      </div>
+                    )}
                   </div>
                   
-                  <p className="text-gray-700 mb-6 line-clamp-3">{cafe.description}</p>
+                  <p className="text-gray-700 mb-6 line-clamp-3">{cafe.shortDescription || cafe.description}</p>
                   
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {cafe.categories.map(category => (
+                    {cafe.categories && cafe.categories.map(category => (
                       <Badge 
                         key={category}
                         variant="secondary"
@@ -287,7 +244,7 @@ const Cafes = () => {
                       variant="outline"
                       className="border-blog-yellow text-blog-black hover:bg-blog-yellow hover:text-blog-black"
                     >
-                      <Coffee size={18} />
+                      <Coffee size={18} className="mr-2" />
                       Подробнее
                     </Button>
                   </Link>
@@ -315,13 +272,12 @@ const Cafes = () => {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {["завтраки", "кофейня", "ресторан", "десерты", "вегетарианское", 
-              "пицца", "итальянская кухня", "бар", "бранчи", "ланчи"].map((tag) => (
+            {popularTags.map((tag) => (
               <Badge 
                 key={tag} 
                 variant="secondary" 
                 className="bg-white hover:bg-gray-100 text-blog-black cursor-pointer"
-                onClick={() => setSelectedCategory(tag)}
+                onClick={() => setSearchQuery(tag)}
               >
                 {tag}
               </Badge>

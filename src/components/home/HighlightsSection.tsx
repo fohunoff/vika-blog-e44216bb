@@ -1,16 +1,45 @@
-
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import HomeHighlightCard from '../HomeHighlightCard';
 import { HomeHighlight } from '@/types/models';
+import { useEffect, useState } from 'react';
+import { useApi } from '@/hooks/useApi';
 
 interface HighlightsSectionProps {
-  highlights: HomeHighlight[];
+  highlights?: HomeHighlight[];
 }
 
-const HighlightsSection = ({ highlights }: HighlightsSectionProps) => {
-  // Display up to 4 highlights
+const HighlightsSection = ({ highlights: propHighlights }: HighlightsSectionProps) => {
+  const { api } = useApi();
+  const [highlights, setHighlights] = useState<HomeHighlight[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (propHighlights && propHighlights.length > 0) {
+      setHighlights(propHighlights);
+      return;
+    }
+
+    const fetchHighlights = async () => {
+      setIsLoading(true);
+      try {
+        const highlightsData = await api.home.getHighlights();
+        setHighlights(highlightsData);
+      } catch (error) {
+        console.error('Error fetching highlights:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHighlights();
+  }, [api.home, propHighlights]);
+
   const displayHighlights = highlights.slice(0, 4);
+  
+  if (isLoading) {
+    return <section className="mb-16"><p>Загрузка рекомендаций...</p></section>;
+  }
   
   return (
     <section className="mb-16">

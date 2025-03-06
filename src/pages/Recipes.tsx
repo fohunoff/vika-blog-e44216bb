@@ -7,105 +7,72 @@ import Footer from '../components/Footer';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-// Типы для рецептов
-interface Recipe {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  time: string;
-  difficulty: 'Легко' | 'Средне' | 'Сложно';
-  imageSrc: string;
-}
+import { useApi } from '../hooks/useApi';
 
 const Recipes = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
+  const { api } = useApi();
+  const [recipes, setRecipes] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Категории рецептов
-  const categories = [
-    { id: 'breakfast', name: 'Завтраки' },
-    { id: 'soups', name: 'Супы' },
-    { id: 'main', name: 'Основные блюда' },
-    { id: 'desserts', name: 'Десерты' },
-    { id: 'drinks', name: 'Напитки' },
-  ];
+  useEffect(() => {
+    window.scrollTo(0, 0);
 
-  // Примеры рецептов
-  const allRecipes: Recipe[] = [
-    {
-      id: 'pumpkin-soup',
-      title: 'Тыквенный суп-пюре с имбирем',
-      description: 'Нежный, согревающий суп с ароматом осенних специй и ноткой имбиря.',
-      category: 'soups',
-      time: '30 минут',
-      difficulty: 'Легко',
-      imageSrc: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&q=80&w=2574',
-    },
-    {
-      id: 'avocado-toast',
-      title: 'Тост с авокадо и яйцом пашот',
-      description: 'Идеальный питательный завтрак для энергичного начала дня.',
-      category: 'breakfast',
-      time: '15 минут',
-      difficulty: 'Легко',
-      imageSrc: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'ratatouille',
-      title: 'Рататуй с прованскими травами',
-      description: 'Яркое овощное блюдо с ароматными травами для любителей средиземноморской кухни.',
-      category: 'main',
-      time: '60 минут',
-      difficulty: 'Средне',
-      imageSrc: 'https://images.unsplash.com/photo-1572453800999-e8d2d0d95b2b?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'berry-pavlova',
-      title: 'Павлова с летними ягодами',
-      description: 'Воздушный десерт с хрустящей корочкой, нежным кремом и свежими ягодами.',
-      category: 'desserts',
-      time: '90 минут',
-      difficulty: 'Сложно',
-      imageSrc: 'https://images.unsplash.com/photo-1488477181946-6428a0a36077?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'matcha-latte',
-      title: 'Латте с чаем матча',
-      description: 'Бодрящий и полезный напиток с антиоксидантами и нежной молочной пенкой.',
-      category: 'drinks',
-      time: '10 минут',
-      difficulty: 'Легко',
-      imageSrc: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'borsch',
-      title: 'Классический борщ с говядиной',
-      description: 'Наваристый, ароматный суп со свеклой, овощами и нежной говядиной.',
-      category: 'soups',
-      time: '120 минут',
-      difficulty: 'Средне',
-      imageSrc: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&q=80&w=2000',
-    },
-  ];
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [recipesData, categoriesData, tagsData] = await Promise.all([
+          api.recipes.getRecipes(),
+          api.recipes.getCategories(),
+          api.recipes.getTags(),
+        ]);
+        
+        // Enrich recipe data with category and tag information
+        const enrichedRecipes = recipesData.map(recipe => {
+          const category = categoriesData.find(c => recipe.categoryIds && recipe.categoryIds.includes(c.id));
+          const recipeTags = recipe.tagIds 
+            ? recipe.tagIds.map(id => tagsData.find(t => t.id === id)).filter(Boolean) 
+            : [];
+            
+          return {
+            ...recipe,
+            category: category?.id || null,
+            categoryName: category?.name || 'Без категории',
+            tags: recipeTags.map(t => t.name)
+          };
+        });
+        
+        setRecipes(enrichedRecipes);
+        setCategories(categoriesData);
+        setTags(tagsData);
+      } catch (error) {
+        console.error('Error fetching recipe data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Фильтрация рецептов по поиску и категории
-  const filteredRecipes = allRecipes.filter(recipe => {
+    fetchData();
+  }, [api.recipes]);
+
+  // Filter recipes by search query and category
+  const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          recipe.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !activeCategory || recipe.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Обработчик изменения категории
+  // Handle category change
   const handleCategoryChange = (categoryId: string) => {
     setActiveCategory(activeCategory === categoryId ? null : categoryId);
   };
+
+  // Get popular tags (limit to 10)
+  const popularTags = tags.slice(0, 10);
 
   return (
     <main className="min-h-screen pt-24">
@@ -161,7 +128,11 @@ const Recipes = () => {
       
       {/* Список рецептов */}
       <div className="blog-container py-16">
-        {filteredRecipes.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p>Загрузка рецептов...</p>
+          </div>
+        ) : filteredRecipes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredRecipes.map((recipe, index) => (
               <div key={recipe.id} className="animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -175,24 +146,28 @@ const Recipes = () => {
                       />
                       <div className="absolute top-4 left-4">
                         <Badge className="bg-blog-yellow hover:bg-blog-yellow-dark text-blog-black">
-                          {categories.find(cat => cat.id === recipe.category)?.name}
+                          {recipe.categoryName}
                         </Badge>
                       </div>
                     </div>
                     
                     <div className="p-6">
                       <h3 className="text-xl font-bold mb-2">{recipe.title}</h3>
-                      <p className="text-gray-600 mb-4">{recipe.description}</p>
+                      <p className="text-gray-600 mb-4">{recipe.description || recipe.shortDescription}</p>
                       
                       <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Clock size={16} />
-                          <span>{recipe.time}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <ChefHat size={16} />
-                          <span>{recipe.difficulty}</span>
-                        </div>
+                        {recipe.time && (
+                          <div className="flex items-center gap-1">
+                            <Clock size={16} />
+                            <span>{recipe.time}</span>
+                          </div>
+                        )}
+                        {recipe.difficulty && (
+                          <div className="flex items-center gap-1">
+                            <ChefHat size={16} />
+                            <span>{recipe.difficulty}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </article>
@@ -220,14 +195,14 @@ const Recipes = () => {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {["Вегетарианское", "Быстрый ужин", "Без глютена", "Праздничное", "Полезное", 
-              "Детское", "Веганское", "Сезонное", "Выпечка", "На гриле"].map((tag) => (
+            {popularTags.map((tag) => (
               <Badge 
-                key={tag} 
+                key={tag.id} 
                 variant="secondary" 
                 className="bg-white hover:bg-gray-100 text-blog-black cursor-pointer"
+                onClick={() => setSearchQuery(tag.name)}
               >
-                {tag}
+                {tag.name}
               </Badge>
             ))}
           </div>

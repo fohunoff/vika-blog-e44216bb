@@ -7,83 +7,55 @@ import Footer from '../components/Footer';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-// Типы для записей дневника
-interface DiaryEntry {
-  id: string;
-  title: string;
-  date: string;
-  content: string;
-  mood: string;
-  tags: string[];
-  imageSrc?: string;
-}
+import { useEnrichedDiaryEntries, useApi } from '../hooks/useApi';
+import { DiaryEntry } from '@/types/models';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 const Diary = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
+  const { data: enrichedEntries, isLoading } = useEnrichedDiaryEntries();
+  const { api } = useApi();
+  const [allMoods, setAllMoods] = useState<{id: string, name: string}[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
-  // Примеры записей дневника
-  const diaryEntries: DiaryEntry[] = [
-    {
-      id: 'autumn-thoughts',
-      title: 'Осенние размышления',
-      date: '15 октября 2023',
-      content: 'Сегодня я гуляла по парку и наблюдала, как желтеют листья. Осень всегда навевает на меня особое настроение — смесь меланхолии и умиротворения. Решила начать новую книгу и заварить любимый чай с корицей.',
-      mood: 'Умиротворение',
-      tags: ['осень', 'книги', 'прогулки'],
-      imageSrc: 'https://images.unsplash.com/photo-1506202687253-52e1b29d3527?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'new-recipe',
-      title: 'Эксперименты на кухне',
-      date: '2 ноября 2023',
-      content: 'Пробовала приготовить новый рецепт тыквенного пирога. Добавила немного имбиря и корицы — получилось восхитительно! Домашние оценили, особенно с чашкой горячего какао.',
-      mood: 'Вдохновение',
-      tags: ['кулинария', 'эксперименты', 'осенние рецепты'],
-      imageSrc: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'weekend-plans',
-      title: 'Планы на выходные',
-      date: '10 ноября 2023',
-      content: 'Составила список дел на предстоящие выходные: посетить новую выставку в галерее, встретиться с друзьями в том уютном кафе на углу и закончить вязать шарф, который начала еще месяц назад.',
-      mood: 'Предвкушение',
-      tags: ['планы', 'хобби', 'друзья'],
-      imageSrc: 'https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&q=80&w=2000',
-    },
-    {
-      id: 'winter-coming',
-      title: 'Приближение зимы',
-      date: '28 ноября 2023',
-      content: 'Сегодня выпал первый снег. Я люблю это волшебное время, когда природа замирает в ожидании зимы. Достала теплые свитера и решила, что пора обновить зимний гардероб.',
-      mood: 'Ностальгия',
-      tags: ['зима', 'погода', 'уют'],
-      imageSrc: 'https://images.unsplash.com/photo-1491002052546-bf38f186af56?auto=format&fit=crop&q=80&w=2000',
-    },
-  ];
+  useEffect(() => {
+    window.scrollTo(0, 0);
 
-  // Список настроений для фильтрации
-  const moods = [
-    'Радость', 'Умиротворение', 'Вдохновение', 'Ностальгия', 
-    'Задумчивость', 'Предвкушение', 'Грусть', 'Любопытство'
-  ];
+    // Fetch moods
+    api.diary.getMoods().then(moods => {
+      setAllMoods(moods);
+    });
+  }, [api.diary]);
 
-  // Фильтрация записей
-  const filteredEntries = diaryEntries.filter(entry => {
-    const matchesSearch = entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         entry.content.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesMood = !selectedMood || entry.mood === selectedMood;
-    return matchesSearch && matchesMood;
-  });
+  // Filter entries based on search query and selected mood
+  const filteredEntries = enrichedEntries
+    ? enrichedEntries.filter(entry => {
+        const matchesSearch = entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            entry.content.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesMood = !selectedMood || entry.mood === selectedMood;
+        return matchesSearch && matchesMood;
+      })
+    : [];
 
-  // Функция для обработки выбора настроения
+  // Function to handle mood selection
   const handleMoodSelect = (mood: string) => {
     setSelectedMood(selectedMood === mood ? null : mood);
+  };
+
+  // Collect all tags from diary entries
+  const allTags = enrichedEntries
+    ? Array.from(new Set(enrichedEntries.flatMap(entry => entry.tags || []))).filter(Boolean)
+    : [];
+
+  // Format date to Russian locale
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, 'd MMMM yyyy', { locale: ru });
+    } catch (e) {
+      return dateString;
+    }
   };
 
   return (
@@ -120,18 +92,18 @@ const Diary = () => {
           </div>
           
           <div className="flex flex-wrap gap-3">
-            {moods.map((mood) => (
+            {allMoods.map((mood) => (
               <Button
-                key={mood}
-                variant={selectedMood === mood ? "default" : "outline"}
+                key={mood.id}
+                variant={selectedMood === mood.name ? "default" : "outline"}
                 className={`rounded-full ${
-                  selectedMood === mood 
+                  selectedMood === mood.name 
                     ? "bg-blog-yellow text-blog-black hover:bg-blog-yellow-dark" 
                     : "bg-transparent text-blog-white border-blog-white hover:bg-blog-white/10"
                 }`}
-                onClick={() => handleMoodSelect(mood)}
+                onClick={() => handleMoodSelect(mood.name)}
               >
-                {mood}
+                {mood.name}
               </Button>
             ))}
           </div>
@@ -140,7 +112,11 @@ const Diary = () => {
       
       {/* Записи дневника */}
       <div className="blog-container py-16">
-        {filteredEntries.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p>Загрузка записей...</p>
+          </div>
+        ) : filteredEntries.length > 0 ? (
           <div className="space-y-16">
             {filteredEntries.map((entry, index) => (
               <article 
@@ -163,7 +139,7 @@ const Diary = () => {
                     <div className="flex items-center text-gray-500 text-sm mb-4 gap-4">
                       <div className="flex items-center gap-1">
                         <Calendar size={16} />
-                        <span>{entry.date}</span>
+                        <span>{formatDate(entry.date)}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <MessageSquare size={16} />
@@ -172,10 +148,10 @@ const Diary = () => {
                     </div>
                     
                     <h2 className="text-2xl font-bold mb-4">{entry.title}</h2>
-                    <p className="text-gray-700 mb-6 line-clamp-3">{entry.content}</p>
+                    <p className="text-gray-700 mb-6 line-clamp-3">{entry.shortDescription || entry.content.substring(0, 150) + '...'}</p>
                     
                     <div className="flex flex-wrap gap-2 mb-6">
-                      {entry.tags.map(tag => (
+                      {entry.tags && entry.tags.map(tag => (
                         <Badge 
                           key={tag}
                           variant="secondary"
@@ -219,12 +195,12 @@ const Diary = () => {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {["осень", "зима", "рецепты", "книги", "путешествия", "мысли", 
-              "хобби", "прогулки", "уют", "друзья", "кофе", "музыка"].map((tag) => (
+            {allTags.slice(0, 12).map((tag) => (
               <Badge 
                 key={tag} 
                 variant="secondary" 
                 className="bg-white hover:bg-gray-100 text-blog-black cursor-pointer"
+                onClick={() => setSearchQuery(tag)}
               >
                 {tag}
               </Badge>
