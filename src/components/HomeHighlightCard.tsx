@@ -1,16 +1,15 @@
 
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { HomeHighlight } from '@/types/models';
 
 interface HomeHighlightCardProps {
-  id: number;
-  title: string;
-  content: string;
-  image: string;
-  type: string;
+  highlight: HomeHighlight;
 }
 
-const HomeHighlightCard = ({ id, title, content, image, type }: HomeHighlightCardProps) => {
+const HomeHighlightCard = ({ highlight }: HomeHighlightCardProps) => {
+  const { id, title, content, image, type } = highlight;
+  
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm group">
       <div className="flex flex-col md:flex-row h-full">

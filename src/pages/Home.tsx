@@ -1,16 +1,46 @@
-
 import { useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
+import { useHomeHighlights, useHomeCategories, useHomeTags } from '@/hooks/useApi';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
 import SearchCategoriesSection from '../components/home/SearchCategoriesSection';
 import HighlightsSection from '../components/home/HighlightsSection';
 import ArticlesTabsSection from '../components/home/ArticlesTabsSection';
 import PopularTagsSection from '../components/home/PopularTagsSection';
+import { Loader2 } from 'lucide-react';
 
 const Home = () => {
+  const { toast } = useToast();
+  
+  const { 
+    data: highlights = [], 
+    isLoading: isLoadingHighlights,
+    error: highlightsError 
+  } = useHomeHighlights();
+  
+  const { 
+    data: categories = [], 
+    isLoading: isLoadingCategories 
+  } = useHomeCategories();
+  
+  const { 
+    data: tags = [], 
+    isLoading: isLoadingTags 
+  } = useHomeTags();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (highlightsError) {
+      toast({
+        title: "Ошибка загрузки данных",
+        description: "Не удалось загрузить рекомендуемые материалы. Пожалуйста, попробуйте позже.",
+        variant: "destructive",
+      });
+    }
+  }, [highlightsError, toast]);
 
   const featuredArticles = [
     {
@@ -69,24 +99,17 @@ const Home = () => {
     }
   ];
 
-  const highlights = [
-    {
-      id: 1,
-      title: "Эко-стиль в современном интерьере",
-      content: "Природные материалы, натуральные текстуры и спокойные цвета создают гармоничное пространство для жизни в стиле эко.",
-      image: "https://images.unsplash.com/photo-1616627978145-6a53a33e29c9?auto=format&fit=crop&q=80&w=2670",
-      type: "Тренд сезона"
-    },
-    {
-      id: 2,
-      title: "Организация хранения в маленькой квартире",
-      content: "Максимальное использование пространства, многофункциональная мебель и умные системы хранения — ключи к порядку.",
-      image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=2669",
-      type: "Практические советы"
-    }
-  ];
+  const isLoading = isLoadingHighlights || isLoadingCategories || isLoadingTags;
 
-  const popularTags = ["Минимализм", "Скандинавский стиль", "Хранение", "Комнатные растения", "Уют", "DIY", "Эко-стиль", "Умный дом", "Освещение", "Маленькие пространства"];
+  if (isLoading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blog-yellow" />
+      </main>
+    );
+  }
+
+  const popularTags = tags.slice(0, 10).map(tag => tag.name);
 
   return (
     <main className="min-h-screen pt-24">
@@ -105,7 +128,7 @@ const Home = () => {
             </p>
           </div>
           
-          <SearchCategoriesSection />
+          <SearchCategoriesSection categories={categories} />
           <HighlightsSection highlights={highlights} />
           <ArticlesTabsSection articles={featuredArticles} />
           <PopularTagsSection tags={popularTags} />
