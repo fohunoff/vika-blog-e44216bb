@@ -1,12 +1,9 @@
-
 import { useEffect, useState } from 'react';
-
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
-
 import { useApi } from '../hooks/useApi';
 import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '@/types/models';
-
+import { Category } from '@/services/api/mainApi';
 import CafeSearch from '../components/cafes/CafeSearch';
 import CafeFilters from '../components/cafes/CafeFilters';
 import CafesList from '../components/cafes/CafesList';
@@ -19,6 +16,7 @@ const Cafes = () => {
   const [categories, setCategories] = useState<CafeCategory[]>([]);
   const [tags, setTags] = useState<CafeTag[]>([]);
   const [priceRanges, setPriceRanges] = useState<CafePriceRange[]>([]);
+  const [pageInfo, setPageInfo] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
@@ -31,10 +29,17 @@ const Cafes = () => {
       setIsLoading(true);
       try {
         // Use the enriched cafes endpoint that has categories and tags
-        const enrichedCafes = await api.cafes.getEnrichedCafes();
-        const categoriesData = await api.cafes.getCategories();
-        const tagsData = await api.cafes.getTags();
-        const priceRangesData = await api.cafes.getPriceRanges();
+        const [enrichedCafes, categoriesData, tagsData, priceRangesData, navCategories] = await Promise.all([
+          api.cafes.getEnrichedCafes(),
+          api.cafes.getCategories(),
+          api.cafes.getTags(),
+          api.cafes.getPriceRanges(),
+          api.main.getIndexCategories()
+        ]);
+
+        // Get page info from navigation categories
+        const cafesPageInfo = navCategories.find(cat => cat.link === '/cafes');
+        setPageInfo(cafesPageInfo || null);
 
         setCafes(enrichedCafes);
         setCategories(categoriesData);
@@ -49,7 +54,7 @@ const Cafes = () => {
     };
 
     fetchData();
-  }, [api.cafes]);
+  }, [api.cafes, api.main]);
 
   // Get all unique categories from cafe data
   const allCategories = categories.map(cat => cat.name);
@@ -84,6 +89,8 @@ const Cafes = () => {
       <CafeSearch
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        pageTitle={pageInfo?.title || "ОБЗОРЫ КАФЕ"}
+        pageDescription={pageInfo?.pageDescription || "Здесь вы найдете мои впечатления о различных кафе и ресторанах, атмосфере и кухне. Делюсь любимыми местами и новыми открытиями."}
       />
 
       {/* Фильтры */}

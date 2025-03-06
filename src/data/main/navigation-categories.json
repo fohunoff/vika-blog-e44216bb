@@ -4,6 +4,7 @@
     "id": "category-1",
     "title": "Рецепты",
     "description": "Вкусные и простые рецепты для любого случая",
+    "pageDescription": "Коллекция моих любимых рецептов — от простых повседневных блюд до особенных угощений для праздничного стола.",
     "imageSrc": "https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?auto=format&fit=crop&q=80&w=2574",
     "link": "/recipes",
     "bgColor": "white"
@@ -12,6 +13,7 @@
     "id": "category-2",
     "title": "Личный дневник",
     "description": "Мысли, впечатления и повседневные истории",
+    "pageDescription": "Здесь я делюсь своими мыслями, впечатлениями и моментами из повседневной жизни. Маленькие радости, открытия и размышления.",
     "imageSrc": "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=2670",
     "link": "/diary",
     "bgColor": "black"
@@ -20,6 +22,7 @@
     "id": "category-3",
     "title": "Обзоры Кафе",
     "description": "Лучшие места города и их особенности",
+    "pageDescription": "Здесь вы найдете мои впечатления о различных кафе и ресторанах, атмосфере и кухне. Делюсь любимыми местами и новыми открытиями.",
     "imageSrc": "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&q=80&w=2671",
     "link": "/cafes",
     "bgColor": "yellow"
@@ -28,6 +31,7 @@
     "id": "category-4",
     "title": "Дом и уют",
     "description": "Идеи для создания комфортного пространства",
+    "pageDescription": "Идеи для создания красивого и функционального интерьера, советы по уходу за растениями, лайфхаки по организации пространства и вдохновение для вашего дома.",
     "imageSrc": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=2658",
     "link": "/cozy",
     "bgColor": "white"

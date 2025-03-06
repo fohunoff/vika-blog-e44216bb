@@ -5,16 +5,18 @@ import { Input } from "@/components/ui/input";
 interface CafeSearchProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  pageTitle?: string;
+  pageDescription?: string;
 }
 
-const CafeSearch = ({ searchQuery, setSearchQuery }: CafeSearchProps) => {
+const CafeSearch = ({ searchQuery, setSearchQuery, pageTitle = "ОБЗОРЫ КАФЕ", pageDescription }: CafeSearchProps) => {
   return (
     <div className="blog-container py-12">
       <h1 className="section-title mb-8 text-center">
-        ОБЗОРЫ КАФЕ
+        {pageTitle}
       </h1>
       <p className="text-center text-xl mb-12 max-w-3xl mx-auto">
-        Здесь вы найдете мои впечатления о различных кафе и ресторанах, атмосфере и кухне. Делюсь любимыми местами и новыми открытиями.
+        {pageDescription || "Здесь вы найдете мои впечатления о различных кафе и ресторанах, атмосфере и кухне. Делюсь любимыми местами и новыми открытиями."}
       </p>
       
       <div className="relative max-w-md mx-auto mb-16">

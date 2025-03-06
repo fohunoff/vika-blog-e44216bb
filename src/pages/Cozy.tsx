@@ -1,7 +1,8 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { useCozyArticles, useCozyHighlights, useCozyCategories, useCozyTags } from '@/hooks/useApi';
+import { useCozyArticles, useCozyHighlights, useCozyCategories, useCozyTags, useApi } from '@/hooks/useApi';
+import { Category } from '@/services/api/mainApi';
 
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
@@ -15,6 +16,8 @@ import { Loader2 } from 'lucide-react';
 
 const Cozy = () => {
   const { toast } = useToast();
+  const { api } = useApi();
+  const [pageInfo, setPageInfo] = useState<Category | null>(null);
 
   const {
     data: allArticles = [],
@@ -40,7 +43,13 @@ const Cozy = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Fetch page info from navigation categories
+    api.main.getIndexCategories().then(navCategories => {
+      const cozyPageInfo = navCategories.find(cat => cat.link === '/cozy');
+      setPageInfo(cozyPageInfo || null);
+    });
+  }, [api.main]);
 
   useEffect(() => {
     if (highlightsError || articlesError) {
@@ -71,13 +80,12 @@ const Cozy = () => {
       <div className="bg-blog-gray">
         <div className="blog-container py-16">
           <h1 className="section-title mb-8 text-center">
-            ДОМ И УЮТ
+            {pageInfo?.title || "ДОМ И УЮТ"}
           </h1>
 
           <div className="max-w-2xl mx-auto mb-16 text-center">
             <p className="text-lg text-gray-600">
-              Идеи для создания красивого и функционального интерьера, советы по уходу за растениями,
-              лайфхаки по организации пространства и вдохновение для вашего дома.
+              {pageInfo?.pageDescription || "Идеи для создания красивого и функционального интерьера, советы по уходу за растениями, лайфхаки по организации пространства и вдохновение для вашего дома."}
             </p>
           </div>
 

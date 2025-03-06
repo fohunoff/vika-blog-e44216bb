@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
@@ -7,12 +6,14 @@ import RecipeSearch from '../components/recipes/RecipeSearch';
 import RecipeFilters from '../components/recipes/RecipeFilters';
 import RecipesList from '../components/recipes/RecipesList';
 import RecipeTags from '../components/recipes/RecipeTags';
+import { Category } from '@/services/api/mainApi';
 
 const Recipes = () => {
   const { api } = useApi();
   const [recipes, setRecipes] = useState([]);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
+  const [pageInfo, setPageInfo] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,11 +24,16 @@ const Recipes = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [recipesData, categoriesData, tagsData] = await Promise.all([
+        const [recipesData, categoriesData, tagsData, navCategories] = await Promise.all([
           api.recipes.getRecipes(),
           api.recipes.getCategories(),
           api.recipes.getTags(),
+          api.main.getIndexCategories()
         ]);
+        
+        // Get page info from navigation categories
+        const recipesPageInfo = navCategories.find(cat => cat.link === '/recipes');
+        setPageInfo(recipesPageInfo || null);
         
         // Enrich recipe data with category and tag information
         const enrichedRecipes = recipesData.map(recipe => {
@@ -55,7 +61,7 @@ const Recipes = () => {
     };
 
     fetchData();
-  }, [api.recipes]);
+  }, [api.recipes, api.main]);
 
   // Filter recipes by search query and category
   const filteredRecipes = recipes.filter(recipe => {
@@ -86,10 +92,10 @@ const Recipes = () => {
       {/* Заголовок и поиск */}
       <div className="blog-container py-12">
         <h1 className="section-title mb-8 text-center">
-          РЕЦЕПТЫ
+          {pageInfo?.title || "РЕЦЕПТЫ"}
         </h1>
         <p className="text-center text-xl mb-12 max-w-3xl mx-auto">
-          Коллекция моих любимых рецептов — от простых повседневных блюд до особенных угощений для праздничного стола.
+          {pageInfo?.pageDescription || "Коллекция моих любимых рецептов — от простых повседневных блюд до особенных угощений для праздничного стола."}
         </p>
         
         <RecipeSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />

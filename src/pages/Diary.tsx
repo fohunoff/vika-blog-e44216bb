@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
@@ -7,22 +6,31 @@ import DiarySearch from '../components/diary/DiarySearch';
 import MoodFilter from '../components/diary/MoodFilter';
 import DiaryEntries from '../components/diary/DiaryEntries';
 import DiaryTags from '../components/diary/DiaryTags';
+import { Category } from '@/services/api/mainApi';
 
 const Diary = () => {
   const { data: enrichedEntries, isLoading } = useEnrichedDiaryEntries();
   const { api } = useApi();
   const [allMoods, setAllMoods] = useState<{id: string, name: string}[]>([]);
+  const [pageInfo, setPageInfo] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    // Fetch moods
-    api.diary.getMoods().then(moods => {
+    // Fetch moods and page info
+    Promise.all([
+      api.diary.getMoods(),
+      api.main.getIndexCategories()
+    ]).then(([moods, navCategories]) => {
       setAllMoods(moods);
+      
+      // Get page info from navigation categories
+      const diaryPageInfo = navCategories.find(cat => cat.link === '/diary');
+      setPageInfo(diaryPageInfo || null);
     });
-  }, [api.diary]);
+  }, [api.diary, api.main]);
 
   // Filter entries based on search query and selected mood
   const filteredEntries = enrichedEntries
@@ -51,10 +59,10 @@ const Diary = () => {
       {/* Заголовок и поиск */}
       <div className="blog-container py-12">
         <h1 className="section-title mb-8 text-center">
-          ЛИЧНЫЙ ДНЕВНИК
+          {pageInfo?.title || "ЛИЧНЫЙ ДНЕВНИК"}
         </h1>
         <p className="text-center text-xl mb-12 max-w-3xl mx-auto">
-          Здесь я делюсь своими мыслями, впечатлениями и моментами из повседневной жизни. Маленькие радости, открытия и размышления.
+          {pageInfo?.pageDescription || "Здесь я делюсь своими мыслями, впечатлениями и моментами из повседневной жизни. Маленькие радости, открытия и размышления."}
         </p>
         
         <DiarySearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />

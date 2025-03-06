@@ -1,3 +1,4 @@
+
 import aboutData from '../../data/main/about.json';
 import navigationCategories from '../../data/main/navigation-categories.json';
 import featuredSections from '../../data/main/featured-sections.json';
@@ -12,6 +13,7 @@ export interface Category {
     id: string;
     title: string;
     description: string;
+    pageDescription?: string;
     imageSrc: string;
     link: string;
     bgColor: 'black' | 'white' | 'yellow';
