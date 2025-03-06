@@ -1,0 +1,25 @@
+
+{
+  "tagline": "Добро пожаловать в мой блог",
+  "title": "ЛИЧНЫЙ<br /><span class=\"text-blog-black\">БЛОГ</span>",
+  "description": "Делюсь с вами рецептами, впечатлениями и идеями для уютного дома в своём личном пространстве.",
+  "primaryButton": {
+    "text": "Рецепты",
+    "link": "/recipes"
+  },
+  "secondaryButton": {
+    "text": "Дневник",
+    "link": "/diary"
+  },
+  "mainImage": {
+    "src": "https://images.unsplash.com/photo-1556910633-5099dc3b3e3c?auto=format&fit=crop&q=80&w=1000",
+    "alt": "Блоггер за работой"
+  },
+  "badge": {
+    "text": "2024"
+  },
+  "imageCaption": {
+    "title": "НОВЫЕ ИСТОРИИ",
+    "subtitle": "Каждую неделю"
+  }
+}

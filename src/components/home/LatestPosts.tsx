@@ -1,8 +1,11 @@
 
 import { Link } from 'react-router-dom';
 import { Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useApi } from '@/hooks/useApi';
 
-interface PostProps {
+interface Post {
+  id: string;
   title: string;
   excerpt: string;
   date: string;
@@ -11,7 +14,13 @@ interface PostProps {
   link: string;
 }
 
-const PostCard = ({ title, excerpt, date, category, imageSrc, link }: PostProps) => {
+interface PostCardProps {
+  post: Post;
+}
+
+const PostCard = ({ post }: PostCardProps) => {
+  const { title, excerpt, date, category, imageSrc, link } = post;
+  
   return (
     <article className="bg-blog-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
       <Link to={link} className="block">
@@ -44,32 +53,28 @@ const PostCard = ({ title, excerpt, date, category, imageSrc, link }: PostProps)
 };
 
 const LatestPosts = () => {
-  const posts = [
-    {
-      title: 'Тыквенный суп-пюре с имбирем',
-      excerpt: 'Нежный, согревающий суп с ароматом осенних специй и ноткой имбиря.',
-      date: '12 октября 2023',
-      category: 'Рецепты',
-      imageSrc: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&q=80&w=2574',
-      link: '/recipes/pumpkin-soup',
-    },
-    {
-      title: 'Kafe La Luna: уютное место для работы',
-      excerpt: 'Обзор нового кафе в центре города с идеальными условиями для удаленной работы.',
-      date: '5 октября 2023',
-      category: 'Кафе',
-      imageSrc: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=2678',
-      link: '/cafes/la-luna',
-    },
-    {
-      title: 'Осенние размышления у окна',
-      excerpt: 'Мысли о переменах, новых начинаниях и планах на будущий год.',
-      date: '29 сентября 2023',
-      category: 'Дневник',
-      imageSrc: 'https://images.unsplash.com/photo-1476782916354-326ab24c93df?auto=format&fit=crop&q=80&w=2729',
-      link: '/diary/autumn-thoughts',
-    },
-  ];
+  const { api } = useApi();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const data = await api.home.getLatestPosts();
+        setPosts(data);
+      } catch (error) {
+        console.error('Error fetching latest posts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [api.home]);
+
+  if (isLoading) {
+    return <section className="py-24 bg-blog-black text-blog-white"><div className="blog-container">Загрузка последних записей...</div></section>;
+  }
 
   return (
     <section className="py-24 bg-blog-black text-blog-white">
@@ -79,8 +84,8 @@ const LatestPosts = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.map((post, index) => (
-            <div key={index} className="animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
-              <PostCard {...post} />
+            <div key={post.id} className="animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
+              <PostCard post={post} />
             </div>
           ))}
         </div>

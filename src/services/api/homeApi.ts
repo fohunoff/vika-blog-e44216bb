@@ -4,6 +4,11 @@ import homeCategories from '../../data/home/home-categories.json';
 import homeTags from '../../data/home/home-tags.json';
 import highlightTypes from '../../data/home/highlights-types.json';
 import featuredSections from '../../data/home/featured-sections.json';
+import categories from '../../data/home/categories.json';
+import latestPosts from '../../data/home/latest-posts.json';
+import aboutData from '../../data/home/about.json';
+import heroData from '../../data/home/hero.json';
+import newsletterData from '../../data/home/newsletter.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
 import { HomeCategory, HomeHighlight, HomeHighlightType, HomeTag, HomeArticle, HomeFeaturedSection } from '../../types/models';
 
@@ -104,6 +109,41 @@ export function createHomeApi() {
         ...article,
         type: article.typeId ? types.find(type => type.id === article.typeId)?.name || article.type : article.type
       }));
+    },
+
+    /**
+     * Get category sections for index page
+     */
+    getIndexCategories: (): Promise<any[]> => {
+      return getData(categories);
+    },
+
+    /**
+     * Get latest posts for index page
+     */
+    getLatestPosts: (): Promise<any[]> => {
+      return getData(latestPosts);
+    },
+
+    /**
+     * Get about section data
+     */
+    getAboutData: (): Promise<any> => {
+      return getData(aboutData);
+    },
+
+    /**
+     * Get hero section data
+     */
+    getHeroData: (): Promise<any> => {
+      return getData(heroData);
+    },
+
+    /**
+     * Get newsletter section data
+     */
+    getNewsletterData: (): Promise<any> => {
+      return getData(newsletterData);
     }
   };
 }

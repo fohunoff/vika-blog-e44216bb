@@ -1,11 +1,11 @@
 
 import { useEffect } from 'react';
 import BlogHeader from '../components/BlogHeader';
-import HeroSection from '../components/HeroSection';
-import CategorySection from '../components/CategorySection';
-import LatestPosts from '../components/LatestPosts';
-import AboutSection from '../components/AboutSection';
-import NewsletterSection from '../components/NewsletterSection';
+import HeroSection from '../components/home/HeroSection';
+import CategorySection from '../components/home/CategorySection';
+import LatestPosts from '../components/home/LatestPosts';
+import AboutSection from '../components/home/AboutSection';
+import NewsletterSection from '../components/home/NewsletterSection';
 import Footer from '../components/Footer';
 
 const Index = () => {

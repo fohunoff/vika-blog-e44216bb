@@ -1,0 +1,30 @@
+
+[
+  {
+    "id": "post-1",
+    "title": "Тыквенный суп-пюре с имбирем",
+    "excerpt": "Нежный, согревающий суп с ароматом осенних специй и ноткой имбиря.",
+    "date": "12 октября 2023",
+    "category": "Рецепты",
+    "imageSrc": "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?auto=format&fit=crop&q=80&w=2574",
+    "link": "/recipes/pumpkin-soup"
+  },
+  {
+    "id": "post-2",
+    "title": "Kafe La Luna: уютное место для работы",
+    "excerpt": "Обзор нового кафе в центре города с идеальными условиями для удаленной работы.",
+    "date": "5 октября 2023",
+    "category": "Кафе",
+    "imageSrc": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=2678",
+    "link": "/cafes/la-luna"
+  },
+  {
+    "id": "post-3",
+    "title": "Осенние размышления у окна",
+    "excerpt": "Мысли о переменах, новых начинаниях и планах на будущий год.",
+    "date": "29 сентября 2023",
+    "category": "Дневник",
+    "imageSrc": "https://images.unsplash.com/photo-1476782916354-326ab24c93df?auto=format&fit=crop&q=80&w=2729",
+    "link": "/diary/autumn-thoughts"
+  }
+]
