@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
-import BlogFooter from '../components/BlogFooter';
+import Footer from '../components/Footer';
 import { useApi } from '../hooks/useApi';
 import RecipeSearch from '../components/recipes/RecipeSearch';
 import RecipeFilters from '../components/recipes/RecipeFilters';
@@ -31,9 +31,11 @@ const Recipes = () => {
           api.main.getIndexCategories()
         ]);
         
+        // Get page info from navigation categories
         const recipesPageInfo = navCategories.find(cat => cat.link === '/recipes');
         setPageInfo(recipesPageInfo || null);
         
+        // Enrich recipe data with category and tag information
         const enrichedRecipes = recipesData.map(recipe => {
           const category = categoriesData.find(c => recipe.categoryId === c.id);
           const recipeTags = recipe.tagIds 
@@ -61,6 +63,7 @@ const Recipes = () => {
     fetchData();
   }, [api.recipes, api.main]);
 
+  // Filter recipes by search query and category
   const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          recipe.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -69,20 +72,24 @@ const Recipes = () => {
     return matchesSearch && matchesCategory;
   });
 
+  // Handle category change
   const handleCategoryChange = (categoryId: string) => {
     setActiveCategory(activeCategory === categoryId ? null : categoryId);
   };
 
+  // Handle tag click
   const handleTagClick = (tagName: string) => {
     setSearchQuery(tagName);
   };
 
+  // Get popular tags (limit to 10)
   const popularTags = tags.slice(0, 10);
 
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
       
+      {/* Заголовок и поиск */}
       <div className="blog-container py-12">
         <h1 className="section-title mb-8 text-center">
           {pageInfo?.title || "РЕЦЕПТЫ"}
@@ -94,19 +101,22 @@ const Recipes = () => {
         <RecipeSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       </div>
       
+      {/* Фильтры по категориям */}
       <RecipeFilters 
         categories={categories} 
         activeCategory={activeCategory} 
         onCategoryChange={handleCategoryChange}
       />
       
+      {/* Список рецептов */}
       <div className="blog-container py-16">
         <RecipesList recipes={filteredRecipes} isLoading={isLoading} />
       </div>
       
+      {/* Популярные теги */}
       <RecipeTags tags={popularTags} onTagClick={handleTagClick} />
       
-      <BlogFooter />
+      <Footer />
     </main>
   );
 };

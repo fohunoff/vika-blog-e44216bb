@@ -1,10 +1,27 @@
+
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Facebook, Mail } from 'lucide-react';
-import { useNavigationCategories } from '@/hooks/useNavigationCategories';
+import { useEffect, useState } from 'react';
+import { useApi } from '@/hooks/useApi';
+import { Category } from '@/services/api/mainApi';
 
-const BlogFooter = () => {
+const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const { categories } = useNavigationCategories();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const { api } = useApi();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await api.main.getIndexCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, [api.main]);
 
   return (
     <footer className="bg-blog-black text-blog-white py-16">
@@ -78,4 +95,4 @@ const BlogFooter = () => {
   );
 };
 
-export default BlogFooter;
+export default Footer;
