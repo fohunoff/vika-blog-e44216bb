@@ -1,25 +1,32 @@
 
-import homeHighlights from '../../data/home-highlights.json';
+import homeArticles from '../../data/home-articles.json';
 import homeCategories from '../../data/home-categories.json';
 import homeTags from '../../data/home-tags.json';
 import highlightTypes from '../../data/highlights-types.json';
 import { getData, getById, getByIds, enrichWithRelated } from './utils';
-import { HomeCategory, HomeHighlight, HomeHighlightType, HomeTag } from '../../types/models';
+import { HomeCategory, HomeHighlight, HomeHighlightType, HomeTag, HomeArticle } from '../../types/models';
 
 export function createHomeApi() {
   return {
     /**
-     * Get all home highlights
+     * Get all home articles
      */
-    getHighlights: (): Promise<HomeHighlight[]> => {
-      return getData(homeHighlights as HomeHighlight[]);
+    getArticles: (): Promise<HomeArticle[]> => {
+      return getData(homeArticles as HomeArticle[]);
     },
 
     /**
-     * Get a single highlight by ID
+     * Get highlighted articles (for the Highlights section)
      */
-    getHighlightById: (id: string): Promise<HomeHighlight | undefined> => {
-      return getById(homeHighlights as HomeHighlight[], id);
+    getHighlights: (): Promise<HomeArticle[]> => {
+      return getData((homeArticles as HomeArticle[]).filter(article => article.isHighlight));
+    },
+
+    /**
+     * Get a single article by ID
+     */
+    getArticleById: (id: string): Promise<HomeArticle | undefined> => {
+      return getById(homeArticles as HomeArticle[], id);
     },
     
     /**
@@ -72,15 +79,15 @@ export function createHomeApi() {
     },
 
     /**
-     * Get highlights with enriched type information
+     * Get articles with enriched type information
      */
-    getEnrichedHighlights: async (): Promise<HomeHighlight[]> => {
-      const highlights = await getData(homeHighlights as HomeHighlight[]);
+    getEnrichedArticles: async (): Promise<HomeArticle[]> => {
+      const articles = await getData(homeArticles as HomeArticle[]);
       const types = await getData(highlightTypes as HomeHighlightType[]);
       
-      return highlights.map(highlight => ({
-        ...highlight,
-        type: types.find(type => type.id === highlight.typeId)?.name || highlight.type
+      return articles.map(article => ({
+        ...article,
+        type: article.typeId ? types.find(type => type.id === article.typeId)?.name || article.type : article.type
       }));
     }
   };

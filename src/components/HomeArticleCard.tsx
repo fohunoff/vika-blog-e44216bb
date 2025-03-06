@@ -2,18 +2,15 @@
 import { Link } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { HomeArticle } from '@/types/models';
 
 interface HomeArticleCardProps {
-  id: number;
-  title: string;
-  excerpt: string;
-  image: string;
-  date: string;
-  category: string;
-  tags: string[];
+  article: HomeArticle;
 }
 
-const HomeArticleCard = ({ id, title, excerpt, image, date, category, tags }: HomeArticleCardProps) => {
+const HomeArticleCard = ({ article }: HomeArticleCardProps) => {
+  const { id, title, content, image, date, category, tags } = article;
+  
   return (
     <article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
       <Link to={`/home/article/${id}`} className="block">
@@ -41,7 +38,7 @@ const HomeArticleCard = ({ id, title, excerpt, image, date, category, tags }: Ho
           <h3 className="text-xl font-bold hover:text-blog-yellow transition-colors">{title}</h3>
         </Link>
         
-        <p className="text-gray-600 mb-4 flex-grow">{excerpt}</p>
+        <p className="text-gray-600 mb-4 flex-grow">{content}</p>
         
         <div className="flex flex-wrap gap-2 mt-2">
           {tags.map((tag, index) => (

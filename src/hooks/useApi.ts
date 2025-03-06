@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { api } from '../services/api';
@@ -84,4 +83,16 @@ export const useEnrichedDiaryEntries = (options?: UseQueryOptions<any, Error, an
 // Recipes
 export const useRecipes = (options?: UseQueryOptions<any, Error, any, string[]>) => {
   return useApiQuery(['recipes'], () => api.recipes.getRecipes(), options);
+};
+
+/**
+ * Get home articles
+ */
+export const useHomeArticles = () => {
+  const { api } = useApi();
+  
+  return useQuery({
+    queryKey: ['home', 'articles'],
+    queryFn: () => api.home.getArticles()
+  });
 };

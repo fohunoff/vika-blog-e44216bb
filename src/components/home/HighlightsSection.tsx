@@ -1,17 +1,18 @@
+
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import HomeHighlightCard from '../HomeHighlightCard';
-import { HomeHighlight } from '@/types/models';
+import { HomeArticle } from '@/types/models';
 import { useEffect, useState } from 'react';
 import { useApi } from '@/hooks/useApi';
 
 interface HighlightsSectionProps {
-  highlights?: HomeHighlight[];
+  highlights?: HomeArticle[];
 }
 
 const HighlightsSection = ({ highlights: propHighlights }: HighlightsSectionProps) => {
   const { api } = useApi();
-  const [highlights, setHighlights] = useState<HomeHighlight[]>([]);
+  const [highlights, setHighlights] = useState<HomeArticle[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -55,7 +56,7 @@ const HighlightsSection = ({ highlights: propHighlights }: HighlightsSectionProp
         {displayHighlights.map((highlight) => (
           <HomeHighlightCard 
             key={highlight.id}
-            highlight={highlight}
+            article={highlight}
           />
         ))}
       </div>

@@ -1,14 +1,14 @@
 
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { HomeHighlight } from '@/types/models';
+import { HomeArticle } from '@/types/models';
 
 interface HomeHighlightCardProps {
-  highlight: HomeHighlight;
+  article: HomeArticle;
 }
 
-const HomeHighlightCard = ({ highlight }: HomeHighlightCardProps) => {
-  const { id, title, content, image, type } = highlight;
+const HomeHighlightCard = ({ article }: HomeHighlightCardProps) => {
+  const { id, title, content, image, type } = article;
   
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm group">
@@ -31,7 +31,7 @@ const HomeHighlightCard = ({ highlight }: HomeHighlightCardProps) => {
             <p className="text-gray-600">{content}</p>
           </div>
           
-          <Link to={`/home/highlight/${id}`} className="inline-flex items-center mt-4 font-medium text-blog-yellow hover:underline">
+          <Link to={`/home/article/${id}`} className="inline-flex items-center mt-4 font-medium text-blog-yellow hover:underline">
             Читать полностью
             <ArrowRight size={16} className="ml-2" />
           </Link>

@@ -1,19 +1,10 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HomeArticleCard from '../HomeArticleCard';
-
-interface Article {
-  id: number;
-  title: string;
-  excerpt: string;
-  image: string;
-  date: string;
-  category: string;
-  tags: string[];
-}
+import { HomeArticle } from '@/types/models';
 
 interface ArticlesTabsSectionProps {
-  articles: Article[];
+  articles: HomeArticle[];
 }
 
 const ArticlesTabsSection = ({ articles }: ArticlesTabsSectionProps) => {
@@ -39,40 +30,40 @@ const ArticlesTabsSection = ({ articles }: ArticlesTabsSectionProps) => {
       
       <TabsContent value="all" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.map((article) => (
-            <HomeArticleCard key={article.id} {...article} />
+          {articles.filter(a => !a.isHighlight).map((article) => (
+            <HomeArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
       
       <TabsContent value="interior" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.filter(a => ["Интерьер", "Дизайн", "Спальня"].includes(a.category)).map((article) => (
-            <HomeArticleCard key={article.id} {...article} />
+          {articles.filter(a => !a.isHighlight && ["Интерьер", "Дизайн", "Спальня"].includes(a.category)).map((article) => (
+            <HomeArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
       
       <TabsContent value="plants" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.filter(a => a.category === "Растения").map((article) => (
-            <HomeArticleCard key={article.id} {...article} />
+          {articles.filter(a => !a.isHighlight && a.category === "Растения").map((article) => (
+            <HomeArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
       
       <TabsContent value="diy" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.filter(a => a.category === "DIY").map((article) => (
-            <HomeArticleCard key={article.id} {...article} />
+          {articles.filter(a => !a.isHighlight && a.category === "DIY").map((article) => (
+            <HomeArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
       
       <TabsContent value="tech" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.filter(a => a.category === "Технологии").map((article) => (
-            <HomeArticleCard key={article.id} {...article} />
+          {articles.filter(a => !a.isHighlight && a.category === "Технологии").map((article) => (
+            <HomeArticleCard key={article.id} article={article} />
           ))}
         </div>
       </TabsContent>
