@@ -12,7 +12,7 @@ import { Cafe, CafeCategory, CafeTag } from '@/types/models';
 
 const Cafes = () => {
   const { api } = useApi();
-  const [cafes, setCafes] = useState<Cafe[]>([]);
+  const [cafes, setCafes] = useState<(Cafe & { categories?: string[], tags?: string[] })[]>([]);
   const [categories, setCategories] = useState<CafeCategory[]>([]);
   const [tags, setTags] = useState<CafeTag[]>([]);
   const [searchQuery, setSearchQuery] = useState('');

@@ -45,7 +45,7 @@ const Diary = () => {
 
   // Collect all tags from diary entries
   const allTags = enrichedEntries
-    ? Array.from(new Set(enrichedEntries.flatMap(entry => entry.tags || []))).filter(Boolean)
+    ? Array.from(new Set(enrichedEntries.flatMap(entry => entry.tags || []))).filter(Boolean) as string[]
     : [];
 
   // Format date to Russian locale

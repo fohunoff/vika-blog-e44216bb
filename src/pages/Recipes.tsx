@@ -32,7 +32,7 @@ const Recipes = () => {
         
         // Enrich recipe data with category and tag information
         const enrichedRecipes = recipesData.map(recipe => {
-          const category = categoriesData.find(c => recipe.categoryIds && recipe.categoryIds.includes(c.id));
+          const category = categoriesData.find(c => recipe.categoryId === c.id);
           const recipeTags = recipe.tagIds 
             ? recipe.tagIds.map(id => tagsData.find(t => t.id === id)).filter(Boolean) 
             : [];
