@@ -1,9 +1,8 @@
-
 import express from 'express';
-import { 
-  getDiaryTags, 
-  getDiaryTagById, 
-  getDiaryTagsByIds 
+import {
+  getDiaryTags,
+  getDiaryTagById,
+  getDiaryTagsByIds
 } from '../../controllers/diaryController.js';
 
 const router = express.Router();
@@ -30,36 +29,6 @@ const router = express.Router();
  *                     type: string
  */
 router.get('/diary/tags', getDiaryTags);
-
-/**
- * @swagger
- * /diary/tags/{id}:
- *   get:
- *     summary: Get a diary tag by ID
- *     tags: [Diary]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Tag ID
- *     responses:
- *       200:
- *         description: Tag details
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 name:
- *                   type: string
- *       404:
- *         description: Tag not found
- */
-router.get('/diary/tags/:id', getDiaryTagById);
 
 /**
  * @swagger
@@ -90,5 +59,35 @@ router.get('/diary/tags/:id', getDiaryTagById);
  *                     type: string
  */
 router.get('/diary/tags/multiple', getDiaryTagsByIds);
+
+/**
+ * @swagger
+ * /diary/tags/{id}:
+ *   get:
+ *     summary: Get a diary tag by ID
+ *     tags: [Diary]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Tag ID
+ *     responses:
+ *       200:
+ *         description: Tag details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *       404:
+ *         description: Tag not found
+ */
+router.get('/diary/tags/:id', getDiaryTagById);
 
 export default router;

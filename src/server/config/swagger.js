@@ -1,6 +1,11 @@
-
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Получение __dirname в среде ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const options = {
   definition: {
@@ -26,6 +31,10 @@ const options = {
         description: 'Recipe management endpoints'
       },
       {
+        name: 'Cafes',
+        description: 'Cafe management endpoints'
+      },
+      {
         name: 'Cozy Articles',
         description: 'Cozy articles management endpoints'
       },
@@ -49,17 +58,17 @@ const options = {
             cookTime: { type: 'string' },
             servings: { type: 'integer' },
             difficulty: { type: 'string' },
-            ingredients: { 
+            ingredients: {
               type: 'array',
-              items: { type: 'string' } 
+              items: { type: 'string' }
             },
-            instructions: { 
+            instructions: {
               type: 'array',
-              items: { type: 'string' } 
+              items: { type: 'string' }
             },
-            tagIds: { 
+            tagIds: {
               type: 'array',
-              items: { type: 'string' } 
+              items: { type: 'string' }
             }
           }
         },
@@ -88,13 +97,13 @@ const options = {
             imageSrc: { type: 'string' },
             isHighlight: { type: 'boolean' },
             typeId: { type: 'string' },
-            categoryIds: { 
+            categoryIds: {
               type: 'array',
-              items: { type: 'string' } 
+              items: { type: 'string' }
             },
-            tagIds: { 
+            tagIds: {
               type: 'array',
-              items: { type: 'string' } 
+              items: { type: 'string' }
             }
           }
         },
@@ -107,16 +116,246 @@ const options = {
             date: { type: 'string', format: 'date-time' },
             mood: { type: 'string' },
             categoryId: { type: 'string' },
-            tagIds: { 
+            tagIds: {
               type: 'array',
-              items: { type: 'string' } 
+              items: { type: 'string' }
+            }
+          }
+        },
+        Cafe: {
+          type: 'object',
+          required: [
+            'id',
+            'name',
+            'description',
+            'location',
+            'priceRange',
+            'rating'
+          ],
+          properties: {
+            id: {
+              type: 'string',
+              description: 'The cafe ID'
+            },
+            name: {
+              type: 'string',
+              description: 'The cafe name'
+            },
+            description: {
+              type: 'string',
+              description: 'The cafe description'
+            },
+            shortDescription: {
+              type: 'string',
+              description: 'Short description of the cafe'
+            },
+            imageSrc: {
+              type: 'string',
+              description: 'URL of the image for the cafe'
+            },
+            location: {
+              type: 'string',
+              description: 'The cafe location'
+            },
+            openHours: {
+              type: 'string',
+              description: 'Opening hours'
+            },
+            priceRange: {
+              type: 'string',
+              description: 'Price range (e.g., $, $$, $$$)'
+            },
+            rating: {
+              type: 'number',
+              description: 'Rating from 1 to 5'
+            },
+            categoryIds: {
+              type: 'string',
+              description: 'JSON array of category IDs'
+            },
+            tagIds: {
+              type: 'string',
+              description: 'JSON array of tag IDs'
+            },
+            website: {
+              type: 'string',
+              description: 'The cafe website'
+            },
+            phone: {
+              type: 'string',
+              description: 'The cafe phone number'
+            },
+            address: {
+              type: 'string',
+              description: 'The cafe address'
+            }
+          }
+        },
+        CafeInput: {
+          type: 'object',
+          required: [
+            'name',
+            'description',
+            'location',
+            'priceRange',
+            'rating'
+          ],
+          properties: {
+            name: {
+              type: 'string',
+              description: 'The cafe name'
+            },
+            description: {
+              type: 'string',
+              description: 'The cafe description'
+            },
+            shortDescription: {
+              type: 'string',
+              description: 'Short description of the cafe'
+            },
+            imageSrc: {
+              type: 'string',
+              description: 'URL of the image for the cafe'
+            },
+            location: {
+              type: 'string',
+              description: 'The cafe location'
+            },
+            openHours: {
+              type: 'string',
+              description: 'Opening hours'
+            },
+            priceRange: {
+              type: 'string',
+              description: 'Price range (e.g., $, $$, $$$)'
+            },
+            rating: {
+              type: 'number',
+              description: 'Rating from 1 to 5'
+            },
+            categoryIds: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              description: 'Array of category IDs'
+            },
+            tagIds: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              description: 'Array of tag IDs'
+            },
+            website: {
+              type: 'string',
+              description: 'The cafe website'
+            },
+            phone: {
+              type: 'string',
+              description: 'The cafe phone number'
+            },
+            address: {
+              type: 'string',
+              description: 'The cafe address'
+            }
+          }
+        },
+        EnrichedCafe: {
+          type: 'object',
+          allOf: [
+            {
+              $ref: '#/components/schemas/Cafe'
+            },
+            {
+              type: 'object',
+              properties: {
+                categories: {
+                  type: 'array',
+                  items: {
+                    type: 'string'
+                  },
+                  description: 'Array of category names'
+                },
+                tags: {
+                  type: 'array',
+                  items: {
+                    type: 'string'
+                  },
+                  description: 'Array of tag names'
+                }
+              }
+            }
+          ]
+        },
+        CafeCategory: {
+          type: 'object',
+          required: [
+            'id',
+            'name'
+          ],
+          properties: {
+            id: {
+              type: 'string',
+              description: 'The category ID'
+            },
+            name: {
+              type: 'string',
+              description: 'The category name'
+            },
+            image: {
+              type: 'string',
+              description: 'URL of the category image'
+            }
+          }
+        },
+        CafeTag: {
+          type: 'object',
+          required: [
+            'id',
+            'name'
+          ],
+          properties: {
+            id: {
+              type: 'string',
+              description: 'The tag ID'
+            },
+            name: {
+              type: 'string',
+              description: 'The tag name'
+            }
+          }
+        },
+        CafePriceRange: {
+          type: 'object',
+          required: [
+            'id',
+            'name'
+          ],
+          properties: {
+            id: {
+              type: 'string',
+              description: 'The price range ID'
+            },
+            name: {
+              type: 'string',
+              description: 'The price range name (e.g., $, $$, $$$)'
+            },
+            description: {
+              type: 'string',
+              description: 'Description of the price range'
             }
           }
         }
       }
     }
   },
-  apis: ['./src/server/routes/*.js', './src/server/controllers/*.js']
+  // Указываем расширенный путь для поиска аннотаций API
+  apis: [
+    join(__dirname, '../routes/*.js'),
+    join(__dirname, '../routes/*/*.js'),
+    join(__dirname, '../controllers/*.js')
+  ]
 };
 
 const specs = swaggerJsdoc(options);

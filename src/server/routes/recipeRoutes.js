@@ -1,4 +1,3 @@
-
 import express from 'express';
 import {
   getAllRecipes, getRecipeById, getCategories,
@@ -7,49 +6,6 @@ import {
 } from '../controllers/recipeController.js';
 
 const router = express.Router();
-
-/**
- * @swagger
- * /recipes:
- *   get:
- *     summary: Get all recipes
- *     tags: [Recipes]
- *     responses:
- *       200:
- *         description: A list of recipes
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Recipe'
- */
-router.get('/recipes', getAllRecipes);
-
-/**
- * @swagger
- * /recipes/{id}:
- *   get:
- *     summary: Get a recipe by ID
- *     tags: [Recipes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Recipe ID
- *     responses:
- *       200:
- *         description: Recipe details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Recipe'
- *       404:
- *         description: Recipe not found
- */
-router.get('/recipes/:id', getRecipeById);
 
 /**
  * @swagger
@@ -114,31 +70,6 @@ router.get('/recipes/tags', getTags);
 
 /**
  * @swagger
- * /recipes/tags/{id}:
- *   get:
- *     summary: Get a recipe tag by ID
- *     tags: [Recipes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Tag ID
- *     responses:
- *       200:
- *         description: Tag details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/RecipeTag'
- *       404:
- *         description: Tag not found
- */
-router.get('/recipes/tags/:id', getTagById);
-
-/**
- * @swagger
  * /recipes/tags/multiple:
  *   get:
  *     summary: Get recipe tags by IDs
@@ -161,6 +92,31 @@ router.get('/recipes/tags/:id', getTagById);
  *                 $ref: '#/components/schemas/RecipeTag'
  */
 router.get('/recipes/tags/multiple', getTagsByIds);
+
+/**
+ * @swagger
+ * /recipes/tags/{id}:
+ *   get:
+ *     summary: Get a recipe tag by ID
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Tag ID
+ *     responses:
+ *       200:
+ *         description: Tag details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RecipeTag'
+ *       404:
+ *         description: Tag not found
+ */
+router.get('/recipes/tags/:id', getTagById);
 
 /**
  * @swagger
@@ -214,5 +170,48 @@ router.get('/recipes/difficulty-levels', getDifficultyLevels);
  *         description: Difficulty level not found
  */
 router.get('/recipes/difficulty-levels/:id', getDifficultyLevelById);
+
+/**
+ * @swagger
+ * /recipes:
+ *   get:
+ *     summary: Get all recipes
+ *     tags: [Recipes]
+ *     responses:
+ *       200:
+ *         description: A list of recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Recipe'
+ */
+router.get('/recipes', getAllRecipes);
+
+/**
+ * @swagger
+ * /recipes/{id}:
+ *   get:
+ *     summary: Get a recipe by ID
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Recipe ID
+ *     responses:
+ *       200:
+ *         description: Recipe details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Recipe'
+ *       404:
+ *         description: Recipe not found
+ */
+router.get('/recipes/:id', getRecipeById);
 
 export default router;

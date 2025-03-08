@@ -1,10 +1,9 @@
-
 import express from 'express';
-import { 
-  getCafes, 
-  getCafeById, 
-  createCafe, 
-  updateCafe, 
+import {
+  getCafes,
+  getCafeById,
+  createCafe,
+  updateCafe,
   deleteCafe,
   getEnrichedCafes
 } from '../../controllers/cafeController.js';
@@ -28,6 +27,24 @@ const router = express.Router();
  *                 $ref: '#/components/schemas/Cafe'
  */
 router.get('/cafes', getCafes);
+
+/**
+ * @swagger
+ * /cafes/enriched:
+ *   get:
+ *     summary: Get all cafes with enriched category and tag information
+ *     tags: [Cafes]
+ *     responses:
+ *       200:
+ *         description: A list of cafes with category and tag names
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/EnrichedCafe'
+ */
+router.get('/cafes/enriched', getEnrichedCafes);
 
 /**
  * @swagger
@@ -121,23 +138,5 @@ router.put('/cafes/:id', updateCafe);
  *         description: Cafe not found
  */
 router.delete('/cafes/:id', deleteCafe);
-
-/**
- * @swagger
- * /cafes/enriched:
- *   get:
- *     summary: Get all cafes with enriched category and tag information
- *     tags: [Cafes]
- *     responses:
- *       200:
- *         description: A list of cafes with category and tag names
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/EnrichedCafe'
- */
-router.get('/cafes/enriched', getEnrichedCafes);
 
 export default router;
