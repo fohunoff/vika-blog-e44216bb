@@ -40,8 +40,10 @@ const RecipesList = ({ recipes, isLoading }: RecipesListProps) => {
             description: recipe.description,
             shortDescription: recipe.shortDescription,
             imageSrc: recipe.imageSrc,
-            categoryName: recipe.categoryName || "Без категории",
-            time: recipe.time || `${recipe.prepTime || ''} + ${recipe.cookTime || ''}`,
+            categoryName: recipe.categoryId ? recipe.categoryId : "Без категории",
+            time: recipe.prepTime && recipe.cookTime ? `${recipe.prepTime} + ${recipe.cookTime}` : 
+                  recipe.prepTime ? recipe.prepTime : 
+                  recipe.cookTime ? recipe.cookTime : undefined,
             difficulty: recipe.difficulty
           }} 
           index={index} 
