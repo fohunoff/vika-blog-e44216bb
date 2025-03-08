@@ -1,8 +1,7 @@
-
 import express from 'express';
-import { 
-  getCafeCategories, 
-  getCafeCategoryById 
+import {
+  getCafeCategories,
+  getCafeCategoryById
 } from '../../controllers/cafeController.js';
 
 const router = express.Router();
@@ -23,7 +22,7 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/CafeCategory'
  */
-router.get('/cafes/categories', getCafeCategories);
+router.get('/', getCafeCategories);  // Изменено с '/cafes/categories' на '/'
 
 /**
  * @swagger
@@ -48,6 +47,6 @@ router.get('/cafes/categories', getCafeCategories);
  *       404:
  *         description: Category not found
  */
-router.get('/cafes/categories/:id', getCafeCategoryById);
+router.get('/:id', getCafeCategoryById);  // Изменено с '/cafes/categories/:id' на '/:id'
 
 export default router;

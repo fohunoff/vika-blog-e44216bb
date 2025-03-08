@@ -1,7 +1,6 @@
-
 import express from 'express';
-import { 
-  getCafeTags, 
+import {
+  getCafeTags,
   getCafeTagById,
   getCafeTagsByIds
 } from '../../controllers/cafeController.js';
@@ -24,7 +23,7 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/CafeTag'
  */
-router.get('/cafes/tags', getCafeTags);
+router.get('/', getCafeTags);  // Изменено с '/cafes/tags' на '/'
 
 /**
  * @swagger
@@ -49,7 +48,7 @@ router.get('/cafes/tags', getCafeTags);
  *       404:
  *         description: Tag not found
  */
-router.get('/cafes/tags/:id', getCafeTagById);
+router.get('/:id', getCafeTagById);  // Изменено с '/cafes/tags/:id' на '/:id'
 
 /**
  * @swagger
@@ -80,6 +79,6 @@ router.get('/cafes/tags/:id', getCafeTagById);
  *       400:
  *         description: Invalid input data
  */
-router.post('/cafes/tags/byIds', getCafeTagsByIds);
+router.post('/byIds', getCafeTagsByIds);  // Изменено с '/cafes/tags/byIds' на '/byIds'
 
 export default router;

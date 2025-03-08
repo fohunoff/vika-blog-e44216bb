@@ -1,4 +1,3 @@
-
 import express from 'express';
 
 // Import modular route handlers
@@ -9,11 +8,13 @@ import priceRangeRoutes from './cafe/priceRangeRoutes.js';
 
 const router = express.Router();
 
-// Mount the modular routes
+// Монтирование модульных маршрутов с правильными префиксами
+// Основные маршруты кафе обрабатываются под корневым путем
 router.use('/', cafeRoutes);
-router.use('/', categoryRoutes);
-router.use('/', tagRoutes);
-router.use('/', priceRangeRoutes);
+// А подмаршруты с указанием префиксов, чтобы избежать конфликтов
+router.use('/categories', categoryRoutes);
+router.use('/tags', tagRoutes);
+router.use('/price-ranges', priceRangeRoutes);
 
 /**
  * @swagger
@@ -71,7 +72,7 @@ router.use('/', priceRangeRoutes);
  *         address:
  *           type: string
  *           description: The cafe address
- *           
+ *
  *     CafeInput:
  *       type: object
  *       required:
@@ -124,7 +125,7 @@ router.use('/', priceRangeRoutes);
  *         address:
  *           type: string
  *           description: The cafe address
- *           
+ *
  *     EnrichedCafe:
  *       type: object
  *       allOf:
@@ -141,7 +142,7 @@ router.use('/', priceRangeRoutes);
  *               items:
  *                 type: string
  *               description: Array of tag names
- *               
+ *
  *     CafeCategory:
  *       type: object
  *       required:
@@ -157,7 +158,7 @@ router.use('/', priceRangeRoutes);
  *         image:
  *           type: string
  *           description: URL of the category image
- *           
+ *
  *     CafeTag:
  *       type: object
  *       required:
@@ -170,7 +171,7 @@ router.use('/', priceRangeRoutes);
  *         name:
  *           type: string
  *           description: The tag name
- *           
+ *
  *     CafePriceRange:
  *       type: object
  *       required:

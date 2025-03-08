@@ -1,5 +1,4 @@
-// Путь: server.js
-
+// Оригинальные импорты сохраняются
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
@@ -54,8 +53,8 @@ app.use('/', mainRoutes);
 // Затем регистрируем маршруты рецептов
 app.use('/', recipeRoutes);
 
-// Затем маршруты для кафе
-app.use('/', cafeRoutes);
+// Затем маршруты для кафе - здесь важно подключать с префиксом '/cafes'
+app.use('/cafes', cafeRoutes);
 
 // Затем маршруты для cozy articles
 app.use('/', cozyRoutes);

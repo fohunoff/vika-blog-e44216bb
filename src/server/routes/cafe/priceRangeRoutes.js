@@ -1,8 +1,7 @@
-
 import express from 'express';
-import { 
-  getCafePriceRanges, 
-  getCafePriceRangeById 
+import {
+  getCafePriceRanges,
+  getCafePriceRangeById
 } from '../../controllers/cafeController.js';
 
 const router = express.Router();
@@ -23,7 +22,7 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/CafePriceRange'
  */
-router.get('/cafes/price-ranges', getCafePriceRanges);
+router.get('/', getCafePriceRanges);  // Изменено с '/cafes/price-ranges' на '/'
 
 /**
  * @swagger
@@ -48,6 +47,6 @@ router.get('/cafes/price-ranges', getCafePriceRanges);
  *       404:
  *         description: Price range not found
  */
-router.get('/cafes/price-ranges/:id', getCafePriceRangeById);
+router.get('/:id', getCafePriceRangeById);  // Изменено с '/cafes/price-ranges/:id' на '/:id'
 
 export default router;

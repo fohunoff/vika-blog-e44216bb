@@ -73,6 +73,7 @@ export function createCafesApi() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+        // Обновленный URL-путь для категорий
         const response = await fetch(`${API_BASE_URL}/cafes/categories`, {
           signal: controller.signal
         });
@@ -98,6 +99,7 @@ export function createCafesApi() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+        // Обновленный URL-путь для тегов
         const response = await fetch(`${API_BASE_URL}/cafes/tags`, {
           signal: controller.signal
         });
@@ -123,6 +125,7 @@ export function createCafesApi() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+        // Обновленный URL-путь для ценовых диапазонов
         const response = await fetch(`${API_BASE_URL}/cafes/price-ranges`, {
           signal: controller.signal
         });
