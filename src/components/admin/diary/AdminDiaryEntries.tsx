@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { Edit, Trash, Plus } from "lucide-react";
+import { Editor } from "@tinymce/tinymce-react";
 
 type DiaryEntryFormData = {
   id?: string;
@@ -78,6 +79,10 @@ const AdminDiaryEntries = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditorChange = (content: string) => {
+    setFormData((prev) => ({ ...prev, content }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -249,7 +254,7 @@ const AdminDiaryEntries = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedEntry ? 'Редактировать запись' : 'Добавить новую запись'}
@@ -279,13 +284,26 @@ const AdminDiaryEntries = () => {
             
             <div className="grid gap-2">
               <label htmlFor="content">Содержание</label>
-              <Textarea
-                id="content"
-                name="content"
-                rows={5}
-                value={formData.content}
-                onChange={handleInputChange}
-              />
+              <div className="min-h-[300px] border border-input rounded-md">
+                <Editor
+                  apiKey="no-api-key" // В реальном проекте здесь должен быть ключ API TinyMCE
+                  initialValue={formData.content}
+                  init={{
+                    height: 300,
+                    menubar: true,
+                    plugins: [
+                      'advlist autolink lists link image charmap print preview anchor',
+                      'searchreplace visualblocks code fullscreen',
+                      'insertdatetime media table paste code help wordcount'
+                    ],
+                    toolbar:
+                      'undo redo | formatselect | bold italic backcolor | \
+                      alignleft aligncenter alignright alignjustify | \
+                      bullist numlist outdent indent | removeformat | help'
+                  }}
+                  onEditorChange={handleEditorChange}
+                />
+              </div>
             </div>
             
             <div className="grid gap-2">
@@ -400,3 +418,4 @@ const AdminDiaryEntries = () => {
 };
 
 export default AdminDiaryEntries;
+
