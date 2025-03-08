@@ -32,7 +32,20 @@ const RecipesList = ({ recipes, isLoading }: RecipesListProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {recipes.map((recipe, index) => (
-        <RecipeCard key={recipe.id} recipe={recipe} index={index} />
+        <RecipeCard 
+          key={recipe.id} 
+          recipe={{
+            id: recipe.id,
+            title: recipe.title,
+            description: recipe.description,
+            shortDescription: recipe.shortDescription,
+            imageSrc: recipe.imageSrc,
+            categoryName: (recipe as any).categoryName || "Без категории",
+            time: `${recipe.prepTime} + ${recipe.cookTime}`,
+            difficulty: recipe.difficulty
+          }} 
+          index={index} 
+        />
       ))}
     </div>
   );
