@@ -17,31 +17,7 @@ const readJsonFile = (filePath) => {
   return JSON.parse(fileData);
 };
 
-// Recipes routes
-app.get('/recipes', (req, res) => {
-  try {
-    const recipes = readJsonFile('src/data/recipes.json');
-    res.json(recipes);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch recipes' });
-  }
-});
-
-app.get('/recipes/:id', (req, res) => {
-  try {
-    const recipes = readJsonFile('src/data/recipes.json');
-    const recipe = recipes.find(r => r.id === req.params.id);
-    
-    if (!recipe) {
-      return res.status(404).json({ error: 'Recipe not found' });
-    }
-    
-    res.json(recipe);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch recipe' });
-  }
-});
-
+// Recipes routes - Specific routes first
 app.get('/recipes/categories', (req, res) => {
   try {
     const categories = readJsonFile('src/data/recipe/recipe-categories.json');
@@ -63,6 +39,24 @@ app.get('/recipes/categories/:id', (req, res) => {
     res.json(category);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch category' });
+  }
+});
+
+app.get('/recipes/tags/multiple', (req, res) => {
+  try {
+    const { ids } = req.query;
+    
+    if (!ids) {
+      return res.status(400).json({ error: 'IDs parameter is required' });
+    }
+    
+    const idArray = ids.split(',');
+    const tags = readJsonFile('src/data/recipe/recipe-tags.json');
+    const filteredTags = tags.filter(tag => idArray.includes(tag.id));
+    
+    res.json(filteredTags);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch tags' });
   }
 });
 
@@ -90,24 +84,6 @@ app.get('/recipes/tags/:id', (req, res) => {
   }
 });
 
-app.get('/recipes/tags/multiple', (req, res) => {
-  try {
-    const { ids } = req.query;
-    
-    if (!ids) {
-      return res.status(400).json({ error: 'IDs parameter is required' });
-    }
-    
-    const idArray = ids.split(',');
-    const tags = readJsonFile('src/data/recipe/recipe-tags.json');
-    const filteredTags = tags.filter(tag => idArray.includes(tag.id));
-    
-    res.json(filteredTags);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch tags' });
-  }
-});
-
 app.get('/recipes/difficulty-levels', (req, res) => {
   try {
     const levels = readJsonFile('src/data/recipe/recipe-difficulty-levels.json');
@@ -129,6 +105,31 @@ app.get('/recipes/difficulty-levels/:id', (req, res) => {
     res.json(level);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch difficulty level' });
+  }
+});
+
+// General recipe routes after specific ones
+app.get('/recipes', (req, res) => {
+  try {
+    const recipes = readJsonFile('src/data/recipes.json');
+    res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch recipes' });
+  }
+});
+
+app.get('/recipes/:id', (req, res) => {
+  try {
+    const recipes = readJsonFile('src/data/recipes.json');
+    const recipe = recipes.find(r => r.id === req.params.id);
+    
+    if (!recipe) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
+    
+    res.json(recipe);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch recipe' });
   }
 });
 
