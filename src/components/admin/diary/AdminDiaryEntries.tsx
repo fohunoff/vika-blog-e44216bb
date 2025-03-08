@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
 import { DiaryEntry } from "@/types/models";
@@ -11,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { Edit, Trash, Plus } from "lucide-react";
-import { Editor } from "@tinymce/tinymce-react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 type DiaryEntryFormData = {
   id?: string;
@@ -138,7 +138,6 @@ const AdminDiaryEntries = () => {
 
   const handleSave = async () => {
     try {
-      // This would be an API call in a real application
       toast({
         title: "Изменения сохранены",
         description: selectedEntry 
@@ -146,7 +145,6 @@ const AdminDiaryEntries = () => {
           : "Новая запись дневника успешно создана"
       });
       
-      // Mock update entries list
       if (selectedEntry) {
         setEntries(entries.map(entry => 
           entry.id === selectedEntry ? { ...entry, ...formData } : entry
@@ -172,13 +170,11 @@ const AdminDiaryEntries = () => {
 
   const handleDelete = async () => {
     try {
-      // This would be an API call in a real application
       toast({
         title: "Запись удалена",
         description: "Запись дневника успешно удалена"
       });
       
-      // Mock update entries list
       setEntries(entries.filter(entry => entry.id !== selectedEntry));
       setIsDeleteDialogOpen(false);
     } catch (error) {
@@ -252,7 +248,6 @@ const AdminDiaryEntries = () => {
         </div>
       )}
 
-      {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -285,23 +280,22 @@ const AdminDiaryEntries = () => {
             <div className="grid gap-2">
               <label htmlFor="content">Содержание</label>
               <div className="min-h-[300px] border border-input rounded-md">
-                <Editor
-                  apiKey="no-api-key" // В реальном проекте здесь должен быть ключ API TinyMCE
-                  initialValue={formData.content}
-                  init={{
-                    height: 300,
-                    menubar: true,
-                    plugins: [
-                      'advlist autolink lists link image charmap print preview anchor',
-                      'searchreplace visualblocks code fullscreen',
-                      'insertdatetime media table paste code help wordcount'
+                <ReactQuill
+                  theme="snow"
+                  value={formData.content}
+                  onChange={handleEditorChange}
+                  modules={{
+                    toolbar: [
+                      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                      ['bold', 'italic', 'underline', 'strike'],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      [{ 'color': [] }, { 'background': [] }],
+                      [{ 'align': [] }],
+                      ['link', 'image'],
+                      ['clean']
                     ],
-                    toolbar:
-                      'undo redo | formatselect | bold italic backcolor | \
-                      alignleft aligncenter alignright alignjustify | \
-                      bullist numlist outdent indent | removeformat | help'
                   }}
-                  onEditorChange={handleEditorChange}
+                  style={{ height: '250px' }}
                 />
               </div>
             </div>
@@ -396,7 +390,6 @@ const AdminDiaryEntries = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -418,4 +411,3 @@ const AdminDiaryEntries = () => {
 };
 
 export default AdminDiaryEntries;
-
