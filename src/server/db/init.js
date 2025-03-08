@@ -1,8 +1,8 @@
-
 import { db, dbAsync } from './config.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { closeDatabase as closeDbConnection } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -378,6 +378,18 @@ export const initializeDatabase = async () => {
     return true;
   } catch (error) {
     console.error('Error initializing database:', error);
+    throw error;
+  }
+};
+
+// Close database connection
+export const closeDatabase = async () => {
+  console.log('Closing database connection...');
+  try {
+    await closeDbConnection();
+    return true;
+  } catch (error) {
+    console.error('Error closing database connection:', error);
     throw error;
   }
 };
