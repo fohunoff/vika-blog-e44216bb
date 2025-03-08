@@ -2,7 +2,7 @@
 import { dbAsync } from '../db/config.js';
 
 // Get all cozy articles
-export const getAllArticles = async (req, res) => {
+export const getCozyArticles = async (req, res) => {
   try {
     // Get all articles
     const articles = await dbAsync.all(`
@@ -46,7 +46,7 @@ export const getAllArticles = async (req, res) => {
 };
 
 // Get highlighted articles
-export const getHighlights = async (req, res) => {
+export const getCozyHighlights = async (req, res) => {
   try {
     // Get highlighted articles
     const highlights = await dbAsync.all(`
@@ -91,7 +91,7 @@ export const getHighlights = async (req, res) => {
 };
 
 // Get article by ID
-export const getArticleById = async (req, res) => {
+export const getCozyArticleById = async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -139,7 +139,7 @@ export const getArticleById = async (req, res) => {
 };
 
 // Get cozy categories
-export const getCategories = async (req, res) => {
+export const getCozyCategories = async (req, res) => {
   try {
     const categories = await dbAsync.all('SELECT * FROM cozy_categories');
     res.json(categories);
@@ -149,24 +149,71 @@ export const getCategories = async (req, res) => {
   }
 };
 
-// Get highlight types
-export const getHighlightTypes = async (req, res) => {
+// Get category by ID
+export const getCozyCategoryById = async (req, res) => {
   try {
-    const types = await dbAsync.all('SELECT * FROM cozy_highlight_types');
-    res.json(types);
+    const { id } = req.params;
+    const category = await dbAsync.get('SELECT * FROM cozy_categories WHERE id = ?', [id]);
+    
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    res.json(category);
   } catch (error) {
-    console.error('Error fetching highlight types:', error);
-    res.status(500).json({ error: 'Failed to fetch highlight types' });
+    console.error(`Error fetching category ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to fetch category' });
   }
 };
 
 // Get cozy tags
-export const getTags = async (req, res) => {
+export const getCozyTags = async (req, res) => {
   try {
     const tags = await dbAsync.all('SELECT * FROM cozy_tags');
     res.json(tags);
   } catch (error) {
     console.error('Error fetching cozy tags:', error);
     res.status(500).json({ error: 'Failed to fetch cozy tags' });
+  }
+};
+
+// Get tag by ID
+export const getCozyTagById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tag = await dbAsync.get('SELECT * FROM cozy_tags WHERE id = ?', [id]);
+    
+    if (!tag) {
+      return res.status(404).json({ error: 'Tag not found' });
+    }
+    
+    res.json(tag);
+  } catch (error) {
+    console.error(`Error fetching tag ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to fetch tag' });
+  }
+};
+
+// Get tags by multiple IDs
+export const getCozyTagsByIds = async (req, res) => {
+  try {
+    const { ids } = req.query;
+    
+    if (!ids) {
+      return res.status(400).json({ error: 'Tag IDs are required' });
+    }
+    
+    const tagIds = ids.split(',');
+    const placeholders = tagIds.map(() => '?').join(',');
+    
+    const tags = await dbAsync.all(`
+      SELECT * FROM cozy_tags 
+      WHERE id IN (${placeholders})
+    `, tagIds);
+    
+    res.json(tags);
+  } catch (error) {
+    console.error('Error fetching tags by IDs:', error);
+    res.status(500).json({ error: 'Failed to fetch tags' });
   }
 };
