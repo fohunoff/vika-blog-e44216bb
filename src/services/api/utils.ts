@@ -1,4 +1,3 @@
-
 /**
  * Simulates network delay for mock API calls
  * @param ms Milliseconds to delay
@@ -52,6 +51,37 @@ export const getByIds = <T extends { id: string }>(items: T[], ids: string[]): P
 };
 
 /**
+ * Helper function to retry a promise a specific number of times
+ * @param promiseFn Function that returns a promise
+ * @param maxRetries Maximum number of retries
+ * @param delay Delay between retries in ms
+ */
+export async function retryPromise<T>(
+    promiseFn: () => Promise<T>,
+    maxRetries: number = 3,
+    delayMs: number = 500
+): Promise<T> {
+  let lastError: any;
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await promiseFn();
+    } catch (error) {
+      lastError = error;
+      console.log(`Attempt ${i + 1} failed, retrying...`);
+
+      // Wait before next retry
+      if (i < maxRetries - 1) {
+        await delay(delayMs);
+      }
+    }
+  }
+
+  // If we've exhausted all retries, throw the last error
+  throw lastError;
+}
+
+/**
  * Enriches items with related data (like adding category or tag names)
  * @param items Main items to enrich
  * @param relationKey Key in the main items that holds related IDs
@@ -59,23 +89,23 @@ export const getByIds = <T extends { id: string }>(items: T[], ids: string[]): P
  * @param targetKey The key to add to the main items with the related data
  */
 export function enrichWithRelated<
-  T extends Record<string, any>,
-  R extends { id: string; name: string }
+    T extends Record<string, any>,
+    R extends { id: string; name: string }
 >(
-  items: T[],
-  relationKey: keyof T & string,
-  relatedItems: R[],
-  targetKey: string
+    items: T[],
+    relationKey: keyof T & string,
+    relatedItems: R[],
+    targetKey: string
 ): T[] {
   return items.map(item => {
     const ids = item[relationKey];
     if (!ids) return item;
-    
+
     // Handle both single ID and array of IDs
     const relatedValues = Array.isArray(ids)
-      ? ids.map(id => relatedItems.find(r => r.id === id)?.name).filter(Boolean)
-      : relatedItems.find(r => r.id === ids)?.name;
-      
+        ? ids.map(id => relatedItems.find(r => r.id === id)?.name).filter(Boolean)
+        : relatedItems.find(r => r.id === ids)?.name;
+
     return {
       ...item,
       [targetKey]: relatedValues,

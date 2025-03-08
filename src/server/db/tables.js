@@ -81,53 +81,6 @@ export const createTables = async () => {
       )
     `);
 
-    // Cafe Categories
-    await dbAsync.run(`
-      CREATE TABLE IF NOT EXISTS cafe_categories (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        image TEXT
-      )
-    `);
-
-    // Cafe Tags
-    await dbAsync.run(`
-      CREATE TABLE IF NOT EXISTS cafe_tags (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL
-      )
-    `);
-
-    // Cafe Price Ranges
-    await dbAsync.run(`
-      CREATE TABLE IF NOT EXISTS cafe_price_ranges (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        description TEXT
-      )
-    `);
-
-    // Cafes
-    await dbAsync.run(`
-      CREATE TABLE IF NOT EXISTS cafes (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        description TEXT,
-        shortDescription TEXT,
-        imageSrc TEXT,
-        location TEXT NOT NULL,
-        openHours TEXT,
-        priceRange TEXT NOT NULL,
-        rating REAL NOT NULL,
-        categoryIds TEXT, /* Stored as JSON string */
-        tagIds TEXT, /* Stored as JSON string */
-        website TEXT,
-        phone TEXT,
-        address TEXT,
-        FOREIGN KEY (priceRange) REFERENCES cafe_price_ranges(id)
-      )
-    `);
-
     // Cozy Articles
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS cozy_articles (
@@ -184,6 +137,7 @@ export const createTables = async () => {
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         content TEXT,
+        shortDescription TEXT,
         categoryId TEXT,
         moodId TEXT,
         publishDate TEXT,
@@ -221,6 +175,122 @@ export const createTables = async () => {
       CREATE TABLE IF NOT EXISTS diary_moods (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL
+      )
+    `);
+
+    // Main Navigation Categories
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS main_categories (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        navTitle TEXT NOT NULL,
+        description TEXT,
+        pageDescription TEXT,
+        imageSrc TEXT,
+        link TEXT,
+        bgColor TEXT
+      )
+    `);
+
+    // Main Featured Sections
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS main_featured_sections (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        type TEXT
+      )
+    `);
+
+    // Latest Posts
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS main_latest_posts (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        excerpt TEXT,
+        date TEXT,
+        category TEXT,
+        imageSrc TEXT,
+        link TEXT
+      )
+    `);
+
+    // Hero Data
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS main_hero_data (
+        id TEXT PRIMARY KEY DEFAULT 'default',
+        tagline TEXT,
+        title TEXT,
+        description TEXT,
+        primaryButtonText TEXT,
+        primaryButtonLink TEXT,
+        secondaryButtonText TEXT,
+        secondaryButtonLink TEXT,
+        mainImageSrc TEXT,
+        mainImageAlt TEXT,
+        badgeText TEXT,
+        imageCaptionTitle TEXT,
+        imageCaptionSubtitle TEXT
+      )
+    `);
+
+    // About Data
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS main_about_data (
+        id TEXT PRIMARY KEY DEFAULT 'default',
+        title TEXT,
+        paragraphs TEXT, -- Stored as JSON array
+        buttonText TEXT,
+        buttonLink TEXT,
+        image TEXT,
+        imageAlt TEXT
+      )
+    `);
+
+    // Newsletter Data
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS main_newsletter_data (
+        id TEXT PRIMARY KEY DEFAULT 'default',
+        title TEXT,
+        description TEXT,
+        inputPlaceholder TEXT,
+        successMessage TEXT
+      )
+    `);
+
+    // User Preferences
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        value TEXT,
+        isEnabled BOOLEAN DEFAULT 0
+      )
+    `);
+
+    // Comment Types
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS comment_types (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        icon TEXT
+      )
+    `);
+
+    // Comments
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS comments (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        content TEXT NOT NULL,
+        date TEXT,
+        typeId TEXT,
+        parentId TEXT,
+        targetType TEXT NOT NULL,
+        targetId TEXT NOT NULL,
+        FOREIGN KEY (typeId) REFERENCES comment_types(id),
+        FOREIGN KEY (parentId) REFERENCES comments(id)
       )
     `);
 

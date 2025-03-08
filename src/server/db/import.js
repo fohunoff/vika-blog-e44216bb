@@ -107,54 +107,6 @@ export const importData = async () => {
         }
       }
 
-      // Import cafe categories
-      const cafeCategories = readJsonFile('src/data/cafe/cafe-categories.json');
-      for (const category of cafeCategories) {
-        await dbAsync.run('INSERT INTO cafe_categories (id, name) VALUES (?, ?)',
-            [category.id, category.name]);
-      }
-
-      // Import cafe tags
-      const cafeTags = readJsonFile('src/data/cafe/cafe-tags.json');
-      for (const tag of cafeTags) {
-        await dbAsync.run('INSERT INTO cafe_tags (id, name) VALUES (?, ?)',
-            [tag.id, tag.name]);
-      }
-
-      // Import cafe price ranges
-      const cafePriceRanges = readJsonFile('src/data/cafe/cafe-price-ranges.json');
-      for (const priceRange of cafePriceRanges) {
-        await dbAsync.run('INSERT INTO cafe_price_ranges (id, name, description) VALUES (?, ?, ?)',
-            [priceRange.id, priceRange.name, priceRange.description]);
-      }
-
-      // Import cafes
-      const cafes = readJsonFile('src/data/cafes.json');
-      for (const cafe of cafes) {
-        // Insert cafe - convert arrays to JSON strings
-        await dbAsync.run(`
-          INSERT INTO cafes (
-            id, name, description, shortDescription, imageSrc, location, 
-            openHours, priceRange, rating, categoryIds, tagIds, website, phone, address
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-          cafe.id,
-          cafe.name,
-          cafe.description,
-          cafe.shortDescription || '',
-          cafe.imageSrc || '',
-          cafe.location,
-          cafe.openHours || '',
-          cafe.priceRange,
-          cafe.rating,
-          JSON.stringify(cafe.categoryIds || []),
-          JSON.stringify(cafe.tagIds || []),
-          cafe.website || '',
-          cafe.phone || '',
-          cafe.address || ''
-        ]);
-      }
-
       // Import cozy categories
       const cozyCategories = readJsonFile('src/data/cozy/cozy-categories.json');
       for (const category of cozyCategories) {
@@ -241,16 +193,17 @@ export const importData = async () => {
         // Insert entry
         await dbAsync.run(`
           INSERT INTO diary_entries (
-            id, title, content, categoryId, moodId, publishDate, imageSrc
-          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            id, title, content, shortDescription, categoryId, moodId, publishDate, imageSrc
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `, [
           entry.id,
           entry.title,
           entry.content,
+          entry.shortDescription || null,
           entry.categoryId,
           entry.moodId,
           entry.date,
-          entry.imageSrc
+          entry.imageSrc || null
         ]);
 
         // Insert tag mappings
@@ -260,6 +213,144 @@ export const importData = async () => {
                 [entry.id, tagId]);
           }
         }
+      }
+
+      // Import main navigation categories
+      const mainCategories = readJsonFile('src/data/main/navigation-categories.json');
+      for (const category of mainCategories) {
+        await dbAsync.run(`
+          INSERT INTO main_categories (
+            id, title, navTitle, description, pageDescription, imageSrc, link, bgColor
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          category.id,
+          category.title,
+          category.navTitle,
+          category.description,
+          category.pageDescription || null,
+          category.imageSrc,
+          category.link,
+          category.bgColor
+        ]);
+      }
+
+      // Import main featured sections
+      const featuredSections = readJsonFile('src/data/main/featured-sections.json');
+      for (const section of featuredSections) {
+        await dbAsync.run(`
+          INSERT INTO main_featured_sections (
+            id, title, description, type
+          ) VALUES (?, ?, ?, ?)
+        `, [
+          section.id,
+          section.title,
+          section.description,
+          section.type
+        ]);
+      }
+
+      // Import main latest posts
+      const latestPosts = readJsonFile('src/data/main/latest-posts.json');
+      for (const post of latestPosts) {
+        await dbAsync.run(`
+          INSERT INTO main_latest_posts (
+            id, title, excerpt, date, category, imageSrc, link
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+          post.id,
+          post.title,
+          post.excerpt,
+          post.date,
+          post.category,
+          post.imageSrc,
+          post.link
+        ]);
+      }
+
+      // Import main hero data
+      const heroData = readJsonFile('src/data/main/hero.json');
+      await dbAsync.run(`
+        INSERT INTO main_hero_data (
+          id, tagline, title, description, 
+          primaryButtonText, primaryButtonLink,
+          secondaryButtonText, secondaryButtonLink,
+          mainImageSrc, mainImageAlt,
+          badgeText, imageCaptionTitle, imageCaptionSubtitle
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        'default',
+        heroData.tagline,
+        heroData.title,
+        heroData.description,
+        heroData.primaryButton.text,
+        heroData.primaryButton.link,
+        heroData.secondaryButton.text,
+        heroData.secondaryButton.link,
+        heroData.mainImage.src,
+        heroData.mainImage.alt,
+        heroData.badge.text,
+        heroData.imageCaption.title,
+        heroData.imageCaption.subtitle
+      ]);
+
+      // Import main about data
+      const aboutData = readJsonFile('src/data/main/about.json');
+      await dbAsync.run(`
+        INSERT INTO main_about_data (
+          id, title, paragraphs, buttonText, buttonLink, image, imageAlt
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [
+        'default',
+        aboutData.title,
+        JSON.stringify(aboutData.paragraphs),
+        aboutData.buttonText,
+        aboutData.buttonLink,
+        aboutData.image,
+        aboutData.imageAlt
+      ]);
+
+      // Import main newsletter data
+      const newsletterData = readJsonFile('src/data/main/newsletter.json');
+      await dbAsync.run(`
+        INSERT INTO main_newsletter_data (
+          id, title, description, inputPlaceholder, successMessage
+        ) VALUES (?, ?, ?, ?, ?)
+      `, [
+        'default',
+        newsletterData.title,
+        newsletterData.description,
+        newsletterData.inputPlaceholder,
+        newsletterData.successMessage
+      ]);
+
+      // Import user preferences
+      const userPreferences = readJsonFile('src/data/user/user-preferences.json');
+      for (const pref of userPreferences) {
+        await dbAsync.run(`
+          INSERT INTO user_preferences (
+            id, name, type, value, isEnabled
+          ) VALUES (?, ?, ?, ?, ?)
+        `, [
+          pref.id,
+          pref.name,
+          pref.type,
+          pref.value,
+          pref.isEnabled ? 1 : 0
+        ]);
+      }
+
+      // Import comment types
+      const commentTypes = readJsonFile('src/data/comments/comment-types.json');
+      for (const type of commentTypes) {
+        await dbAsync.run(`
+          INSERT INTO comment_types (
+            id, name, icon
+          ) VALUES (?, ?, ?)
+        `, [
+          type.id,
+          type.name,
+          type.icon
+        ]);
       }
 
       console.log('Data import completed successfully');

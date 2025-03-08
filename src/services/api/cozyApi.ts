@@ -3,93 +3,180 @@ import cozyCategories from '../../data/cozy/cozy-categories.json';
 import cozyTags from '../../data/cozy/cozy-tags.json';
 import cozyHighlightTypes from '../../data/cozy/cozy-highlights-types.json';
 
-import { getData, getById, getByIds, enrichWithRelated } from './utils';
+import { getData, getById, getByIds, retryPromise } from './utils';
+import { CozyCategory, CozyHighlightType, CozyTag, CozyArticle } from '../../types/models';
 
-import { CozyCategory, CozyHighlight, CozyHighlightType, CozyTag, CozyArticle, MainFeaturedSection } from '../../types/models';
+/**
+ * Base URL for API requests
+ */
+const API_BASE_URL = 'http://localhost:3001';
 
 export function createCozyApi() {
   return {
     /**
      * Get all cozy articles
      */
-    getArticles: (): Promise<CozyArticle[]> => {
-      return getData(cozyArticles as CozyArticle[]);
+    getArticles: async (): Promise<CozyArticle[]> => {
+      // Try to get data from API first
+      try {
+        const response = await fetch(`${API_BASE_URL}/cozy/articles`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getData(cozyArticles as CozyArticle[]));
+      }
     },
 
     /**
      * Get highlighted articles (for the Highlights section)
      */
-    getHighlights: (): Promise<CozyArticle[]> => {
-      return getData((cozyArticles as CozyArticle[]).filter(article => article.isHighlight));
+    getHighlights: async (): Promise<CozyArticle[]> => {
+      // Try to get data from API first
+      try {
+        const response = await fetch(`${API_BASE_URL}/cozy/highlights`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getData((cozyArticles as CozyArticle[]).filter(article => article.isHighlight)));
+      }
     },
 
     /**
      * Get a single article by ID
      */
-    getArticleById: (id: string): Promise<CozyArticle | undefined> => {
-      return getById(cozyArticles as CozyArticle[], id);
+    getArticleById: async (id: string): Promise<CozyArticle | undefined> => {
+      // Try to get data from API first
+      try {
+        const response = await fetch(`${API_BASE_URL}/cozy/articles/${id}`);
+        if (response.status === 404) return undefined;
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getById(cozyArticles as CozyArticle[], id));
+      }
     },
 
     /**
      * Get all highlight types
      */
-    getHighlightTypes: (): Promise<CozyHighlightType[]> => {
-      return getData(cozyHighlightTypes as CozyHighlightType[]);
-    },
-
-    /**
-     * Get a single highlight type by ID
-     */
-    getHighlightTypeById: (id: string): Promise<CozyHighlightType | undefined> => {
-      return getById(cozyHighlightTypes as CozyHighlightType[], id);
+    getHighlightTypes: async (): Promise<CozyHighlightType[]> => {
+      // Try to get data from API first
+      try {
+        const response = await fetch(`${API_BASE_URL}/cozy/highlight-types`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getData(cozyHighlightTypes as CozyHighlightType[]));
+      }
     },
 
     /**
      * Get all cozy categories
      */
-    getCategories: (): Promise<CozyCategory[]> => {
-      return getData(cozyCategories as CozyCategory[]);
-    },
-
-    /**
-     * Get a single cozy category by ID
-     */
-    getCategoryById: (id: string): Promise<CozyCategory | undefined> => {
-      return getById(cozyCategories as CozyCategory[], id);
+    getCategories: async (): Promise<CozyCategory[]> => {
+      // Try to get data from API first
+      try {
+        const response = await fetch(`${API_BASE_URL}/cozy/categories`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getData(cozyCategories as CozyCategory[]));
+      }
     },
 
     /**
      * Get all cozy tags
      */
-    getTags: (): Promise<CozyTag[]> => {
-      return getData(cozyTags as CozyTag[]);
+    getTags: async (): Promise<CozyTag[]> => {
+      // Try to get data from API first
+      try {
+        const response = await fetch(`${API_BASE_URL}/cozy/tags`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getData(cozyTags as CozyTag[]));
+      }
     },
 
     /**
      * Get a single cozy tag by ID
      */
-    getTagById: (id: string): Promise<CozyTag | undefined> => {
-      return getById(cozyTags as CozyTag[], id);
+    getTagById: async (id: string): Promise<CozyTag | undefined> => {
+      // Try to get data from API first
+      try {
+        const response = await fetch(`${API_BASE_URL}/cozy/tags/${id}`);
+        if (response.status === 404) return undefined;
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getById(cozyTags as CozyTag[], id));
+      }
     },
 
     /**
      * Get cozy tags by IDs
      */
-    getTagsByIds: (ids: string[]): Promise<CozyTag[]> => {
-      return getByIds(cozyTags as CozyTag[], ids);
+    getTagsByIds: async (ids: string[]): Promise<CozyTag[]> => {
+      // Try to get data from API first
+      try {
+        const params = new URLSearchParams({ ids: ids.join(',') });
+        const response = await fetch(`${API_BASE_URL}/cozy/tags/multiple?${params}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.warn('API request failed, falling back to local data:', error);
+        // Fallback to local data
+        return retryPromise(() => getByIds(cozyTags as CozyTag[], ids));
+      }
     },
 
     /**
-     * Get articles with enriched type information
+     * Get enriched articles with type information
      */
     getEnrichedArticles: async (): Promise<CozyArticle[]> => {
-      const articles = await getData(cozyArticles as CozyArticle[]);
-      const types = await getData(cozyHighlightTypes as CozyHighlightType[]);
+      // Try using already enriched data from getArticles (which will try API first)
+      try {
+        const articles = await this.getArticles();
 
-      return articles.map(article => ({
-        ...article,
-        type: article.typeId ? types.find(type => type.id === article.typeId)?.name || article.type : article.type
-      }));
-    },
+        // If articles don't have type info, fetch types and enrich them
+        if (articles.some(article => article.typeId && !article.type)) {
+          const types = await this.getHighlightTypes();
+
+          return articles.map(article => ({
+            ...article,
+            type: article.typeId ? types.find(type => type.id === article.typeId)?.name || article.type : article.type
+          }));
+        }
+
+        return articles;
+      } catch (error) {
+        console.warn('Failed to get enriched articles:', error);
+
+        // Manual fallback if needed
+        return retryPromise(async () => {
+          const articles = await getData(cozyArticles as CozyArticle[]);
+          const types = await getData(cozyHighlightTypes as CozyHighlightType[]);
+
+          return articles.map(article => ({
+            ...article,
+            type: article.typeId ? types.find(type => type.id === article.typeId)?.name || article.type : article.type
+          }));
+        });
+      }
+    }
   };
 }
