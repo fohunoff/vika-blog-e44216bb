@@ -37,6 +37,20 @@ await initializeDatabase();
 // Set up Swagger documentation
 setupSwagger(app);
 
+// Root route handler
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Welcome to the API',
+    documentation: `http://localhost:${PORT}/api-docs`,
+    endpoints: {
+      recipes: '/recipes',
+      cozy: '/cozy',
+      diary: '/diary',
+      cafes: '/cafes'
+    }
+  });
+});
+
 // API Routes - use order from most specific to least specific
 app.use('/', recipeRoutes);
 app.use('/', cozyRoutes);
