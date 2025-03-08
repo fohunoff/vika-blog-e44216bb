@@ -1,9 +1,9 @@
 
 import express from 'express';
-import { 
-  getRecipes, getRecipeById, getRecipeCategories, 
-  getRecipeCategoryById, getRecipeTags, getRecipeTagById,
-  getRecipeTagsByIds, getRecipeDifficultyLevels, getRecipeDifficultyLevelById 
+import {
+  getAllRecipes, getRecipeById, getCategories,
+  getCategoryById, getTags, getTagById,
+  getTagsByIds, getDifficultyLevels, getDifficultyLevelById
 } from '../controllers/recipeController.js';
 
 const router = express.Router();
@@ -24,7 +24,7 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Recipe'
  */
-router.get('/recipes', getRecipes);
+router.get('/recipes', getAllRecipes);
 
 /**
  * @swagger
@@ -67,7 +67,7 @@ router.get('/recipes/:id', getRecipeById);
  *               items:
  *                 $ref: '#/components/schemas/RecipeCategory'
  */
-router.get('/recipes/categories', getRecipeCategories);
+router.get('/recipes/categories', getCategories);
 
 /**
  * @swagger
@@ -92,7 +92,7 @@ router.get('/recipes/categories', getRecipeCategories);
  *       404:
  *         description: Category not found
  */
-router.get('/recipes/categories/:id', getRecipeCategoryById);
+router.get('/recipes/categories/:id', getCategoryById);
 
 /**
  * @swagger
@@ -110,7 +110,7 @@ router.get('/recipes/categories/:id', getRecipeCategoryById);
  *               items:
  *                 $ref: '#/components/schemas/RecipeTag'
  */
-router.get('/recipes/tags', getRecipeTags);
+router.get('/recipes/tags', getTags);
 
 /**
  * @swagger
@@ -135,7 +135,7 @@ router.get('/recipes/tags', getRecipeTags);
  *       404:
  *         description: Tag not found
  */
-router.get('/recipes/tags/:id', getRecipeTagById);
+router.get('/recipes/tags/:id', getTagById);
 
 /**
  * @swagger
@@ -160,7 +160,7 @@ router.get('/recipes/tags/:id', getRecipeTagById);
  *               items:
  *                 $ref: '#/components/schemas/RecipeTag'
  */
-router.get('/recipes/tags/multiple', getRecipeTagsByIds);
+router.get('/recipes/tags/multiple', getTagsByIds);
 
 /**
  * @swagger
@@ -178,12 +178,12 @@ router.get('/recipes/tags/multiple', getRecipeTagsByIds);
  *               items:
  *                 type: object
  *                 properties:
- *                   id: 
+ *                   id:
  *                     type: string
- *                   name: 
+ *                   name:
  *                     type: string
  */
-router.get('/recipes/difficulty-levels', getRecipeDifficultyLevels);
+router.get('/recipes/difficulty-levels', getDifficultyLevels);
 
 /**
  * @swagger
@@ -206,13 +206,13 @@ router.get('/recipes/difficulty-levels', getRecipeDifficultyLevels);
  *             schema:
  *               type: object
  *               properties:
- *                 id: 
+ *                 id:
  *                   type: string
- *                 name: 
+ *                 name:
  *                   type: string
  *       404:
  *         description: Difficulty level not found
  */
-router.get('/recipes/difficulty-levels/:id', getRecipeDifficultyLevelById);
+router.get('/recipes/difficulty-levels/:id', getDifficultyLevelById);
 
 export default router;
