@@ -1,11 +1,11 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
-// Получение __dirname в среде ES modules
+// Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const options = {
   definition: {
@@ -350,11 +350,9 @@ const options = {
       }
     }
   },
-  // Указываем расширенный путь для поиска аннотаций API
   apis: [
-    join(__dirname, '../routes/*.js'),
-    join(__dirname, '../routes/*/*.js'),
-    join(__dirname, '../controllers/*.js')
+    path.join(__dirname, '../routes/**/*.js'),
+    path.join(__dirname, '../controllers/*.js')
   ]
 };
 

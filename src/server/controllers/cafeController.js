@@ -1,4 +1,3 @@
-
 import { dbAsync } from '../db/config.js';
 
 // Get all cafes
@@ -57,33 +56,35 @@ export const createCafe = async (req, res) => {
     const categoryIdsString = JSON.stringify(categoryIds || []);
     const tagIdsString = JSON.stringify(tagIds || []);
 
+    // Create ID based on name
+    const id = name.toLowerCase().replace(/\s+/g, '-');
+
     const result = await dbAsync.run(
-      `INSERT INTO cafes (
+        `INSERT INTO cafes (
         id, name, description, shortDescription, imageSrc, location, 
         openHours, priceRange, rating, categoryIds, tagIds, website, phone, address
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        // Generate a simple ID based on name
-        name.toLowerCase().replace(/\s+/g, '-'),
-        name,
-        description,
-        shortDescription || '',
-        imageSrc || '',
-        location,
-        openHours || '',
-        priceRange,
-        rating,
-        categoryIdsString,
-        tagIdsString,
-        website || '',
-        phone || '',
-        address || ''
-      ]
+        [
+          id,
+          name,
+          description,
+          shortDescription || '',
+          imageSrc || '',
+          location,
+          openHours || '',
+          priceRange,
+          rating,
+          categoryIdsString,
+          tagIdsString,
+          website || '',
+          phone || '',
+          address || ''
+        ]
     );
 
     res.status(201).json({
       message: 'Cafe created successfully',
-      id: name.toLowerCase().replace(/\s+/g, '-')
+      id
     });
   } catch (error) {
     console.error('Error creating cafe:', error);
@@ -122,7 +123,7 @@ export const updateCafe = async (req, res) => {
     const tagIdsString = tagIds ? JSON.stringify(tagIds) : existingCafe.tagIds;
 
     await dbAsync.run(
-      `UPDATE cafes SET 
+        `UPDATE cafes SET 
         name = ?, 
         description = ?, 
         shortDescription = ?, 
@@ -137,22 +138,22 @@ export const updateCafe = async (req, res) => {
         phone = ?, 
         address = ?
       WHERE id = ?`,
-      [
-        name || existingCafe.name,
-        description || existingCafe.description,
-        shortDescription !== undefined ? shortDescription : existingCafe.shortDescription,
-        imageSrc || existingCafe.imageSrc,
-        location || existingCafe.location,
-        openHours !== undefined ? openHours : existingCafe.openHours,
-        priceRange || existingCafe.priceRange,
-        rating || existingCafe.rating,
-        categoryIdsString,
-        tagIdsString,
-        website !== undefined ? website : existingCafe.website,
-        phone !== undefined ? phone : existingCafe.phone,
-        address !== undefined ? address : existingCafe.address,
-        id
-      ]
+        [
+          name || existingCafe.name,
+          description || existingCafe.description,
+          shortDescription !== undefined ? shortDescription : existingCafe.shortDescription,
+          imageSrc || existingCafe.imageSrc,
+          location || existingCafe.location,
+          openHours !== undefined ? openHours : existingCafe.openHours,
+          priceRange || existingCafe.priceRange,
+          rating || existingCafe.rating,
+          categoryIdsString,
+          tagIdsString,
+          website !== undefined ? website : existingCafe.website,
+          phone !== undefined ? phone : existingCafe.phone,
+          address !== undefined ? address : existingCafe.address,
+          id
+        ]
     );
 
     res.json({ message: 'Cafe updated successfully' });
@@ -306,12 +307,12 @@ export const getEnrichedCafes = async (req, res) => {
 
         // Map IDs to names
         cafeCategories = categoryIds
-          .map(id => categories.find(c => c.id === id)?.name)
-          .filter(Boolean);
+            .map(id => categories.find(c => c.id === id)?.name)
+            .filter(Boolean);
 
         cafeTags = tagIds
-          .map(id => tags.find(t => t.id === id)?.name)
-          .filter(Boolean);
+            .map(id => tags.find(t => t.id === id)?.name)
+            .filter(Boolean);
       } catch (error) {
         console.error('Error parsing cafe IDs:', error);
       }

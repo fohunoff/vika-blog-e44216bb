@@ -1,10 +1,9 @@
-
 import { dbAsync } from './config.js';
 
 // Create database tables
 export const createTables = async () => {
   console.log('Creating database tables...');
-  
+
   try {
     // Recipe Categories
     await dbAsync.run(`
@@ -13,7 +12,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     // Recipe Tags
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS recipe_tags (
@@ -21,7 +20,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     // Recipe Difficulty Levels
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS recipe_difficulty_levels (
@@ -30,7 +29,7 @@ export const createTables = async () => {
         description TEXT
       )
     `);
-    
+
     // Recipes
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS recipes (
@@ -48,7 +47,7 @@ export const createTables = async () => {
         FOREIGN KEY (categoryId) REFERENCES recipe_categories(id)
       )
     `);
-    
+
     // Recipe Ingredients
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS recipe_ingredients (
@@ -59,7 +58,7 @@ export const createTables = async () => {
         FOREIGN KEY (recipeId) REFERENCES recipes(id)
       )
     `);
-    
+
     // Recipe Steps
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS recipe_steps (
@@ -70,7 +69,7 @@ export const createTables = async () => {
         FOREIGN KEY (recipeId) REFERENCES recipes(id)
       )
     `);
-    
+
     // Recipe Tags Junction Table
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS recipe_tag_map (
@@ -81,7 +80,54 @@ export const createTables = async () => {
         FOREIGN KEY (tagId) REFERENCES recipe_tags(id)
       )
     `);
-    
+
+    // Cafe Categories
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafe_categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        image TEXT
+      )
+    `);
+
+    // Cafe Tags
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafe_tags (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `);
+
+    // Cafe Price Ranges
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafe_price_ranges (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT
+      )
+    `);
+
+    // Cafes
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafes (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        shortDescription TEXT,
+        imageSrc TEXT,
+        location TEXT NOT NULL,
+        openHours TEXT,
+        priceRange TEXT NOT NULL,
+        rating REAL NOT NULL,
+        categoryIds TEXT, /* Stored as JSON string */
+        tagIds TEXT, /* Stored as JSON string */
+        website TEXT,
+        phone TEXT,
+        address TEXT,
+        FOREIGN KEY (priceRange) REFERENCES cafe_price_ranges(id)
+      )
+    `);
+
     // Cozy Articles
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS cozy_articles (
@@ -96,7 +142,7 @@ export const createTables = async () => {
         categoryId TEXT
       )
     `);
-    
+
     // Cozy Article Tags Junction Table
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS cozy_tag_map (
@@ -107,7 +153,7 @@ export const createTables = async () => {
         FOREIGN KEY (tagId) REFERENCES cozy_tags(id)
       )
     `);
-    
+
     // Cozy Tags
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS cozy_tags (
@@ -115,7 +161,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     // Cozy Categories
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS cozy_categories (
@@ -123,7 +169,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     // Cozy Highlight Types
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS cozy_highlight_types (
@@ -131,7 +177,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     // Diary Entries
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS diary_entries (
@@ -144,7 +190,7 @@ export const createTables = async () => {
         imageSrc TEXT
       )
     `);
-    
+
     // Diary Tags Junction Table
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS diary_tag_map (
@@ -153,7 +199,7 @@ export const createTables = async () => {
         PRIMARY KEY (diaryId, tagId)
       )
     `);
-    
+
     // Diary Tags
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS diary_tags (
@@ -161,7 +207,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     // Diary Categories
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS diary_categories (
@@ -169,7 +215,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     // Diary Moods
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS diary_moods (
@@ -177,7 +223,7 @@ export const createTables = async () => {
         name TEXT NOT NULL
       )
     `);
-    
+
     console.log('Database tables created successfully');
     return true;
   } catch (error) {

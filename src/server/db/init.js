@@ -1,12 +1,11 @@
-
-import { closeDatabase as closeDbConnection } from './config.js';
+import { db, dbAsync, closeDatabase as closeDbConnection } from './config.js';
 import { createTables } from './tables.js';
 import { importData } from './import.js';
 
 // Initialize database
 export const initializeDatabase = async () => {
   console.log('Initializing database...');
-  
+
   try {
     await createTables();
     await importData();
@@ -30,3 +29,6 @@ export const closeDatabase = async () => {
     throw error;
   }
 };
+
+// Export database objects for use in controllers
+export { db, dbAsync };
