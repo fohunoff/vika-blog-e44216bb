@@ -43,6 +43,11 @@ setupSwagger(app);
 initializeDatabase().catch(console.error);
 
 // Регистрация маршрутов - здесь важен порядок
+
+// Сначала обслуживаем статические файлы для клиентской части (если они есть)
+app.use(express.static(join(__dirname, 'dist')));
+
+// API маршруты
 // Добавляем mainRoutes вначале
 app.use('/', mainRoutes);
 
@@ -57,6 +62,17 @@ app.use('/', cozyRoutes);
 
 // Затем маршруты для дневников
 app.use('/', diaryRoutes);
+
+// Для всех остальных запросов отправляем index.html (для работы маршрутизации на стороне клиента)
+app.get('*', (req, res) => {
+  // Проверяем, если запрос для API - возвращаем 404
+  if (req.originalUrl.startsWith('/api/')) {
+    return notFound(req, res);
+  }
+
+  // В остальных случаях отдаем index.html для поддержки SPA (Single Page Application)
+  res.sendFile(join(__dirname, 'dist', 'index.html'));
+});
 
 // Middleware для обработки ошибок
 app.use(notFound);

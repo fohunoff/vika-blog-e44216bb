@@ -40,6 +40,50 @@ export const importData = async () => {
     if (!dataExists) {
       console.log('Importing data from JSON files...');
 
+      // Import cafes
+      const cafes = readJsonFile('src/data/cafes.json');
+      for (const cafe of cafes) {
+        await dbAsync.run(`
+          INSERT INTO cafes (
+            id, name, description, shortDescription, location, openHours, 
+            priceRange, rating, categoryIds, tagIds, imageSrc
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          cafe.id,
+          cafe.name,
+          cafe.description,
+          cafe.shortDescription || null,
+          cafe.location,
+          cafe.openHours || null,
+          cafe.priceRange,
+          cafe.rating,
+          Array.isArray(cafe.categoryIds) ? JSON.stringify(cafe.categoryIds) : cafe.categoryIds,
+          Array.isArray(cafe.tagIds) ? JSON.stringify(cafe.tagIds) : cafe.tagIds,
+          cafe.imageSrc || null
+        ]);
+      }
+
+      // Import cafe categories
+      const cafeCategories = readJsonFile('src/data/cafe/cafe-categories.json');
+      for (const category of cafeCategories) {
+        await dbAsync.run('INSERT INTO cafe_categories (id, name) VALUES (?, ?)',
+            [category.id, category.name]);
+      }
+
+      // Import cafe tags
+      const cafeTags = readJsonFile('src/data/cafe/cafe-tags.json');
+      for (const tag of cafeTags) {
+        await dbAsync.run('INSERT INTO cafe_tags (id, name) VALUES (?, ?)',
+            [tag.id, tag.name]);
+      }
+
+      // Import cafe price ranges
+      const cafePriceRanges = readJsonFile('src/data/cafe/cafe-price-ranges.json');
+      for (const priceRange of cafePriceRanges) {
+        await dbAsync.run('INSERT INTO cafe_price_ranges (id, name, description) VALUES (?, ?, ?)',
+            [priceRange.id, priceRange.name, priceRange.description]);
+      }
+
       // Import recipe categories
       const recipeCategories = readJsonFile('src/data/recipe/recipe-categories.json');
       for (const category of recipeCategories) {

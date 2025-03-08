@@ -5,6 +5,26 @@ export const createTables = async () => {
   console.log('Creating database tables...');
 
   try {
+    // Cafes - добавляем эту таблицу
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafes (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        shortDescription TEXT,
+        imageSrc TEXT,
+        location TEXT,
+        openHours TEXT,
+        priceRange TEXT,
+        rating REAL,
+        categoryIds TEXT,
+        tagIds TEXT,
+        website TEXT,
+        phone TEXT,
+        address TEXT
+      )
+    `);
+
     // Recipe Categories
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS recipe_categories (
@@ -78,6 +98,31 @@ export const createTables = async () => {
         PRIMARY KEY (recipeId, tagId),
         FOREIGN KEY (recipeId) REFERENCES recipes(id),
         FOREIGN KEY (tagId) REFERENCES recipe_tags(id)
+      )
+    `);
+
+    // Cafe Categories
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafe_categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `);
+
+    // Cafe Tags
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafe_tags (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `);
+
+    // Cafe Price Ranges
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS cafe_price_ranges (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT
       )
     `);
 
