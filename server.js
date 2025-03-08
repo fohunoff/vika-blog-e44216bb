@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import recipeRoutes from './src/server/routes/recipeRoutes.js';
 import cozyRoutes from './src/server/routes/cozyRoutes.js';
 import diaryRoutes from './src/server/routes/diaryRoutes.js';
+import cafeRoutes from './src/server/routes/cafeRoutes.js';
 
 // Import middleware
 import { errorHandler, notFound } from './src/server/middleware/errorMiddleware.js';
@@ -40,6 +41,7 @@ setupSwagger(app);
 app.use('/', recipeRoutes);
 app.use('/', cozyRoutes);
 app.use('/', diaryRoutes);
+app.use('/', cafeRoutes);
 
 // Handle 404 errors
 app.use(notFound);
