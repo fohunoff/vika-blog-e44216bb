@@ -11,6 +11,9 @@ import Diary from "./pages/Diary";
 import Cafes from "./pages/Cafes";
 import Cozy from "./pages/Cozy.tsx";
 
+import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +31,10 @@ const App = () => (
           <Route path="/diary" element={<Diary />} />
           <Route path="/cafes" element={<Cafes />} />
           <Route path="/cozy" element={<Cozy />} />
+
+          {/* Admin routes */}
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
