@@ -15,6 +15,9 @@ import { errorHandler, notFound } from './src/server/middleware/errorMiddleware.
 // Import database initialization
 import { initializeDatabase, closeDatabase } from './src/server/db/init.js';
 
+// Import Swagger setup
+import { setupSwagger } from './src/server/config/swagger.js';
+
 // Set up Express app
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +33,9 @@ app.use(express.json());
 // Initialize database
 await initializeDatabase();
 
+// Set up Swagger documentation
+setupSwagger(app);
+
 // API Routes - use order from most specific to least specific
 app.use('/', recipeRoutes);
 app.use('/', cozyRoutes);
@@ -44,6 +50,7 @@ app.use(errorHandler);
 // Start the server
 const server = app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`API Documentation available at http://localhost:${PORT}/api-docs`);
 });
 
 // Handle application shutdown
