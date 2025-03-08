@@ -40,8 +40,8 @@ const RecipesList = ({ recipes, isLoading }: RecipesListProps) => {
             description: recipe.description,
             shortDescription: recipe.shortDescription,
             imageSrc: recipe.imageSrc,
-            categoryName: (recipe as any).categoryName || "Без категории",
-            time: `${recipe.prepTime} + ${recipe.cookTime}`,
+            categoryName: recipe.categoryName || "Без категории",
+            time: recipe.time || `${recipe.prepTime || ''} + ${recipe.cookTime || ''}`,
             difficulty: recipe.difficulty
           }} 
           index={index} 
