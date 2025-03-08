@@ -1,6 +1,9 @@
+// Путь: src/server/routes/mainRoutes.js
+
+// Проблема: в файле нет экспорта маршрутов
 import express from 'express';
 import {
-    getIndexCategories,
+    getMainCategories as getIndexCategories,
     getFeaturedSections,
     getFeaturedSectionById,
     getLatestPosts,
@@ -159,3 +162,6 @@ router.get('/main/hero', getHeroData);
  *               type: object
  */
 router.get('/main/newsletter', getNewsletterData);
+
+// Добавляем экспорт роутера как дефолтный экспорт
+export default router;

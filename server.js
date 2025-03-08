@@ -1,3 +1,5 @@
+// Путь: server.js
+
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
@@ -10,6 +12,8 @@ import recipeRoutes from './src/server/routes/recipeRoutes.js';
 import cafeRoutes from './src/server/routes/cafeRoutes.js';
 import cozyRoutes from './src/server/routes/cozyRoutes.js';
 import diaryRoutes from './src/server/routes/diaryRoutes.js';
+// Добавляем импорт mainRoutes
+import mainRoutes from './src/server/routes/mainRoutes.js';
 
 // Импорт middleware
 import { errorHandler, notFound } from './src/server/middleware/errorMiddleware.js';
@@ -39,7 +43,10 @@ setupSwagger(app);
 initializeDatabase().catch(console.error);
 
 // Регистрация маршрутов - здесь важен порядок
-// Первыми регистрируем маршруты рецептов
+// Добавляем mainRoutes вначале
+app.use('/', mainRoutes);
+
+// Затем регистрируем маршруты рецептов
 app.use('/', recipeRoutes);
 
 // Затем маршруты для кафе
