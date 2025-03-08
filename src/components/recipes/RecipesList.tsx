@@ -1,9 +1,10 @@
 
 import { UtensilsCrossed } from "lucide-react";
 import RecipeCard from "./RecipeCard";
+import { Recipe } from "@/types/models"; 
 
 interface RecipesListProps {
-  recipes: any[];
+  recipes: Recipe[];
   isLoading: boolean;
 }
 
