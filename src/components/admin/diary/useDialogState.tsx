@@ -59,7 +59,6 @@ export const useDialogState = () => {
     setState({
       ...state,
       formData: {
-        id: entry.id,
         title: entry.title,
         content: entry.content,
         shortDescription: entry.shortDescription || '',
