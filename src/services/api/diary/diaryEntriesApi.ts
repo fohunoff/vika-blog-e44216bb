@@ -1,3 +1,4 @@
+
 import diaryEntries from '../../../data/diary.json';
 import diaryCategories from '../../../data/diary/diary-categories.json';
 import diaryTags from '../../../data/diary/diary-tags.json';
@@ -74,22 +75,14 @@ export function createDiaryEntriesApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Проверяем что данные уже являются массивами и не нуждаются в парсинге
-        const formattedData = {
-          ...data,
-          categoryIds: data.categoryIds,
-          tagIds: data.tagIds,
-          moodIds: data.moodIds
-        };
-        
-        console.log("Отправка данных на сервер (создание):", formattedData);
+        console.log("Отправка данных на сервер (создание):", data);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(formattedData),
+          body: JSON.stringify(data),
         });
         
         if (!response.ok) throw new Error('Network response was not ok');
@@ -105,22 +98,14 @@ export function createDiaryEntriesApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Проверяем что данные уже являются массивами и не нуждаются в парсинге
-        const formattedData = {
-          ...data,
-          categoryIds: data.categoryIds,
-          tagIds: data.tagIds,
-          moodIds: data.moodIds
-        };
-        
-        console.log("Отправка данных на сервер (обновление):", formattedData);
+        console.log("Отправка данных на сервер (обновление):", data);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(formattedData),
+          body: JSON.stringify(data),
         });
         
         if (!response.ok) throw new Error('Network response was not ok');
