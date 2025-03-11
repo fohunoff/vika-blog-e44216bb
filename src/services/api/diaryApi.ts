@@ -1,10 +1,9 @@
-
 import diaryEntries from '../../data/diary.json';
 import diaryCategories from '../../data/diary/diary-categories.json';
 import diaryTags from '../../data/diary/diary-tags.json';
 import diaryMoods from '../../data/diary/diary-moods.json';
 import { getData, getById, getByIds, retryPromise } from './utils';
-import { DiaryCategory, DiaryEntry, DiaryTag, DiaryMood, DiaryEntryFormData } from '../../types/models';
+import { DiaryCategory, DiaryEntry, DiaryTag, DiaryMood, DiaryEntryFormData } from '../../types/diary';
 
 const API_BASE_URL = 'http://localhost:3001';
 
@@ -199,7 +198,8 @@ export function createDiaryApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/diary/entry`, {
+        console.log('Creating diary entry with data:', data);
+        const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -222,7 +222,8 @@ export function createDiaryApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/diary/entry/${id}`, {
+        console.log('Updating diary entry with ID and data:', id, data);
+        const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -245,7 +246,8 @@ export function createDiaryApi() {
      */
     deleteDiaryEntry: async (id: string): Promise<void> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/diary/entry/${id}`, {
+        console.log('Deleting diary entry with ID:', id);
+        const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {
