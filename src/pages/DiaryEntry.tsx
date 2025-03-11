@@ -48,12 +48,27 @@ const DiaryEntryPage = () => {
           });
           return;
         }
+
+        // Ensure tagIds is an array
+        const tagIds = Array.isArray(entryData.tagIds) ? entryData.tagIds : 
+                      (entryData.tagIds ? [entryData.tagIds] : []);
         
+        // Ensure categoryIds is an array
+        const categoryIds = Array.isArray(entryData.categoryIds) ? entryData.categoryIds : 
+                           [entryData.categoryId || entryData.categoryIds].filter(Boolean);
+        
+        // Ensure moodIds is an array
+        const moodIds = Array.isArray(entryData.moodIds) ? entryData.moodIds : 
+                       [entryData.moodId || entryData.moodIds].filter(Boolean);
+
         // Fetch category, tags and mood details
         const [categoryData, tagsData, moodData] = await Promise.all([
-          api.diary.getCategoryById(entryData.categoryId),
-          Promise.all((entryData.tagIds || []).map((tagId: string) => api.diary.getTagById(tagId))),
-          api.diary.getMoodById(entryData.moodId)
+          // Get first category (if exists)
+          categoryIds.length > 0 ? api.diary.getCategoryById(categoryIds[0]) : Promise.resolve(null),
+          // Get all tags
+          Promise.all(tagIds.map((tagId: string) => api.diary.getTagById(tagId))),
+          // Get first mood (if exists)
+          moodIds.length > 0 ? api.diary.getMoodById(moodIds[0]) : Promise.resolve(null)
         ]);
         
         // Prepare enriched entry
@@ -62,8 +77,9 @@ const DiaryEntryPage = () => {
           category: categoryData?.name,
           tags: tagsData.filter(Boolean).map(tag => tag?.name),
           mood: moodData?.name,
-          categoryIds: entryData.categoryIds || [entryData.categoryId],
-          moodIds: entryData.moodIds || [entryData.moodId]
+          categoryIds: categoryIds,
+          moodIds: moodIds,
+          tagIds: tagIds
         };
         
         setEntry(enrichedEntry);
@@ -146,7 +162,7 @@ const DiaryEntryPage = () => {
           <ArrowLeft className="mr-2 h-4 w-4" /> Назад к дневнику
         </Link>
         
-        {entry.imageSrc && (
+        {entry?.imageSrc && (
           <div className="relative h-[300px] md:h-[500px] w-full mb-8 rounded-xl overflow-hidden">
             <img
               src={entry.imageSrc}
@@ -159,17 +175,17 @@ const DiaryEntryPage = () => {
         <div className="flex flex-wrap items-center gap-4 text-gray-500 mb-6">
           <div className="flex items-center">
             <Calendar size={18} className="mr-2" />
-            <span>{formatDate(entry.date)}</span>
+            <span>{entry ? formatDate(entry.date) : ''}</span>
           </div>
           
-          {entry.mood && (
+          {entry?.mood && (
             <div className="flex items-center">
               <MessageSquare size={18} className="mr-2" />
               <span>{entry.mood}</span>
             </div>
           )}
           
-          {entry.category && (
+          {entry?.category && (
             <div className="flex items-center">
               <Tag size={18} className="mr-2" />
               <span>{entry.category}</span>
@@ -177,16 +193,16 @@ const DiaryEntryPage = () => {
           )}
         </div>
         
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">{entry.title}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6">{entry?.title}</h1>
         
-        {entry.shortDescription && (
+        {entry?.shortDescription && (
           <p className="text-xl text-gray-700 mb-8 font-serif italic">
             {entry.shortDescription}
           </p>
         )}
         
         <div className="flex flex-wrap gap-2 mb-8">
-          {entry.tags && entry.tags.map((tag, index) => (
+          {entry?.tags && entry.tags.length > 0 && entry.tags.map((tag, index) => (
             <Badge
               key={index}
               variant="secondary"
@@ -198,7 +214,7 @@ const DiaryEntryPage = () => {
         </div>
         
         <div className="my-8">
-          <EntryContent content={entry.content} />
+          {entry?.content && <EntryContent content={entry.content} />}
         </div>
       </article>
 
@@ -226,7 +242,7 @@ const DiaryEntryPage = () => {
       )}
       
       <DiaryTags
-        tags={entry.tags || []}
+        tags={entry?.tags || []}
         onTagClick={() => {}}
       />
       
