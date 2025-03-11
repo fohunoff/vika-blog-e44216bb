@@ -140,8 +140,10 @@ export interface DiaryEntry {
   imageSrc?: string;
   date: string;
   categoryId: string;
+  categoryIds?: string[]; // Added for multi-select
   tagIds: string[];
   moodId: string;
+  moodIds?: string[]; // Added for multi-select
 }
 
 // User Models

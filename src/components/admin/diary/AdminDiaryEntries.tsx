@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
 import { DiaryEntry } from "@/types/models";
@@ -9,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { Edit, Trash, Plus } from "lucide-react";
+import { Edit, Trash, Plus, Check } from "lucide-react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -20,9 +21,9 @@ type DiaryEntryFormData = {
   shortDescription: string;
   imageSrc: string;
   date: string;
-  categoryId: string;
+  categoryIds: string[]; // Changed from categoryId to categoryIds
   tagIds: string[];
-  moodId: string;
+  moodIds: string[]; // Changed from moodId to moodIds
 };
 
 const AdminDiaryEntries = () => {
@@ -36,15 +37,17 @@ const AdminDiaryEntries = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
   const [formData, setFormData] = useState<DiaryEntryFormData>({
     title: '',
     content: '',
     shortDescription: '',
     imageSrc: '',
     date: new Date().toISOString().split('T')[0],
-    categoryId: '',
+    categoryIds: [],
     tagIds: [],
-    moodId: ''
+    moodIds: []
   });
 
   useEffect(() => {
@@ -57,7 +60,14 @@ const AdminDiaryEntries = () => {
           api.diary.getMoods()
         ]);
         
-        setEntries(entriesData);
+        // Convert single categoryId and moodId to arrays for existing entries
+        const updatedEntries = entriesData.map(entry => ({
+          ...entry,
+          categoryIds: entry.categoryIds || [entry.categoryId],
+          moodIds: entry.moodIds || [entry.moodId]
+        }));
+        
+        setEntries(updatedEntries);
         setCategories(categoriesData);
         setTags(tagsData);
         setMoods(moodsData);
@@ -85,10 +95,6 @@ const AdminDiaryEntries = () => {
     setFormData((prev) => ({ ...prev, content }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleTagSelect = (tagId: string) => {
     const newSelectedTags = selectedTags.includes(tagId)
       ? selectedTags.filter(id => id !== tagId)
@@ -98,6 +104,24 @@ const AdminDiaryEntries = () => {
     setFormData(prev => ({ ...prev, tagIds: newSelectedTags }));
   };
 
+  const handleCategorySelect = (categoryId: string) => {
+    const newSelectedCategories = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter(id => id !== categoryId)
+      : [...selectedCategories, categoryId];
+    
+    setSelectedCategories(newSelectedCategories);
+    setFormData(prev => ({ ...prev, categoryIds: newSelectedCategories }));
+  };
+
+  const handleMoodSelect = (moodId: string) => {
+    const newSelectedMoods = selectedMoods.includes(moodId)
+      ? selectedMoods.filter(id => id !== moodId)
+      : [...selectedMoods, moodId];
+    
+    setSelectedMoods(newSelectedMoods);
+    setFormData(prev => ({ ...prev, moodIds: newSelectedMoods }));
+  };
+
   const openCreateDialog = () => {
     setFormData({
       title: '',
@@ -105,16 +129,22 @@ const AdminDiaryEntries = () => {
       shortDescription: '',
       imageSrc: '',
       date: new Date().toISOString().split('T')[0],
-      categoryId: categories[0]?.id || '',
+      categoryIds: [],
       tagIds: [],
-      moodId: moods[0]?.id || ''
+      moodIds: []
     });
     setSelectedTags([]);
+    setSelectedCategories([]);
+    setSelectedMoods([]);
     setSelectedEntry(null);
     setIsDialogOpen(true);
   };
 
   const openEditDialog = (entry: DiaryEntry) => {
+    // Convert single categoryId and moodId to arrays if needed
+    const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds : [entry.categoryId];
+    const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds : [entry.moodId];
+    
     setFormData({
       id: entry.id,
       title: entry.title,
@@ -122,11 +152,13 @@ const AdminDiaryEntries = () => {
       shortDescription: entry.shortDescription || '',
       imageSrc: entry.imageSrc || '',
       date: entry.date,
-      categoryId: entry.categoryId,
+      categoryIds: categoryIds,
       tagIds: Array.isArray(entry.tagIds) ? entry.tagIds : [],
-      moodId: entry.moodId
+      moodIds: moodIds
     });
     setSelectedTags(Array.isArray(entry.tagIds) ? entry.tagIds : []);
+    setSelectedCategories(categoryIds);
+    setSelectedMoods(moodIds);
     setSelectedEntry(entry.id);
     setIsDialogOpen(true);
   };
@@ -187,6 +219,16 @@ const AdminDiaryEntries = () => {
     }
   };
 
+  // Helper function to display comma-separated names for multi-select fields
+  const displayMultipleNames = (ids: string[] | undefined, items: {id: string, name: string}[]) => {
+    if (!ids || !Array.isArray(ids) || ids.length === 0) return 'Не выбрано';
+    
+    return ids
+      .map(id => items.find(item => item.id === id)?.name)
+      .filter(Boolean)
+      .join(', ');
+  };
+
   if (isLoading) {
     return <div className="text-center py-12">Загрузка данных...</div>;
   }
@@ -214,35 +256,30 @@ const AdminDiaryEntries = () => {
               <TableRow>
                 <TableHead>Заголовок</TableHead>
                 <TableHead>Дата</TableHead>
-                <TableHead>Категория</TableHead>
-                <TableHead>Настроение</TableHead>
+                <TableHead>Категории</TableHead>
+                <TableHead>Настроения</TableHead>
                 <TableHead className="text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {entries.map((entry) => {
-                const category = categories.find(c => c.id === entry.categoryId);
-                const mood = moods.find(m => m.id === entry.moodId);
-                
-                return (
-                  <TableRow key={entry.id}>
-                    <TableCell className="font-medium">{entry.title}</TableCell>
-                    <TableCell>{entry.date}</TableCell>
-                    <TableCell>{category?.name || 'Нет категории'}</TableCell>
-                    <TableCell>{mood?.name || 'Нет настроения'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => openEditDialog(entry)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-red-500" onClick={() => openDeleteDialog(entry.id)}>
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {entries.map((entry) => (
+                <TableRow key={entry.id}>
+                  <TableCell className="font-medium">{entry.title}</TableCell>
+                  <TableCell>{entry.date}</TableCell>
+                  <TableCell>{displayMultipleNames(entry.categoryIds || [entry.categoryId], categories)}</TableCell>
+                  <TableCell>{displayMultipleNames(entry.moodIds || [entry.moodId], moods)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openEditDialog(entry)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-red-500" onClick={() => openDeleteDialog(entry.id)}>
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>
@@ -310,55 +347,57 @@ const AdminDiaryEntries = () => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <label htmlFor="date">Дата</label>
-                <Input
-                  id="date"
-                  name="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <label htmlFor="category">Категория</label>
-                <Select 
-                  value={formData.categoryId} 
-                  onValueChange={(value) => handleSelectChange('categoryId', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите категорию" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="grid gap-2">
+              <label htmlFor="date">Дата</label>
+              <Input
+                id="date"
+                name="date"
+                type="date"
+                value={formData.date}
+                onChange={handleInputChange}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <label>Категории</label>
+              <div className="flex flex-wrap gap-2">
+                {categories.map(category => (
+                  <Button
+                    key={category.id}
+                    type="button"
+                    variant={selectedCategories.includes(category.id) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleCategorySelect(category.id)}
+                    className="flex items-center"
+                  >
+                    {selectedCategories.includes(category.id) && (
+                      <Check className="mr-1 h-3 w-3" />
+                    )}
+                    {category.name}
+                  </Button>
+                ))}
               </div>
             </div>
             
             <div className="grid gap-2">
-              <label htmlFor="mood">Настроение</label>
-              <Select 
-                value={formData.moodId} 
-                onValueChange={(value) => handleSelectChange('moodId', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите настроение" />
-                </SelectTrigger>
-                <SelectContent>
-                  {moods.map(mood => (
-                    <SelectItem key={mood.id} value={mood.id}>
-                      {mood.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label>Настроения</label>
+              <div className="flex flex-wrap gap-2">
+                {moods.map(mood => (
+                  <Button
+                    key={mood.id}
+                    type="button"
+                    variant={selectedMoods.includes(mood.id) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleMoodSelect(mood.id)}
+                    className="flex items-center"
+                  >
+                    {selectedMoods.includes(mood.id) && (
+                      <Check className="mr-1 h-3 w-3" />
+                    )}
+                    {mood.name}
+                  </Button>
+                ))}
+              </div>
             </div>
             
             <div className="grid gap-2">
@@ -371,7 +410,11 @@ const AdminDiaryEntries = () => {
                     variant={selectedTags.includes(tag.id) ? "default" : "outline"}
                     size="sm"
                     onClick={() => handleTagSelect(tag.id)}
+                    className="flex items-center"
                   >
+                    {selectedTags.includes(tag.id) && (
+                      <Check className="mr-1 h-3 w-3" />
+                    )}
                     {tag.name}
                   </Button>
                 ))}
