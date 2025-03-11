@@ -1,4 +1,3 @@
-
 import diaryEntries from '../../../data/diary.json';
 import diaryCategories from '../../../data/diary/diary-categories.json';
 import diaryTags from '../../../data/diary/diary-tags.json';
@@ -75,15 +74,15 @@ export function createDiaryEntriesApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Обеспечиваем, что массивы корректно форматированы
+        // Проверяем что данные уже являются массивами и не нуждаются в парсинге
         const formattedData = {
           ...data,
-          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [data.categoryIds].filter(Boolean),
-          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [data.tagIds].filter(Boolean),
-          moodIds: Array.isArray(data.moodIds) ? data.moodIds : [data.moodIds].filter(Boolean)
+          categoryIds: data.categoryIds,
+          tagIds: data.tagIds,
+          moodIds: data.moodIds
         };
         
-        console.log("Отправка данных на сервер (создание):", JSON.stringify(formattedData));
+        console.log("Отправка данных на сервер (создание):", formattedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
@@ -106,15 +105,15 @@ export function createDiaryEntriesApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Обеспечиваем, что массивы корректно форматированы
+        // Проверяем что данные уже являются массивами и не нуждаются в парсинге
         const formattedData = {
           ...data,
-          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [data.categoryIds].filter(Boolean),
-          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [data.tagIds].filter(Boolean),
-          moodIds: Array.isArray(data.moodIds) ? data.moodIds : [data.moodIds].filter(Boolean)
+          categoryIds: data.categoryIds,
+          tagIds: data.tagIds,
+          moodIds: data.moodIds
         };
         
-        console.log("Отправка данных на сервер (обновление):", JSON.stringify(formattedData));
+        console.log("Отправка данных на сервер (обновление):", formattedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',
