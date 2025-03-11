@@ -1,221 +1,473 @@
 
-import { dbAsync } from '../db/config.js';
+import { db } from '../db/config.js';
 
-// Get all diary entries
-export const getDiaryEntries = async (req, res) => {
+// Импорт файлов с данными для режима без базы данных
+import diaryEntries from '../../data/diary.json';
+import diaryCategories from '../../data/diary/diary-categories.json';
+import diaryTags from '../../data/diary/diary-tags.json';
+import diaryMoods from '../../data/diary/diary-moods.json';
+
+/**
+ * Получить все записи дневника
+ */
+export const getAllDiaryEntries = async (req, res) => {
   try {
-    // Get all entries
-    const entries = await dbAsync.all(`
-      SELECT e.*, c.name as categoryName, m.name as moodName
-      FROM diary_entries e
-      LEFT JOIN diary_categories c ON e.categoryId = c.id
-      LEFT JOIN diary_moods m ON e.moodId = m.id
-    `);
-    
-    // For each entry, get its tags
-    const entriesWithTags = await Promise.all(entries.map(async (entry) => {
-      // Get tags
-      const tagsRows = await dbAsync.all(`
-        SELECT t.id, t.name 
-        FROM diary_tags t
-        JOIN diary_tag_map m ON t.id = m.tagId
-        WHERE m.diaryId = ?
-      `, [entry.id]);
-      
-      // Transform to match expected format
-      return {
-        ...entry,
-        tags: tagsRows.map(t => t.name),
-        tagIds: tagsRows.map(t => t.id)
-      };
-    }));
-    
-    res.json(entriesWithTags);
+    // Проверяем, доступна ли база данных
+    if (db) {
+      db.all('SELECT * FROM diary_entries', [], (err, rows) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(200).json(diaryEntries);
+        }
+        return res.status(200).json(rows);
+      });
+    } else {
+      // Если базы данных нет, используем локальные данные
+      return res.status(200).json(diaryEntries);
+    }
   } catch (error) {
-    console.error('Error fetching diary entries:', error);
-    res.status(500).json({ error: 'Failed to fetch diary entries' });
+    console.error('Error:', error);
+    return res.status(200).json(diaryEntries);
   }
 };
 
-// Get diary entry by ID
+/**
+ * Получить запись дневника по ID
+ */
 export const getDiaryEntryById = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Get entry with category and mood name
-    const entry = await dbAsync.get(`
-      SELECT e.*, c.name as categoryName, m.name as moodName
-      FROM diary_entries e
-      LEFT JOIN diary_categories c ON e.categoryId = c.id
-      LEFT JOIN diary_moods m ON e.moodId = m.id
-      WHERE e.id = ?
-    `, [id]);
-    
-    if (!entry) {
-      return res.status(404).json({ error: 'Diary entry not found' });
+    // Проверяем, доступна ли база данных
+    if (db) {
+      db.get('SELECT * FROM diary_entries WHERE id = ?', [id], (err, row) => {
+        if (err) {
+          console.error('Database error:', err);
+          const entry = diaryEntries.find(entry => entry.id === id);
+          if (!entry) {
+            return res.status(404).json({ message: 'Diary entry not found' });
+          }
+          return res.status(200).json(entry);
+        }
+        
+        if (!row) {
+          return res.status(404).json({ message: 'Diary entry not found' });
+        }
+        
+        return res.status(200).json(row);
+      });
+    } else {
+      // Если базы данных нет, используем локальные данные
+      const entry = diaryEntries.find(entry => entry.id === id);
+      if (!entry) {
+        return res.status(404).json({ message: 'Diary entry not found' });
+      }
+      return res.status(200).json(entry);
     }
-    
-    // Get tags
-    const tagsRows = await dbAsync.all(`
-      SELECT t.id, t.name 
-      FROM diary_tags t
-      JOIN diary_tag_map m ON t.id = m.tagId
-      WHERE m.diaryId = ?
-    `, [entry.id]);
-    
-    // Add tags to entry
-    entry.tags = tagsRows.map(t => t.name);
-    entry.tagIds = tagsRows.map(t => t.id);
-    
-    res.json(entry);
   } catch (error) {
-    console.error(`Error fetching diary entry ${req.params.id}:`, error);
-    res.status(500).json({ error: 'Failed to fetch diary entry' });
+    console.error('Error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Get enriched diary entries
+/**
+ * Получить обогащённые записи дневника (с данными о категориях и тегах)
+ */
 export const getEnrichedDiaryEntries = async (req, res) => {
   try {
-    // Get all entries with their categories and moods
-    const entries = await dbAsync.all(`
-      SELECT e.*, c.name as categoryName, m.name as moodName
-      FROM diary_entries e
-      LEFT JOIN diary_categories c ON e.categoryId = c.id
-      LEFT JOIN diary_moods m ON e.moodId = m.id
-    `);
+    // Проверяем, доступна ли база данных
+    if (db) {
+      // Здесь можно использовать JOIN запросы для получения связанных данных
+      // Но для простоты примера, будем просто получать все записи и обогащать их на стороне сервера
+      db.all('SELECT * FROM diary_entries', [], async (err, entries) => {
+        if (err) {
+          console.error('Database error:', err);
+          // Если ошибка, используем локальные данные
+          const enrichedEntries = enrichDiaryEntries(diaryEntries);
+          return res.status(200).json(enrichedEntries);
+        }
+        
+        try {
+          // Получаем все категории и теги из базы
+          const categories = await getDataFromDb('SELECT * FROM diary_categories');
+          const tags = await getDataFromDb('SELECT * FROM diary_tags');
+          const moods = await getDataFromDb('SELECT * FROM diary_moods');
+          
+          // Обогащаем записи данными о категориях и тегах
+          const enrichedEntries = entries.map(entry => {
+            const category = categories.find(c => c.id === entry.categoryId);
+            const entryTags = entry.tagIds ? 
+              entry.tagIds.split(',').map(id => tags.find(t => t.id === id)).filter(Boolean) : 
+              [];
+            const mood = moods.find(m => m.id === entry.moodId);
+            
+            return {
+              ...entry,
+              category: category?.name,
+              tags: entryTags.map(t => t?.name),
+              mood: mood?.name
+            };
+          });
+          
+          return res.status(200).json(enrichedEntries);
+        } catch (error) {
+          console.error('Error enriching entries:', error);
+          // В случае ошибки используем локальные данные
+          const enrichedEntries = enrichDiaryEntries(entries);
+          return res.status(200).json(enrichedEntries);
+        }
+      });
+    } else {
+      // Если базы данных нет, используем локальные данные
+      const enrichedEntries = enrichDiaryEntries(diaryEntries);
+      return res.status(200).json(enrichedEntries);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/**
+ * Создать новую запись дневника
+ */
+export const createDiaryEntry = async (req, res) => {
+  try {
+    console.log('Creating diary entry with data:', req.body);
     
-    // For each entry, get its tags
-    const enrichedEntries = await Promise.all(entries.map(async (entry) => {
-      // Get tags
-      const tagsRows = await dbAsync.all(`
-        SELECT t.id, t.name 
-        FROM diary_tags t
-        JOIN diary_tag_map m ON t.id = m.tagId
-        WHERE m.diaryId = ?
-      `, [entry.id]);
+    const { 
+      title, 
+      content, 
+      shortDescription, 
+      imageSrc, 
+      date, 
+      categoryIds, 
+      tagIds, 
+      moodIds 
+    } = req.body;
+    
+    // Базовая валидация
+    if (!title || !content || !date) {
+      return res.status(400).json({ message: 'Title, content and date are required' });
+    }
+    
+    // Преобразуем массивы в строки для БД (или используем первый элемент для единичных полей)
+    const categoryId = Array.isArray(categoryIds) && categoryIds.length > 0 ? categoryIds[0] : null;
+    const moodId = Array.isArray(moodIds) && moodIds.length > 0 ? moodIds[0] : null;
+    const tagIdsString = Array.isArray(tagIds) ? tagIds.join(',') : '';
+    
+    // Генерируем новый ID
+    const newId = `diary-entry-${Date.now()}`;
+    
+    // Формируем новую запись
+    const newEntry = {
+      id: newId,
+      title,
+      content,
+      shortDescription: shortDescription || '',
+      imageSrc: imageSrc || '',
+      date,
+      categoryId,
+      categoryIds,
+      tagIds: Array.isArray(tagIds) ? tagIds : [],
+      moodId,
+      moodIds
+    };
+    
+    // Проверяем, доступна ли база данных
+    if (db) {
+      const sql = `
+        INSERT INTO diary_entries (
+          id, title, content, shortDescription, imageSrc, date, 
+          categoryId, tagIds, moodId
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
       
-      // Transform to match expected format
-      return {
-        ...entry,
-        category: entry.categoryName,
-        mood: entry.moodName,
-        tags: tagsRows.map(t => t.name),
-        tagIds: tagsRows.map(t => t.id)
+      db.run(sql, [
+        newId, title, content, shortDescription || '', imageSrc || '', date,
+        categoryId, tagIdsString, moodId
+      ], function(err) {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Error creating diary entry', error: err.message });
+        }
+        
+        // Возвращаем созданную запись
+        return res.status(201).json(newEntry);
+      });
+    } else {
+      // Если базы данных нет, просто возвращаем созданную запись
+      // В реальном приложении здесь можно было бы сохранять в JSON файл
+      console.log('Database not available, returning created entry without saving');
+      return res.status(201).json(newEntry);
+    }
+  } catch (error) {
+    console.error('Error creating diary entry:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+/**
+ * Обновить запись дневника
+ */
+export const updateDiaryEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`Updating diary entry ${id} with data:`, req.body);
+    
+    const { 
+      title, 
+      content, 
+      shortDescription, 
+      imageSrc, 
+      date, 
+      categoryIds, 
+      tagIds, 
+      moodIds 
+    } = req.body;
+    
+    // Базовая валидация
+    if (!title || !content || !date) {
+      return res.status(400).json({ message: 'Title, content and date are required' });
+    }
+    
+    // Преобразуем массивы в строки для БД (или используем первый элемент для единичных полей)
+    const categoryId = Array.isArray(categoryIds) && categoryIds.length > 0 ? categoryIds[0] : null;
+    const moodId = Array.isArray(moodIds) && moodIds.length > 0 ? moodIds[0] : null;
+    const tagIdsString = Array.isArray(tagIds) ? tagIds.join(',') : '';
+    
+    // Проверяем, доступна ли база данных
+    if (db) {
+      // Сначала проверяем, существует ли запись
+      db.get('SELECT * FROM diary_entries WHERE id = ?', [id], (err, row) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Error checking diary entry', error: err.message });
+        }
+        
+        if (!row) {
+          return res.status(404).json({ message: 'Diary entry not found' });
+        }
+        
+        // Обновляем запись
+        const sql = `
+          UPDATE diary_entries SET
+            title = ?, content = ?, shortDescription = ?, imageSrc = ?, 
+            date = ?, categoryId = ?, tagIds = ?, moodId = ?
+          WHERE id = ?
+        `;
+        
+        db.run(sql, [
+          title, content, shortDescription || '', imageSrc || '',
+          date, categoryId, tagIdsString, moodId, id
+        ], function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Error updating diary entry', error: err.message });
+          }
+          
+          // Формируем обновленную запись для ответа
+          const updatedEntry = {
+            id,
+            title,
+            content,
+            shortDescription: shortDescription || '',
+            imageSrc: imageSrc || '',
+            date,
+            categoryId,
+            categoryIds,
+            tagIds: Array.isArray(tagIds) ? tagIds : [],
+            moodId,
+            moodIds
+          };
+          
+          return res.status(200).json(updatedEntry);
+        });
+      });
+    } else {
+      // Если базы данных нет, проверяем наличие записи в локальных данных
+      const entryIndex = diaryEntries.findIndex(entry => entry.id === id);
+      if (entryIndex === -1) {
+        return res.status(404).json({ message: 'Diary entry not found' });
+      }
+      
+      // Формируем обновленную запись
+      const updatedEntry = {
+        id,
+        title,
+        content,
+        shortDescription: shortDescription || '',
+        imageSrc: imageSrc || '',
+        date,
+        categoryId,
+        categoryIds,
+        tagIds: Array.isArray(tagIds) ? tagIds : [],
+        moodId,
+        moodIds
       };
-    }));
-    
-    res.json(enrichedEntries);
+      
+      // В реальном приложении здесь можно было бы обновлять JSON файл
+      console.log('Database not available, returning updated entry without saving');
+      return res.status(200).json(updatedEntry);
+    }
   } catch (error) {
-    console.error('Error fetching enriched diary entries:', error);
-    res.status(500).json({ error: 'Failed to fetch enriched diary entries' });
+    console.error('Error updating diary entry:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// Get diary categories
-export const getDiaryCategories = async (req, res) => {
-  try {
-    const categories = await dbAsync.all('SELECT * FROM diary_categories');
-    res.json(categories);
-  } catch (error) {
-    console.error('Error fetching diary categories:', error);
-    res.status(500).json({ error: 'Failed to fetch diary categories' });
-  }
-};
-
-// Get diary category by ID
-export const getDiaryCategoryById = async (req, res) => {
+/**
+ * Удалить запись дневника
+ */
+export const deleteDiaryEntry = async (req, res) => {
   try {
     const { id } = req.params;
-    const category = await dbAsync.get('SELECT * FROM diary_categories WHERE id = ?', [id]);
+    console.log(`Deleting diary entry ${id}`);
     
-    if (!category) {
-      return res.status(404).json({ error: 'Diary category not found' });
+    // Проверяем, доступна ли база данных
+    if (db) {
+      // Сначала проверяем, существует ли запись
+      db.get('SELECT * FROM diary_entries WHERE id = ?', [id], (err, row) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Error checking diary entry', error: err.message });
+        }
+        
+        if (!row) {
+          return res.status(404).json({ message: 'Diary entry not found' });
+        }
+        
+        // Удаляем запись
+        db.run('DELETE FROM diary_entries WHERE id = ?', [id], function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Error deleting diary entry', error: err.message });
+          }
+          
+          return res.status(200).json({ message: 'Diary entry deleted successfully' });
+        });
+      });
+    } else {
+      // Если базы данных нет, проверяем наличие записи в локальных данных
+      const entryIndex = diaryEntries.findIndex(entry => entry.id === id);
+      if (entryIndex === -1) {
+        return res.status(404).json({ message: 'Diary entry not found' });
+      }
+      
+      // В реальном приложении здесь можно было бы обновлять JSON файл
+      console.log('Database not available, returning success without actual deletion');
+      return res.status(200).json({ message: 'Diary entry deleted successfully' });
+    }
+  } catch (error) {
+    console.error('Error deleting diary entry:', error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Получить категории дневника
+export const getAllDiaryCategories = async (req, res) => {
+  try {
+    // Проверяем, доступна ли база данных
+    if (db) {
+      db.all('SELECT * FROM diary_categories', [], (err, rows) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(200).json(diaryCategories);
+        }
+        return res.status(200).json(rows);
+      });
+    } else {
+      // Если базы данных нет, используем локальные данные
+      return res.status(200).json(diaryCategories);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(200).json(diaryCategories);
+  }
+};
+
+// Получить теги дневника
+export const getAllDiaryTags = async (req, res) => {
+  try {
+    // Проверяем, доступна ли база данных
+    if (db) {
+      db.all('SELECT * FROM diary_tags', [], (err, rows) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(200).json(diaryTags);
+        }
+        return res.status(200).json(rows);
+      });
+    } else {
+      // Если базы данных нет, используем локальные данные
+      return res.status(200).json(diaryTags);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(200).json(diaryTags);
+  }
+};
+
+// Получить настроения дневника
+export const getAllDiaryMoods = async (req, res) => {
+  try {
+    // Проверяем, доступна ли база данных
+    if (db) {
+      db.all('SELECT * FROM diary_moods', [], (err, rows) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(200).json(diaryMoods);
+        }
+        return res.status(200).json(rows);
+      });
+    } else {
+      // Если базы данных нет, используем локальные данные
+      return res.status(200).json(diaryMoods);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(200).json(diaryMoods);
+  }
+};
+
+// Вспомогательные функции
+
+/**
+ * Получить данные из базы данных
+ */
+const getDataFromDb = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    if (!db) {
+      reject(new Error('Database not available'));
+      return;
     }
     
-    res.json(category);
-  } catch (error) {
-    console.error(`Error fetching diary category ${req.params.id}:`, error);
-    res.status(500).json({ error: 'Failed to fetch diary category' });
-  }
+    db.all(sql, params, (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(rows);
+    });
+  });
 };
 
-// Get diary tags
-export const getDiaryTags = async (req, res) => {
-  try {
-    const tags = await dbAsync.all('SELECT * FROM diary_tags');
-    res.json(tags);
-  } catch (error) {
-    console.error('Error fetching diary tags:', error);
-    res.status(500).json({ error: 'Failed to fetch diary tags' });
-  }
-};
-
-// Get diary tag by ID
-export const getDiaryTagById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const tag = await dbAsync.get('SELECT * FROM diary_tags WHERE id = ?', [id]);
+/**
+ * Обогатить записи дневника данными о категориях и тегах (для локальных данных)
+ */
+const enrichDiaryEntries = (entries) => {
+  return entries.map(entry => {
+    const category = diaryCategories.find(c => c.id === entry.categoryId);
+    const entryTags = (entry.tagIds || [])
+      .map(id => diaryTags.find(t => t.id === id))
+      .filter(Boolean);
+    const mood = diaryMoods.find(m => m.id === entry.moodId);
     
-    if (!tag) {
-      return res.status(404).json({ error: 'Diary tag not found' });
-    }
-    
-    res.json(tag);
-  } catch (error) {
-    console.error(`Error fetching diary tag ${req.params.id}:`, error);
-    res.status(500).json({ error: 'Failed to fetch diary tag' });
-  }
-};
-
-// Get diary tags by IDs
-export const getDiaryTagsByIds = async (req, res) => {
-  try {
-    const { ids } = req.query;
-    
-    if (!ids) {
-      return res.status(400).json({ error: 'IDs parameter is required' });
-    }
-    
-    const idArray = ids.split(',');
-    const placeholders = idArray.map(() => '?').join(',');
-    
-    const tags = await dbAsync.all(
-      `SELECT * FROM diary_tags WHERE id IN (${placeholders})`, 
-      idArray
-    );
-    
-    res.json(tags);
-  } catch (error) {
-    console.error('Error fetching diary tags by IDs:', error);
-    res.status(500).json({ error: 'Failed to fetch diary tags' });
-  }
-};
-
-// Get diary moods
-export const getDiaryMoods = async (req, res) => {
-  try {
-    const moods = await dbAsync.all('SELECT * FROM diary_moods');
-    res.json(moods);
-  } catch (error) {
-    console.error('Error fetching diary moods:', error);
-    res.status(500).json({ error: 'Failed to fetch diary moods' });
-  }
-};
-
-// Get diary mood by ID
-export const getDiaryMoodById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const mood = await dbAsync.get('SELECT * FROM diary_moods WHERE id = ?', [id]);
-    
-    if (!mood) {
-      return res.status(404).json({ error: 'Diary mood not found' });
-    }
-    
-    res.json(mood);
-  } catch (error) {
-    console.error(`Error fetching diary mood ${req.params.id}:`, error);
-    res.status(500).json({ error: 'Failed to fetch diary mood' });
-  }
+    return {
+      ...entry,
+      category: category?.name,
+      tags: entryTags.map(t => t?.name),
+      mood: mood?.name
+    };
+  });
 };

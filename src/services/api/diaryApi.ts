@@ -1,3 +1,4 @@
+
 import diaryEntries from '../../data/diary.json';
 import diaryCategories from '../../data/diary/diary-categories.json';
 import diaryTags from '../../data/diary/diary-tags.json';
@@ -198,14 +199,17 @@ export function createDiaryApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/diary/entries`, {
+        const response = await fetch(`${API_BASE_URL}/diary/entry`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(data),
         });
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Network response was not ok: ${errorText}`);
+        }
         return await response.json();
       } catch (error) {
         console.error('Error creating diary entry:', error);
@@ -218,14 +222,17 @@ export function createDiaryApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/diary/entry/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(data),
         });
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Network response was not ok: ${errorText}`);
+        }
         return await response.json();
       } catch (error) {
         console.error('Error updating diary entry:', error);
@@ -238,10 +245,13 @@ export function createDiaryApi() {
      */
     deleteDiaryEntry: async (id: string): Promise<void> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/diary/entry/${id}`, {
           method: 'DELETE',
         });
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Network response was not ok: ${errorText}`);
+        }
       } catch (error) {
         console.error('Error deleting diary entry:', error);
         throw error;

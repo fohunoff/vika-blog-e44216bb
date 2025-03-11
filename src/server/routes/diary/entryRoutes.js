@@ -1,7 +1,11 @@
+
 import express from 'express';
-import {
-  getDiaryEntries,
-  getDiaryEntryById,
+import { 
+  getAllDiaryEntries, 
+  getDiaryEntryById, 
+  createDiaryEntry, 
+  updateDiaryEntry, 
+  deleteDiaryEntry,
   getEnrichedDiaryEntries
 } from '../../controllers/diaryController.js';
 
@@ -9,16 +13,62 @@ const router = express.Router();
 
 /**
  * @swagger
+ * tags:
+ *   name: Diary Entries
+ *   description: API для управления записями дневника
+ */
+
+/**
+ * @swagger
  * /diary/entries:
  *   get:
- *     summary: Get all diary entries
- *     tags: [Diary]
+ *     summary: Получить все записи дневника
+ *     tags: [Diary Entries]
  *     responses:
  *       200:
- *         description: List of diary entries
+ *         description: Список всех записей дневника
+ */
+router.get('/entries', getAllDiaryEntries);
+
+/**
+ * @swagger
+ * /diary/entries/enriched:
+ *   get:
+ *     summary: Получить все записи дневника с дополнительной информацией
+ *     tags: [Diary Entries]
+ *     responses:
+ *       200:
+ *         description: Список всех записей дневника с информацией о категориях и тегах
+ */
+router.get('/entries/enriched', getEnrichedDiaryEntries);
+
+/**
+ * @swagger
+ * /diary/entries/{id}:
+ *   get:
+ *     summary: Получить запись дневника по ID
+ *     tags: [Diary Entries]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID записи дневника
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Запись дневника
+ *       404:
+ *         description: Запись не найдена
+ */
+router.get('/entries/:id', getDiaryEntryById);
+
+/**
+ * @swagger
+ * /diary/entry:
  *   post:
- *     summary: Create a new diary entry
- *     tags: [Diary]
+ *     summary: Создать новую запись дневника
+ *     tags: [Diary Entries]
  *     requestBody:
  *       required: true
  *       content:
@@ -29,9 +79,6 @@ const router = express.Router();
  *               - title
  *               - content
  *               - date
- *               - categoryIds
- *               - tagIds
- *               - moodIds
  *             properties:
  *               title:
  *                 type: string
@@ -58,32 +105,23 @@ const router = express.Router();
  *                   type: string
  *     responses:
  *       201:
- *         description: Created diary entry
+ *         description: Новая запись создана
  *       400:
- *         description: Invalid input
- * 
- * /diary/entries/{id}:
- *   get:
- *     summary: Get a diary entry by ID
- *     tags: [Diary]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Diary entry found
- *       404:
- *         description: Diary entry not found
+ *         description: Ошибка валидации данных
+ */
+router.post('/entry', createDiaryEntry);
+
+/**
+ * @swagger
+ * /diary/entry/{id}:
  *   put:
- *     summary: Update a diary entry
- *     tags: [Diary]
+ *     summary: Обновить запись дневника
+ *     tags: [Diary Entries]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID записи дневника
  *         schema:
  *           type: string
  *     requestBody:
@@ -91,82 +129,60 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/DiaryEntry'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               shortDescription:
+ *                 type: string
+ *               imageSrc:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               categoryIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               tagIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               moodIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
- *         description: Updated diary entry
+ *         description: Запись обновлена
  *       404:
- *         description: Diary entry not found
+ *         description: Запись не найдена
+ *       400:
+ *         description: Ошибка валидации данных
+ */
+router.put('/entry/:id', updateDiaryEntry);
+
+/**
+ * @swagger
+ * /diary/entry/{id}:
  *   delete:
- *     summary: Delete a diary entry
- *     tags: [Diary]
+ *     summary: Удалить запись дневника
+ *     tags: [Diary Entries]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID записи дневника
  *         schema:
  *           type: string
  *     responses:
- *       204:
- *         description: Diary entry deleted
- *       404:
- *         description: Diary entry not found
- */
-
-router.get('/diary/entries', getDiaryEntries);
-
-/**
- * @swagger
- * /diary/entries/enriched:
- *   get:
- *     summary: Get enriched diary entries with category and tags information
- *     tags: [Diary]
- *     responses:
  *       200:
- *         description: A list of enriched diary entries
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 allOf:
- *                   - $ref: '#/components/schemas/DiaryEntry'
- *                   - type: object
- *                     properties:
- *                       category:
- *                         type: string
- *                       tags:
- *                         type: array
- *                         items:
- *                           type: string
- *                       mood:
- *                         type: string
- * */
-router.get('/diary/entries/enriched', getEnrichedDiaryEntries);
-
-/**
- * @swagger
- * /diary/entries/{id}:
- *   get:
- *     summary: Get a diary entry by ID
- *     tags: [Diary]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Diary entry ID
- *     responses:
- *       200:
- *         description: Diary entry details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DiaryEntry'
+ *         description: Запись удалена
  *       404:
- *         description: Diary entry not found
+ *         description: Запись не найдена
  */
-router.get('/diary/entries/:id', getDiaryEntryById);
+router.delete('/entry/:id', deleteDiaryEntry);
 
 export default router;
