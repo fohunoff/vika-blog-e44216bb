@@ -53,18 +53,8 @@ export const useDialogState = () => {
   };
 
   const openEditDialog = (entry: DiaryEntry) => {
-    // Ensure all IDs are handled as arrays
-    const categoryIds = Array.isArray(entry.categoryIds) 
-      ? entry.categoryIds 
-      : (entry.categoryId ? [entry.categoryId] : []);
-    
-    const moodIds = Array.isArray(entry.moodIds) 
-      ? entry.moodIds 
-      : (entry.moodId ? [entry.moodId] : []);
-    
-    const tagIds = Array.isArray(entry.tagIds) 
-      ? entry.tagIds 
-      : (entry.tagIds ? [entry.tagIds] : []);
+    const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds : [entry.categoryId];
+    const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds : [entry.moodId];
     
     setState({
       ...state,
@@ -75,10 +65,10 @@ export const useDialogState = () => {
         imageSrc: entry.imageSrc || '',
         date: entry.date,
         categoryIds: categoryIds,
-        tagIds: tagIds,
+        tagIds: Array.isArray(entry.tagIds) ? entry.tagIds : [],
         moodIds: moodIds
       },
-      selectedTags: tagIds,
+      selectedTags: Array.isArray(entry.tagIds) ? entry.tagIds : [],
       selectedCategories: categoryIds,
       selectedMoods: moodIds,
       selectedEntry: entry.id,

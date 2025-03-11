@@ -23,11 +23,11 @@ export interface DiaryEntry {
   shortDescription?: string;
   imageSrc?: string;
   date: string;
-  categoryId?: string;  // Keep for backward compatibility
-  categoryIds: string[]; // Primary field to use
+  categoryId: string;
+  categoryIds?: string[]; // Added for multi-select
   tagIds: string[];
-  moodId?: string;  // Keep for backward compatibility
-  moodIds: string[]; // Primary field to use
+  moodId: string;
+  moodIds?: string[]; // Added for multi-select
 }
 
 export interface DiaryEntryFormData {

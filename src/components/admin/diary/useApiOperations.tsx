@@ -30,18 +30,11 @@ export const useApiOperations = (
         ]);
         
         const updatedEntries = entriesData
-          .map(entry => {
-            // Ensure all fields are arrays
-            return {
-              ...entry,
-              categoryIds: Array.isArray(entry.categoryIds) ? entry.categoryIds : 
-                          (entry.categoryId ? [entry.categoryId] : []),
-              moodIds: Array.isArray(entry.moodIds) ? entry.moodIds : 
-                      (entry.moodId ? [entry.moodId] : []),
-              tagIds: Array.isArray(entry.tagIds) ? entry.tagIds : 
-                     (entry.tagIds ? [entry.tagIds] : [])
-            };
-          })
+          .map(entry => ({
+            ...entry,
+            categoryIds: entry.categoryIds || [entry.categoryId],
+            moodIds: entry.moodIds || [entry.moodId]
+          }))
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         
         setEntries(updatedEntries);
@@ -72,12 +65,8 @@ export const useApiOperations = (
       // Prepare the entry with proper multi-select fields
       const preparedEntry = {
         ...newEntry,
-        categoryIds: Array.isArray(newEntry.categoryIds) ? newEntry.categoryIds : 
-                   (newEntry.categoryId ? [newEntry.categoryId] : []),
-        moodIds: Array.isArray(newEntry.moodIds) ? newEntry.moodIds : 
-                (newEntry.moodId ? [newEntry.moodId] : []),
-        tagIds: Array.isArray(newEntry.tagIds) ? newEntry.tagIds : 
-               (newEntry.tagIds ? [newEntry.tagIds] : [])
+        categoryIds: newEntry.categoryIds || [newEntry.categoryId],
+        moodIds: newEntry.moodIds || [newEntry.moodId]
       };
       
       let updatedEntries;
