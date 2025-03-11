@@ -21,9 +21,12 @@ export const useFormHandling = (
 
   const handleTagSelect = (tagId: string) => {
     setState((prev: any) => {
-      const newSelectedTags = prev.selectedTags.includes(tagId)
-        ? prev.selectedTags.filter((id: string) => id !== tagId)
-        : [...prev.selectedTags, tagId];
+      // Ensure we always work with arrays
+      const currentTags = Array.isArray(prev.selectedTags) ? prev.selectedTags : [];
+      
+      const newSelectedTags = currentTags.includes(tagId)
+        ? currentTags.filter((id: string) => id !== tagId)
+        : [...currentTags, tagId];
       
       return {
         ...prev,
@@ -35,9 +38,12 @@ export const useFormHandling = (
 
   const handleCategorySelect = (categoryId: string) => {
     setState((prev: any) => {
-      const newSelectedCategories = prev.selectedCategories.includes(categoryId)
-        ? prev.selectedCategories.filter((id: string) => id !== categoryId)
-        : [...prev.selectedCategories, categoryId];
+      // Ensure we always work with arrays
+      const currentCategories = Array.isArray(prev.selectedCategories) ? prev.selectedCategories : [];
+      
+      const newSelectedCategories = currentCategories.includes(categoryId)
+        ? currentCategories.filter((id: string) => id !== categoryId)
+        : [...currentCategories, categoryId];
       
       return {
         ...prev,
@@ -49,9 +55,12 @@ export const useFormHandling = (
 
   const handleMoodSelect = (moodId: string) => {
     setState((prev: any) => {
-      const newSelectedMoods = prev.selectedMoods.includes(moodId)
-        ? prev.selectedMoods.filter((id: string) => id !== moodId)
-        : [...prev.selectedMoods, moodId];
+      // Ensure we always work with arrays
+      const currentMoods = Array.isArray(prev.selectedMoods) ? prev.selectedMoods : [];
+      
+      const newSelectedMoods = currentMoods.includes(moodId)
+        ? currentMoods.filter((id: string) => id !== moodId)
+        : [...currentMoods, moodId];
       
       return {
         ...prev,
