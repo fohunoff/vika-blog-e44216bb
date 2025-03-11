@@ -181,29 +181,17 @@ export const createTables = async () => {
       CREATE TABLE IF NOT EXISTS diary_entries (
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
-        content TEXT,
+        content TEXT NOT NULL,
         shortDescription TEXT,
+        imageSrc TEXT,
+        date TEXT NOT NULL,
         categoryId TEXT,
+        categoryIds TEXT,
+        tagIds TEXT,
         moodId TEXT,
-        publishDate TEXT,
-        imageSrc TEXT
-      )
-    `);
-
-    // Diary Tags Junction Table
-    await dbAsync.run(`
-      CREATE TABLE IF NOT EXISTS diary_tag_map (
-        diaryId TEXT,
-        tagId TEXT,
-        PRIMARY KEY (diaryId, tagId)
-      )
-    `);
-
-    // Diary Tags
-    await dbAsync.run(`
-      CREATE TABLE IF NOT EXISTS diary_tags (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL
+        moodIds TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -211,7 +199,20 @@ export const createTables = async () => {
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS diary_categories (
         id TEXT PRIMARY KEY,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        image TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Diary Tags
+    await dbAsync.run(`
+      CREATE TABLE IF NOT EXISTS diary_tags (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -219,7 +220,10 @@ export const createTables = async () => {
     await dbAsync.run(`
       CREATE TABLE IF NOT EXISTS diary_moods (
         id TEXT PRIMARY KEY,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        icon TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -346,3 +350,255 @@ export const createTables = async () => {
     throw error;
   }
 };
+
+// Schema for the database tables
+export const tables = [
+  {
+    name: 'cafes',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cafes (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        shortDescription TEXT,
+        imageSrc TEXT,
+        location TEXT,
+        openHours TEXT,
+        priceRange TEXT,
+        rating REAL,
+        categoryIds TEXT,
+        tagIds TEXT,
+        website TEXT,
+        phone TEXT,
+        address TEXT
+      )
+    `,
+    indexes: [
+      'CREATE INDEX IF NOT EXISTS idx_cafes_name ON cafes(name)'
+    ]
+  },
+  {
+    name: 'recipe_categories',
+    sql: `
+      CREATE TABLE IF NOT EXISTS recipe_categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `
+  },
+  {
+    name: 'recipe_tags',
+    sql: `
+      CREATE TABLE IF NOT EXISTS recipe_tags (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `
+  },
+  {
+    name: 'recipe_difficulty_levels',
+    sql: `
+      CREATE TABLE IF NOT EXISTS recipe_difficulty_levels (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT
+      )
+    `
+  },
+  {
+    name: 'recipes',
+    sql: `
+      CREATE TABLE IF NOT EXISTS recipes (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        shortDescription TEXT,
+        fullDescription TEXT,
+        categoryId TEXT,
+        time TEXT,
+        difficulty TEXT,
+        imageSrc TEXT,
+        prepTime TEXT,
+        cookTime TEXT,
+        publishDate TEXT,
+        FOREIGN KEY (categoryId) REFERENCES recipe_categories(id)
+      )
+    `
+  },
+  {
+    name: 'recipe_ingredients',
+    sql: `
+      CREATE TABLE IF NOT EXISTS recipe_ingredients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipeId TEXT,
+        name TEXT NOT NULL,
+        amount TEXT,
+        FOREIGN KEY (recipeId) REFERENCES recipes(id)
+      )
+    `
+  },
+  {
+    name: 'recipe_steps',
+    sql: `
+      CREATE TABLE IF NOT EXISTS recipe_steps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipeId TEXT,
+        step_order INTEGER,
+        description TEXT NOT NULL,
+        FOREIGN KEY (recipeId) REFERENCES recipes(id)
+      )
+    `
+  },
+  {
+    name: 'recipe_tag_map',
+    sql: `
+      CREATE TABLE IF NOT EXISTS recipe_tag_map (
+        recipeId TEXT,
+        tagId TEXT,
+        PRIMARY KEY (recipeId, tagId),
+        FOREIGN KEY (recipeId) REFERENCES recipes(id),
+        FOREIGN KEY (tagId) REFERENCES recipe_tags(id)
+      )
+    `
+  },
+  {
+    name: 'cafe_categories',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cafe_categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `
+  },
+  {
+    name: 'cafe_tags',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cafe_tags (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `
+  },
+  {
+    name: 'cafe_price_ranges',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cafe_price_ranges (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT
+      )
+    `
+  },
+  {
+    name: 'cozy_articles',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cozy_articles (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        content TEXT,
+        isHighlight BOOLEAN DEFAULT 0,
+        imageSrc TEXT,
+        typeId TEXT,
+        publishDate TEXT,
+        categoryId TEXT
+      )
+    `
+  },
+  {
+    name: 'cozy_tag_map',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cozy_tag_map (
+        articleId TEXT,
+        tagId TEXT,
+        PRIMARY KEY (articleId, tagId),
+        FOREIGN KEY (articleId) REFERENCES cozy_articles(id),
+        FOREIGN KEY (tagId) REFERENCES cozy_tags(id)
+      )
+    `
+  },
+  {
+    name: 'cozy_tags',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cozy_tags (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `
+  },
+  {
+    name: 'cozy_categories',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cozy_categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `
+  },
+  {
+    name: 'cozy_highlight_types',
+    sql: `
+      CREATE TABLE IF NOT EXISTS cozy_highlight_types (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `
+  },
+  {
+    name: 'diary_entries',
+    sql: `
+      CREATE TABLE IF NOT EXISTS diary_entries (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        shortDescription TEXT,
+        imageSrc TEXT,
+        date TEXT NOT NULL,
+        categoryId TEXT,
+        categoryIds TEXT,
+        tagIds TEXT,
+        moodId TEXT,
+        moodIds TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `,
+    indexes: [
+      'CREATE INDEX IF NOT EXISTS idx_diary_entries_date ON diary_entries(date)'
+    ]
+  },
+  {
+    name: 'diary_categories',
+    sql: `
+      CREATE TABLE IF NOT EXISTS diary_categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        image TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `
+  },
+  {
+    name: 'diary_tags',
+    sql: `
+      CREATE TABLE IF NOT EXISTS diary_tags (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `
+  },
+  {
+    name: 'diary_moods',
+    sql: `
+      CREATE TABLE IF NOT EXISTS diary_moods (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        icon TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `
+  }
+];

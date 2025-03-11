@@ -1,8 +1,12 @@
+
 import express from 'express';
 import {
   getDiaryEntries,
   getDiaryEntryById,
-  getEnrichedDiaryEntries
+  getEnrichedDiaryEntries,
+  createDiaryEntry,
+  updateDiaryEntry,
+  deleteDiaryEntry
 } from '../../controllers/diaryController.js';
 
 const router = express.Router();
@@ -113,60 +117,22 @@ const router = express.Router();
  *         description: Diary entry not found
  */
 
+// GET all diary entries
 router.get('/diary/entries', getDiaryEntries);
 
-/**
- * @swagger
- * /diary/entries/enriched:
- *   get:
- *     summary: Get enriched diary entries with category and tags information
- *     tags: [Diary]
- *     responses:
- *       200:
- *         description: A list of enriched diary entries
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 allOf:
- *                   - $ref: '#/components/schemas/DiaryEntry'
- *                   - type: object
- *                     properties:
- *                       category:
- *                         type: string
- *                       tags:
- *                         type: array
- *                         items:
- *                           type: string
- *                       mood:
- *                         type: string
- * */
+// GET enriched diary entries
 router.get('/diary/entries/enriched', getEnrichedDiaryEntries);
 
-/**
- * @swagger
- * /diary/entries/{id}:
- *   get:
- *     summary: Get a diary entry by ID
- *     tags: [Diary]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Diary entry ID
- *     responses:
- *       200:
- *         description: Diary entry details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DiaryEntry'
- *       404:
- *         description: Diary entry not found
- */
+// GET a specific diary entry by ID
 router.get('/diary/entries/:id', getDiaryEntryById);
+
+// POST a new diary entry
+router.post('/diary/entries', createDiaryEntry);
+
+// PUT (update) a diary entry
+router.put('/diary/entries/:id', updateDiaryEntry);
+
+// DELETE a diary entry
+router.delete('/diary/entries/:id', deleteDiaryEntry);
 
 export default router;
