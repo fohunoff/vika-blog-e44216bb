@@ -75,18 +75,41 @@ export function createDiaryEntriesApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        console.log("Отправка данных на сервер (создание):", data);
+        // Ensure that all arrays are properly handled and not stringified again
+        const preparedData = {
+          ...data,
+          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [],
+          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
+          moodIds: Array.isArray(data.moodIds) ? data.moodIds : []
+        };
+        
+        console.log("Отправка данных на сервер (создание). Raw:", data);
+        console.log("Отправка данных на сервер (создание). Prepared:", preparedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(preparedData),
         });
         
         if (!response.ok) throw new Error('Network response was not ok');
-        return await response.json();
+        const result = await response.json();
+        
+        // Ensure arrays are arrays when returning
+        return {
+          ...result,
+          tagIds: Array.isArray(result.tagIds) ? result.tagIds 
+                 : typeof result.tagIds === 'string' ? JSON.parse(result.tagIds as unknown as string) 
+                 : [],
+          categoryIds: Array.isArray(result.categoryIds) ? result.categoryIds 
+                      : typeof result.categoryIds === 'string' ? JSON.parse(result.categoryIds as unknown as string) 
+                      : [],
+          moodIds: Array.isArray(result.moodIds) ? result.moodIds 
+                  : typeof result.moodIds === 'string' ? JSON.parse(result.moodIds as unknown as string) 
+                  : []
+        };
       } catch (error) {
         console.error('Error creating diary entry:', error);
         throw error;
@@ -98,18 +121,41 @@ export function createDiaryEntriesApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        console.log("Отправка данных на сервер (обновление):", data);
+        // Ensure that all arrays are properly handled and not stringified again
+        const preparedData = {
+          ...data,
+          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [],
+          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
+          moodIds: Array.isArray(data.moodIds) ? data.moodIds : []
+        };
+        
+        console.log("Отправка данных на сервер (обновление). Raw:", data);
+        console.log("Отправка данных на сервер (обновление). Prepared:", preparedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(preparedData),
         });
         
         if (!response.ok) throw new Error('Network response was not ok');
-        return await response.json();
+        const result = await response.json();
+        
+        // Ensure arrays are arrays when returning
+        return {
+          ...result,
+          tagIds: Array.isArray(result.tagIds) ? result.tagIds 
+                 : typeof result.tagIds === 'string' ? JSON.parse(result.tagIds as unknown as string) 
+                 : [],
+          categoryIds: Array.isArray(result.categoryIds) ? result.categoryIds 
+                      : typeof result.categoryIds === 'string' ? JSON.parse(result.categoryIds as unknown as string) 
+                      : [],
+          moodIds: Array.isArray(result.moodIds) ? result.moodIds 
+                  : typeof result.moodIds === 'string' ? JSON.parse(result.moodIds as unknown as string) 
+                  : []
+        };
       } catch (error) {
         console.error('Error updating diary entry:', error);
         throw error;
