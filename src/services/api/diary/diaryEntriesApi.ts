@@ -107,16 +107,18 @@ export function createDiaryEntriesApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Ensure arrays are properly structured before sending
-        const preparedData: DiaryEntryFormData = {
+        // Log the data to be sent
+        console.log("Creating diary entry with data (before processing):", data);
+        
+        // Make sure we have arrays for multi-select fields, don't stringify them
+        const preparedData = {
           ...data,
-          // Explicitly cast to string[] to ensure proper typing
-          categoryIds: Array.isArray(data.categoryIds) ? [...data.categoryIds] : [],
-          tagIds: Array.isArray(data.tagIds) ? [...data.tagIds] : [],
-          moodIds: Array.isArray(data.moodIds) ? [...data.moodIds] : []
+          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
+          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [],
+          moodIds: Array.isArray(data.moodIds) ? data.moodIds : []
         };
         
-        console.log("Creating diary entry with data:", preparedData);
+        console.log("Creating diary entry with data (after processing):", preparedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
@@ -150,16 +152,18 @@ export function createDiaryEntriesApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Ensure arrays are properly structured before sending
-        const preparedData: DiaryEntryFormData = {
+        // Log the data to be sent
+        console.log("Updating diary entry with data (before processing):", data);
+        
+        // Make sure we have arrays for multi-select fields, don't stringify them
+        const preparedData = {
           ...data,
-          // Explicitly cast to string[] to ensure proper typing
-          categoryIds: Array.isArray(data.categoryIds) ? [...data.categoryIds] : [],
-          tagIds: Array.isArray(data.tagIds) ? [...data.tagIds] : [],
-          moodIds: Array.isArray(data.moodIds) ? [...data.moodIds] : []
+          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
+          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [],
+          moodIds: Array.isArray(data.moodIds) ? data.moodIds : []
         };
         
-        console.log("Updating diary entry with data:", preparedData);
+        console.log("Updating diary entry with data (after processing):", preparedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',

@@ -9,7 +9,8 @@ import { DiaryFormState } from "./types";
 
 export const useApiOperations = (
   setIsDialogOpen: (isOpen: boolean) => void,
-  setIsDeleteDialogOpen: (isOpen: boolean) => void
+  setIsDeleteDialogOpen: (isOpen: boolean) => void,
+  setState?: (state: any) => void
 ) => {
   const { api } = useApi();
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
@@ -19,40 +20,40 @@ export const useApiOperations = (
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [entriesData, categoriesData, tagsData, moodsData] = await Promise.all([
-          api.diary.getDiaryEntries(),
-          api.diary.getCategories(),
-          api.diary.getTags(),
-          api.diary.getMoods()
-        ]);
-        
-        const updatedEntries = entriesData
-          .map(entry => ({
-            ...entry,
-            categoryIds: entry.categoryIds || [entry.categoryId],
-            moodIds: entry.moodIds || [entry.moodId]
-          }))
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
-        setEntries(updatedEntries);
-        setCategories(categoriesData);
-        setTags(tagsData);
-        setMoods(moodsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast({
-          variant: "destructive",
-          title: "Ошибка загрузки данных",
-          description: "Не удалось загрузить данные. Пожалуйста, попробуйте позже."
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const [entriesData, categoriesData, tagsData, moodsData] = await Promise.all([
+        api.diary.getDiaryEntries(),
+        api.diary.getCategories(),
+        api.diary.getTags(),
+        api.diary.getMoods()
+      ]);
+      
+      const updatedEntries = entriesData
+        .map(entry => ({
+          ...entry,
+          categoryIds: entry.categoryIds || [entry.categoryId],
+          moodIds: entry.moodIds || [entry.moodId]
+        }))
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      setEntries(updatedEntries);
+      setCategories(categoriesData);
+      setTags(tagsData);
+      setMoods(moodsData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка загрузки данных",
+        description: "Не удалось загрузить данные. Пожалуйста, попробуйте позже."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, [api]);
 
@@ -84,15 +85,37 @@ export const useApiOperations = (
     });
   };
 
+  // Helper function to update dialog state with selected values after operation
+  const updateDialogState = (entry: DiaryEntry) => {
+    if (setState) {
+      setState((prev: any) => ({
+        ...prev,
+        selectedTags: entry.tagIds || [],
+        selectedCategories: entry.categoryIds || (entry.categoryId ? [entry.categoryId] : []),
+        selectedMoods: entry.moodIds || (entry.moodId ? [entry.moodId] : [])
+      }));
+    }
+  };
+
   const createEntry = useCreateDiaryEntry({
     onSuccess: (newEntry) => {
       toast({
         title: "Запись создана",
         description: "Новая запись дневника успешно создана"
       });
+      
       // Update local state with the new entry
       updateEntriesList(newEntry);
+      
+      // Update dialog state to reflect the saved selection
+      updateDialogState(newEntry);
+      
+      // Refresh data to ensure everything is up to date
+      fetchData();
+      
+      // Invalidate queries to refresh data everywhere
       queryClient.invalidateQueries({ queryKey: ['diaryEntries'] });
+      
       setIsDialogOpen(false);
     },
     onError: (error) => {
@@ -111,9 +134,19 @@ export const useApiOperations = (
         title: "Запись обновлена",
         description: "Запись дневника успешно обновлена"
       });
+      
       // Update local state with the updated entry
       updateEntriesList(updatedEntry);
+      
+      // Update dialog state to reflect the saved selection
+      updateDialogState(updatedEntry);
+      
+      // Refresh data to ensure everything is up to date
+      fetchData();
+      
+      // Invalidate queries to refresh data everywhere
       queryClient.invalidateQueries({ queryKey: ['diaryEntries'] });
+      
       setIsDialogOpen(false);
     },
     onError: (error) => {
@@ -134,6 +167,10 @@ export const useApiOperations = (
       });
       // Remove the deleted entry from local state
       setEntries(prevEntries => prevEntries.filter(e => e.id !== deletedId));
+      
+      // Refresh data to ensure everything is up to date
+      fetchData();
+      
       queryClient.invalidateQueries({ queryKey: ['diaryEntries'] });
       setIsDeleteDialogOpen(false);
     },
@@ -155,6 +192,7 @@ export const useApiOperations = (
     isLoading,
     createEntry,
     updateEntry,
-    deleteEntry
+    deleteEntry,
+    fetchData
   };
 };

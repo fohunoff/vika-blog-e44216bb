@@ -37,11 +37,17 @@ export const useDiaryEntries = () => {
     isLoading,
     createEntry,
     updateEntry,
-    deleteEntry
-  } = useApiOperations(setIsDialogOpen, setIsDeleteDialogOpen);
+    deleteEntry,
+    fetchData
+  } = useApiOperations(setIsDialogOpen, setIsDeleteDialogOpen, setState);
 
   const handleSave = async () => {
     try {
+      console.log("Saving with form data:", formData);
+      console.log("Selected tags:", selectedTags);
+      console.log("Selected categories:", selectedCategories);
+      console.log("Selected moods:", selectedMoods);
+      
       if (selectedEntry) {
         await updateEntry.mutateAsync({ id: selectedEntry, data: formData });
       } else {
@@ -96,6 +102,7 @@ export const useDiaryEntries = () => {
     openEditDialog,
     openDeleteDialog,
     handleSave,
-    handleDelete
+    handleDelete,
+    fetchData
   };
 };
