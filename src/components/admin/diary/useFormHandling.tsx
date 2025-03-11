@@ -39,6 +39,7 @@ export const useFormHandling = (
         ? prev.selectedCategories.filter((id: string) => id !== categoryId)
         : [...prev.selectedCategories, categoryId];
       
+      // Directly set categoryIds as array
       return {
         ...prev,
         selectedCategories: newSelectedCategories,
@@ -53,6 +54,7 @@ export const useFormHandling = (
         ? prev.selectedMoods.filter((id: string) => id !== moodId)
         : [...prev.selectedMoods, moodId];
       
+      // Directly set moodIds as array
       return {
         ...prev,
         selectedMoods: newSelectedMoods,

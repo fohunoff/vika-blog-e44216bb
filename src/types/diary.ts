@@ -24,10 +24,10 @@ export interface DiaryEntry {
   imageSrc?: string;
   date: string;
   categoryId: string;
-  categoryIds?: string[]; // Added for multi-select
+  categoryIds: string[]; // Always an array
   tagIds: string[];
   moodId: string;
-  moodIds?: string[]; // Added for multi-select
+  moodIds: string[]; // Always an array
 }
 
 export interface DiaryEntryFormData {

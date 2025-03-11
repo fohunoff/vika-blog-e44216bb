@@ -1,7 +1,7 @@
 
 import { useApi } from "@/hooks/useApi";
 import { useState, useEffect } from "react";
-import { DiaryEntry } from "@/types/models";
+import { DiaryEntry } from "@/types/diary";
 import { toast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreateDiaryEntry, useUpdateDiaryEntry, useDeleteDiaryEntry } from "@/hooks/useApi";

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { DiaryEntry } from "@/types/models";
+import { DiaryEntry } from "@/types/diary";
 import { DiaryFormState, DiaryDialogState } from "./types";
 
 export const useDialogState = () => {
@@ -53,8 +53,14 @@ export const useDialogState = () => {
   };
 
   const openEditDialog = (entry: DiaryEntry) => {
+    // Ensure categoryIds and moodIds are arrays
     const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds : [entry.categoryId];
     const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds : [entry.moodId];
+    
+    // Log to help with debugging
+    console.log("Opening edit dialog with entry:", entry);
+    console.log("Processed categoryIds:", categoryIds);
+    console.log("Processed moodIds:", moodIds);
     
     setState({
       ...state,

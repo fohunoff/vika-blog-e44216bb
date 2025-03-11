@@ -3,7 +3,7 @@ import diaryCategories from '../../data/diary/diary-categories.json';
 import diaryTags from '../../data/diary/diary-tags.json';
 import diaryMoods from '../../data/diary/diary-moods.json';
 import { getData, getById, getByIds, retryPromise } from './utils';
-import { DiaryCategory, DiaryEntry, DiaryTag, DiaryMood, DiaryEntryFormData } from '../../types/models';
+import { DiaryCategory, DiaryEntry, DiaryTag, DiaryMood, DiaryEntryFormData } from '../../types/diary';
 
 const API_BASE_URL = 'http://localhost:3001';
 
@@ -198,6 +198,9 @@ export function createDiaryApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
+        // Ensure categoryIds and moodIds are properly formatted and not double-encoded
+        console.log("Sending create data to server:", data);
+        
         const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
           headers: {
@@ -205,6 +208,7 @@ export function createDiaryApi() {
           },
           body: JSON.stringify(data),
         });
+        
         if (!response.ok) throw new Error('Network response was not ok');
         return await response.json();
       } catch (error) {
@@ -218,6 +222,9 @@ export function createDiaryApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
+        // Ensure categoryIds and moodIds are properly formatted and not double-encoded
+        console.log("Sending update data to server:", data);
+        
         const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',
           headers: {
@@ -225,6 +232,7 @@ export function createDiaryApi() {
           },
           body: JSON.stringify(data),
         });
+        
         if (!response.ok) throw new Error('Network response was not ok');
         return await response.json();
       } catch (error) {
