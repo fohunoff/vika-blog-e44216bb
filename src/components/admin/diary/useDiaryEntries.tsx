@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
 import { DiaryEntry, DiaryEntryFormData } from "@/types/models";
@@ -39,12 +40,14 @@ export const useDiaryEntries = () => {
           api.diary.getMoods()
         ]);
         
-        // Convert single categoryId and moodId to arrays for existing entries
-        const updatedEntries = entriesData.map(entry => ({
-          ...entry,
-          categoryIds: entry.categoryIds || [entry.categoryId],
-          moodIds: entry.moodIds || [entry.moodId]
-        }));
+        // Convert single categoryId and moodId to arrays for existing entries and sort by date
+        const updatedEntries = entriesData
+          .map(entry => ({
+            ...entry,
+            categoryIds: entry.categoryIds || [entry.categoryId],
+            moodIds: entry.moodIds || [entry.moodId]
+          }))
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         
         setEntries(updatedEntries);
         setCategories(categoriesData);

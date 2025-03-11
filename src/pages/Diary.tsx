@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import BlogHeader from '../components/BlogHeader';
 import Footer from '../components/Footer';
@@ -22,7 +21,6 @@ const Diary = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    // Function to fetch moods and page info
     const fetchPageData = async () => {
       try {
         const [moods, navCategories] = await Promise.all([
@@ -32,27 +30,24 @@ const Diary = () => {
         
         setAllMoods(moods);
         
-        // Get page info from navigation categories
         const diaryPageInfo = navCategories.find(cat => cat.link === '/diary');
         setPageInfo(diaryPageInfo || null);
         
-        setRetryCount(0); // Reset retry count on success
+        setRetryCount(0);
       } catch (error) {
         console.error("Error fetching page data:", error);
         
-        // Show error toast to the user
         toast({
           title: "Ошибка загрузки данных",
           description: "Не удалось загрузить данные дневника. Пробуем снова...",
           variant: "destructive",
         });
         
-        // If less than 3 retries, try again after a delay
         if (retryCount < 3) {
           setRetryCount(prev => prev + 1);
           setTimeout(() => {
             fetchPageData();
-          }, 1000); // Wait 1 second before retrying
+          }, 1000);
         }
       }
     };
@@ -61,7 +56,6 @@ const Diary = () => {
   }, [api.diary, api.main, retryCount]);
 
   useEffect(() => {
-    // Show error toast if diary entries failed to load
     if (error) {
       toast({
         title: "Ошибка загрузки записей",
@@ -71,22 +65,21 @@ const Diary = () => {
     }
   }, [error]);
 
-  // Filter entries based on search query and selected mood
   const filteredEntries = enrichedEntries
-    ? enrichedEntries.filter(entry => {
-        const matchesSearch = entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            entry.content.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesMood = !selectedMood || entry.mood === selectedMood;
-        return matchesSearch && matchesMood;
-      })
+    ? enrichedEntries
+        .filter(entry => {
+          const matchesSearch = entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              entry.content.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchesMood = !selectedMood || entry.mood === selectedMood;
+          return matchesSearch && matchesMood;
+        })
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     : [];
 
-  // Function to handle mood selection
   const handleMoodSelect = (mood: string) => {
     setSelectedMood(selectedMood === mood ? null : mood);
   };
 
-  // Collect all tags from diary entries
   const allTags = enrichedEntries
     ? Array.from(new Set(enrichedEntries.flatMap(entry => entry.tags || []))).filter(Boolean) as string[]
     : [];
@@ -95,7 +88,6 @@ const Diary = () => {
     <main className="min-h-screen pt-24">
       <BlogHeader />
       
-      {/* Заголовок и поиск */}
       <div className="blog-container py-12">
         <h1 className="section-title mb-8 text-center">
           {pageInfo?.title || "ЛИЧНЫЙ ДНЕВНИК"}
@@ -107,19 +99,16 @@ const Diary = () => {
         <DiarySearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       </div>
       
-      {/* Фильтр по настроению */}
       <MoodFilter 
         allMoods={allMoods} 
         selectedMood={selectedMood} 
         onMoodSelect={handleMoodSelect} 
       />
       
-      {/* Записи дневника */}
       <div className="blog-container py-16">
         <DiaryEntries entries={filteredEntries} isLoading={isLoading} />
       </div>
       
-      {/* Популярные теги */}
       <DiaryTags tags={allTags.slice(0, 12)} onTagClick={setSearchQuery} />
       
       <Footer />
