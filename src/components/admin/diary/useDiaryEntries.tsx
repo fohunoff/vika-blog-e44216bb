@@ -183,8 +183,6 @@ export const useDiaryEntries = () => {
     const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds : [entry.categoryId];
     const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds : [entry.moodId];
     
-    console.log("Opening edit dialog for entry:", entry);
-    
     setFormData({
       id: entry.id,
       title: entry.title,
@@ -210,16 +208,12 @@ export const useDiaryEntries = () => {
 
   const handleSave = async () => {
     try {
-      console.log("Saving entry:", formData);
-      console.log("Selected entry ID:", selectedEntry);
-      
       if (selectedEntry) {
         await updateEntry.mutateAsync({ id: selectedEntry, data: formData });
       } else {
         await createEntry.mutateAsync(formData);
       }
     } catch (error) {
-      console.error("Error saving entry:", error);
       // Error handling is done in mutation callbacks
     }
   };
@@ -227,10 +221,8 @@ export const useDiaryEntries = () => {
   const handleDelete = async () => {
     if (selectedEntry) {
       try {
-        console.log("Deleting entry with ID:", selectedEntry);
         await deleteEntry.mutateAsync(selectedEntry);
       } catch (error) {
-        console.error("Error deleting entry:", error);
         // Error handling is done in mutation callbacks
       }
     }

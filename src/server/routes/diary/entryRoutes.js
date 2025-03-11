@@ -1,8 +1,9 @@
-
 import express from 'express';
-import { param, body } from 'express-validator';
-import { db } from '../../db/config.js';
-import { validateRequest } from '../../middleware/validationMiddleware.js';
+import {
+  getDiaryEntries,
+  getDiaryEntryById,
+  getEnrichedDiaryEntries
+} from '../../controllers/diaryController.js';
 
 const router = express.Router();
 
@@ -14,25 +15,53 @@ const router = express.Router();
  *     tags: [Diary]
  *     responses:
  *       200:
- *         description: A list of diary entries
- */
-router.get('/entries', (req, res) => {
-  try {
-    db.all('SELECT * FROM diary_entries', [], (err, rows) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: err.message });
-      }
-      res.json(rows || []);
-    });
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * @swagger
+ *         description: List of diary entries
+ *   post:
+ *     summary: Create a new diary entry
+ *     tags: [Diary]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - content
+ *               - date
+ *               - categoryIds
+ *               - tagIds
+ *               - moodIds
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               shortDescription:
+ *                 type: string
+ *               imageSrc:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               categoryIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               tagIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               moodIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       201:
+ *         description: Created diary entry
+ *       400:
+ *         description: Invalid input
+ * 
  * /diary/entries/{id}:
  *   get:
  *     summary: Get a diary entry by ID
@@ -45,76 +74,9 @@ router.get('/entries', (req, res) => {
  *           type: string
  *     responses:
  *       200:
- *         description: A diary entry
+ *         description: Diary entry found
  *       404:
  *         description: Diary entry not found
- */
-router.get('/entries/:id', param('id').notEmpty(), validateRequest, (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log('Getting diary entry with ID:', id);
-    
-    db.get('SELECT * FROM diary_entries WHERE id = ?', [id], (err, row) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: err.message });
-      }
-      
-      if (!row) {
-        console.log('Diary entry not found:', id);
-        return res.status(404).json({ error: 'Diary entry not found' });
-      }
-      
-      res.json(row);
-    });
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * @swagger
- * /diary/entries:
- *   post:
- *     summary: Create a new diary entry
- *     tags: [Diary]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       201:
- *         description: Created diary entry
- */
-router.post('/entries', [
-  body('title').notEmpty(),
-  body('content').notEmpty(),
-  body('date').notEmpty(),
-  validateRequest
-], (req, res) => {
-  try {
-    const entry = req.body;
-    console.log('Creating diary entry:', entry);
-    
-    // Generate a new ID for the entry
-    const id = `diary-entry-${Date.now()}`;
-    const newEntry = { id, ...entry };
-    
-    // In a real app, you would save this to your database
-    // For now, we'll just simulate success
-    res.status(201).json(newEntry);
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * @swagger
- * /diary/entries/{id}:
  *   put:
  *     summary: Update a diary entry
  *     tags: [Diary]
@@ -129,36 +91,12 @@ router.post('/entries', [
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/DiaryEntry'
  *     responses:
  *       200:
  *         description: Updated diary entry
  *       404:
  *         description: Diary entry not found
- */
-router.put('/entries/:id', [
-  param('id').notEmpty(),
-  body('title').notEmpty(),
-  body('content').notEmpty(),
-  validateRequest
-], (req, res) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
-    console.log('Updating diary entry:', id, updates);
-    
-    // In a real app, you would update this in your database
-    // For now, we'll just simulate success
-    res.json({ id, ...updates });
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * @swagger
- * /diary/entries/{id}:
  *   delete:
  *     summary: Delete a diary entry
  *     tags: [Diary]
@@ -174,18 +112,61 @@ router.put('/entries/:id', [
  *       404:
  *         description: Diary entry not found
  */
-router.delete('/entries/:id', param('id').notEmpty(), validateRequest, (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log('Deleting diary entry:', id);
-    
-    // In a real app, you would delete this from your database
-    // For now, we'll just simulate success
-    res.status(204).send();
-  } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
+
+router.get('/diary/entries', getDiaryEntries);
+
+/**
+ * @swagger
+ * /diary/entries/enriched:
+ *   get:
+ *     summary: Get enriched diary entries with category and tags information
+ *     tags: [Diary]
+ *     responses:
+ *       200:
+ *         description: A list of enriched diary entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/DiaryEntry'
+ *                   - type: object
+ *                     properties:
+ *                       category:
+ *                         type: string
+ *                       tags:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       mood:
+ *                         type: string
+ * */
+router.get('/diary/entries/enriched', getEnrichedDiaryEntries);
+
+/**
+ * @swagger
+ * /diary/entries/{id}:
+ *   get:
+ *     summary: Get a diary entry by ID
+ *     tags: [Diary]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Diary entry ID
+ *     responses:
+ *       200:
+ *         description: Diary entry details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DiaryEntry'
+ *       404:
+ *         description: Diary entry not found
+ */
+router.get('/diary/entries/:id', getDiaryEntryById);
 
 export default router;
