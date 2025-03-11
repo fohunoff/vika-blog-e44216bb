@@ -146,6 +146,18 @@ export interface DiaryEntry {
   moodIds?: string[]; // Added for multi-select
 }
 
+export interface DiaryEntryFormData {
+  id?: string;
+  title: string;
+  content: string;
+  shortDescription: string;
+  imageSrc: string;
+  date: string;
+  categoryIds: string[];
+  tagIds: string[];
+  moodIds: string[];
+}
+
 // User Models
 export interface UserPreference {
   id: string;
