@@ -1,0 +1,96 @@
+
+/* Quill viewer mode styles */
+.ql-editor {
+  padding: 0;
+}
+
+.diary-content {
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+.diary-content h1 {
+  font-size: 2rem;
+  margin: 1.5rem 0 1rem;
+  font-weight: 700;
+}
+
+.diary-content h2 {
+  font-size: 1.75rem;
+  margin: 1.25rem 0 0.75rem;
+  font-weight: 700;
+}
+
+.diary-content h3 {
+  font-size: 1.5rem;
+  margin: 1rem 0 0.5rem;
+  font-weight: 600;
+}
+
+.diary-content p {
+  margin-bottom: 1.25rem;
+}
+
+.diary-content a {
+  color: #e4a838;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.diary-content a:hover {
+  color: #d18f20;
+}
+
+.diary-content blockquote {
+  border-left: 4px solid #e4a838;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  color: #666;
+}
+
+.diary-content ul, .diary-content ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.diary-content ul li, .diary-content ol li {
+  margin-bottom: 0.5rem;
+}
+
+.diary-content img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.diary-content .ql-align-center {
+  text-align: center;
+}
+
+.diary-content .ql-align-right {
+  text-align: right;
+}
+
+.diary-content .ql-align-justify {
+  text-align: justify;
+}
+
+/* Pre and code blocks */
+.diary-content pre {
+  background-color: #f6f6f6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+}
+
+.diary-content code {
+  font-family: monospace;
+  background-color: #f6f6f6;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+}

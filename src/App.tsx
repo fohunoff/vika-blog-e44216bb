@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Recipes from "./pages/Recipes";
 import Diary from "./pages/Diary";
+import DiaryEntry from "./pages/DiaryEntry"; // Add import for new page
 import Cafes from "./pages/Cafes";
 import Cozy from "./pages/Cozy.tsx";
 
@@ -29,6 +30,7 @@ const App = () => (
 
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/diary" element={<Diary />} />
+          <Route path="/diary/:id" element={<DiaryEntry />} /> {/* Add new route */}
           <Route path="/cafes" element={<Cafes />} />
           <Route path="/cozy" element={<Cozy />} />
 
