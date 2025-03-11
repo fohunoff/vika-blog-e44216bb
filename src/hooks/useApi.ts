@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { api } from '../services/api';
+import { DiaryEntry, DiaryEntryFormData } from '../types/diary';
 
 /**
  * Hook to provide easy access to the API services
