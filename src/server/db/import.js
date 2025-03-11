@@ -237,7 +237,7 @@ export const importData = async () => {
         // Insert entry
         await dbAsync.run(`
           INSERT INTO diary_entries (
-            id, title, content, shortDescription, categoryId, moodId, publishDate, imageSrc
+            id, title, content, shortDescription, categoryId, moodId, date, imageSrc
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `, [
           entry.id,
@@ -251,12 +251,13 @@ export const importData = async () => {
         ]);
 
         // Insert tag mappings
-        if (entry.tagIds && Array.isArray(entry.tagIds)) {
-          for (const tagId of entry.tagIds) {
-            await dbAsync.run('INSERT INTO diary_tag_map (diaryId, tagId) VALUES (?, ?)',
-                [entry.id, tagId]);
-          }
-        }
+        // TODO: ошибка при инициализации --
+        // if (entry.tagIds && Array.isArray(entry.tagIds)) {
+        //   for (const tagId of entry.tagIds) {
+        //     await dbAsync.run('INSERT INTO diary_tag_map (diaryId, tagId) VALUES (?, ?)',
+        //         [entry.id, tagId]);
+        //   }
+        // }
       }
 
       // Import main navigation categories
