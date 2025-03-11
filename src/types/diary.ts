@@ -23,13 +23,14 @@ export interface DiaryEntry {
   shortDescription?: string;
   imageSrc?: string;
   date: string;
-  categoryId?: string;
-  categoryIds: string[]; // Всегда массив
-  tagIds: string[];
-  moodId?: string;
-  moodIds: string[]; // Всегда массив
+  categoryId?: string; // Legacy field, kept for backward compatibility
+  categoryIds: string[]; // Always an array
+  tagIds: string[]; // Always an array
+  moodId?: string; // Legacy field, kept for backward compatibility
+  moodIds: string[]; // Always an array
 }
 
+// The form data should match the entry structure exactly
 export interface DiaryEntryFormData {
   id?: string;
   title: string;
@@ -37,7 +38,7 @@ export interface DiaryEntryFormData {
   shortDescription: string;
   imageSrc: string;
   date: string;
-  categoryIds: string[]; // Всегда массив
-  tagIds: string[];
-  moodIds: string[]; // Всегда массив
+  categoryIds: string[]; // Always an array
+  tagIds: string[]; // Always an array
+  moodIds: string[]; // Always an array
 }

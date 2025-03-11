@@ -7,6 +7,20 @@ import { getData, getById } from '../utils';
 import { DiaryEntry, DiaryCategory, DiaryTag, DiaryMood, DiaryEntryFormData } from '../../../types/diary';
 import { API_BASE_URL, apiFallback } from './diaryApiBase';
 
+// Helper function to ensure arrays are properly handled
+const ensureArray = (value: any): string[] => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+};
+
 export function createDiaryEntriesApi() {
   return {
     /**
@@ -17,7 +31,15 @@ export function createDiaryEntriesApi() {
         async () => {
           const response = await fetch(`${API_BASE_URL}/diary/entries`);
           if (!response.ok) throw new Error('Network response was not ok');
-          return await response.json();
+          const entries = await response.json();
+          
+          // Ensure arrays are properly handled in response
+          return entries.map((entry: any) => ({
+            ...entry,
+            tagIds: ensureArray(entry.tagIds),
+            categoryIds: ensureArray(entry.categoryIds),
+            moodIds: ensureArray(entry.moodIds)
+          }));
         },
         () => getData(diaryEntries as DiaryEntry[])
       );
@@ -32,7 +54,17 @@ export function createDiaryEntriesApi() {
           const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`);
           if (response.status === 404) return undefined;
           if (!response.ok) throw new Error('Network response was not ok');
-          return await response.json();
+          const entry = await response.json();
+          
+          if (!entry) return undefined;
+          
+          // Ensure arrays are properly handled
+          return {
+            ...entry,
+            tagIds: ensureArray(entry.tagIds),
+            categoryIds: ensureArray(entry.categoryIds),
+            moodIds: ensureArray(entry.moodIds)
+          };
         },
         () => getById(diaryEntries as DiaryEntry[], id)
       );
@@ -75,16 +107,16 @@ export function createDiaryEntriesApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Ensure that all arrays are properly handled and not stringified again
-        const preparedData = {
+        // Ensure arrays are properly structured before sending
+        const preparedData: DiaryEntryFormData = {
           ...data,
-          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [],
-          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
-          moodIds: Array.isArray(data.moodIds) ? data.moodIds : []
+          // Explicitly cast to string[] to ensure proper typing
+          categoryIds: Array.isArray(data.categoryIds) ? [...data.categoryIds] : [],
+          tagIds: Array.isArray(data.tagIds) ? [...data.tagIds] : [],
+          moodIds: Array.isArray(data.moodIds) ? [...data.moodIds] : []
         };
         
-        console.log("Отправка данных на сервер (создание). Raw:", data);
-        console.log("Отправка данных на сервер (создание). Prepared:", preparedData);
+        console.log("Creating diary entry with data:", preparedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
@@ -97,19 +129,16 @@ export function createDiaryEntriesApi() {
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         
-        // Ensure arrays are arrays when returning
-        return {
+        // Process the result to ensure arrays are correctly handled
+        const processedResult: DiaryEntry = {
           ...result,
-          tagIds: Array.isArray(result.tagIds) ? result.tagIds 
-                 : typeof result.tagIds === 'string' ? JSON.parse(result.tagIds as unknown as string) 
-                 : [],
-          categoryIds: Array.isArray(result.categoryIds) ? result.categoryIds 
-                      : typeof result.categoryIds === 'string' ? JSON.parse(result.categoryIds as unknown as string) 
-                      : [],
-          moodIds: Array.isArray(result.moodIds) ? result.moodIds 
-                  : typeof result.moodIds === 'string' ? JSON.parse(result.moodIds as unknown as string) 
-                  : []
+          tagIds: ensureArray(result.tagIds),
+          categoryIds: ensureArray(result.categoryIds),
+          moodIds: ensureArray(result.moodIds)
         };
+        
+        console.log("Processed result:", processedResult);
+        return processedResult;
       } catch (error) {
         console.error('Error creating diary entry:', error);
         throw error;
@@ -121,16 +150,16 @@ export function createDiaryEntriesApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Ensure that all arrays are properly handled and not stringified again
-        const preparedData = {
+        // Ensure arrays are properly structured before sending
+        const preparedData: DiaryEntryFormData = {
           ...data,
-          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [],
-          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [],
-          moodIds: Array.isArray(data.moodIds) ? data.moodIds : []
+          // Explicitly cast to string[] to ensure proper typing
+          categoryIds: Array.isArray(data.categoryIds) ? [...data.categoryIds] : [],
+          tagIds: Array.isArray(data.tagIds) ? [...data.tagIds] : [],
+          moodIds: Array.isArray(data.moodIds) ? [...data.moodIds] : []
         };
         
-        console.log("Отправка данных на сервер (обновление). Raw:", data);
-        console.log("Отправка данных на сервер (обновление). Prepared:", preparedData);
+        console.log("Updating diary entry with data:", preparedData);
         
         const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',
@@ -143,19 +172,16 @@ export function createDiaryEntriesApi() {
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         
-        // Ensure arrays are arrays when returning
-        return {
+        // Process the result to ensure arrays are correctly handled
+        const processedResult: DiaryEntry = {
           ...result,
-          tagIds: Array.isArray(result.tagIds) ? result.tagIds 
-                 : typeof result.tagIds === 'string' ? JSON.parse(result.tagIds as unknown as string) 
-                 : [],
-          categoryIds: Array.isArray(result.categoryIds) ? result.categoryIds 
-                      : typeof result.categoryIds === 'string' ? JSON.parse(result.categoryIds as unknown as string) 
-                      : [],
-          moodIds: Array.isArray(result.moodIds) ? result.moodIds 
-                  : typeof result.moodIds === 'string' ? JSON.parse(result.moodIds as unknown as string) 
-                  : []
+          tagIds: ensureArray(result.tagIds),
+          categoryIds: ensureArray(result.categoryIds),
+          moodIds: ensureArray(result.moodIds)
         };
+        
+        console.log("Processed result:", processedResult);
+        return processedResult;
       } catch (error) {
         console.error('Error updating diary entry:', error);
         throw error;
