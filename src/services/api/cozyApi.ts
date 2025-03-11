@@ -4,7 +4,7 @@ import cozyTags from '../../data/cozy/cozy-tags.json';
 import cozyHighlightTypes from '../../data/cozy/cozy-highlights-types.json';
 
 import { getData, getById, getByIds, retryPromise } from './utils';
-import { CozyCategory, CozyHighlightType, CozyTag, CozyArticle } from '../../types/models';
+import { CozyCategory, CozyHighlightType, CozyTag, CozyArticle } from '../../types/cozy';
 
 /**
  * Base URL for API requests

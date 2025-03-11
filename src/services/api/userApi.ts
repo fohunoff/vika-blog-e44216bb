@@ -1,7 +1,7 @@
 
 import userPreferences from '../../data/user/user-preferences.json';
 import { getData, getById } from './utils';
-import { UserPreference } from '../../types/models';
+import { UserPreference } from '../../types/user';
 
 export function createUserApi() {
   return {

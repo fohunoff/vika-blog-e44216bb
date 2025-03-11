@@ -1,7 +1,7 @@
 
 import commentTypes from '../../data/comments/comment-types.json';
 import { getData, getById } from './utils';
-import { CommentType } from '../../types/models';
+import { CommentType } from '../../types/comment';
 
 export function createCommentsApi() {
   return {

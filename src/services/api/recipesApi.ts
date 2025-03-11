@@ -1,5 +1,5 @@
 
-import { RecipeCategory, RecipeTag, RecipeDifficultyLevel } from '../../types/models';
+import { RecipeCategory, RecipeTag, RecipeDifficultyLevel } from '../../types/recipe';
 
 /**
  * Base URL for API requests

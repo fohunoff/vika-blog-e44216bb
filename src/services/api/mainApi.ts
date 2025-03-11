@@ -6,7 +6,7 @@ import latestPosts from '../../data/main/latest-posts.json';
 import newsletterData from '../../data/main/newsletter.json';
 
 import { getData, getById, retryPromise } from './utils';
-import { MainFeaturedSection } from "@/types/models";
+import { MainFeaturedSection } from "@/types/main";
 
 /**
  * Base URL for API requests
