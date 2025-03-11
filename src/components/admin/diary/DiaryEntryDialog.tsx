@@ -47,6 +47,12 @@ const DiaryEntryDialog = ({
   onMoodSelect,
   onSave
 }: DiaryEntryDialogProps) => {
+  // Добавим отладочную информацию
+  console.log("DiaryEntryDialog - formData перед рендерингом:", formData);
+  console.log("DiaryEntryDialog - selectedTags:", selectedTags);
+  console.log("DiaryEntryDialog - selectedCategories:", selectedCategories);
+  console.log("DiaryEntryDialog - selectedMoods:", selectedMoods);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -75,7 +81,11 @@ const DiaryEntryDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Отмена
           </Button>
-          <Button onClick={onSave}>
+          <Button onClick={() => {
+            // Добавим последний вывод для отладки перед сохранением
+            console.log("Данные перед отправкой на сервер:", formData);
+            onSave();
+          }}>
             Сохранить
           </Button>
         </DialogFooter>

@@ -53,14 +53,20 @@ export const useDialogState = () => {
   };
 
   const openEditDialog = (entry: DiaryEntry) => {
-    // Ensure categoryIds and moodIds are arrays
-    const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds : [entry.categoryId];
-    const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds : [entry.moodId];
+    // Гарантируем, что все поля - массивы
+    const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds : 
+                        entry.categoryId ? [entry.categoryId] : [];
     
-    // Log to help with debugging
-    console.log("Opening edit dialog with entry:", entry);
-    console.log("Processed categoryIds:", categoryIds);
-    console.log("Processed moodIds:", moodIds);
+    const tagIds = Array.isArray(entry.tagIds) ? entry.tagIds : [];
+    
+    const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds : 
+                    entry.moodId ? [entry.moodId] : [];
+    
+    // Отладочная информация
+    console.log("Открытие диалога редактирования с записью:", entry);
+    console.log("Подготовленные categoryIds:", categoryIds);
+    console.log("Подготовленные tagIds:", tagIds);
+    console.log("Подготовленные moodIds:", moodIds);
     
     setState({
       ...state,
@@ -71,10 +77,10 @@ export const useDialogState = () => {
         imageSrc: entry.imageSrc || '',
         date: entry.date,
         categoryIds: categoryIds,
-        tagIds: Array.isArray(entry.tagIds) ? entry.tagIds : [],
+        tagIds: tagIds,
         moodIds: moodIds
       },
-      selectedTags: Array.isArray(entry.tagIds) ? entry.tagIds : [],
+      selectedTags: tagIds,
       selectedCategories: categoryIds,
       selectedMoods: moodIds,
       selectedEntry: entry.id,

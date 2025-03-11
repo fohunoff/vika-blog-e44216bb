@@ -21,9 +21,14 @@ export const useFormHandling = (
 
   const handleTagSelect = (tagId: string) => {
     setState((prev: any) => {
-      const newSelectedTags = prev.selectedTags.includes(tagId)
-        ? prev.selectedTags.filter((id: string) => id !== tagId)
-        : [...prev.selectedTags, tagId];
+      // Убедимся, что массив уже существует
+      const currentTagIds = Array.isArray(prev.selectedTags) ? prev.selectedTags : [];
+      
+      const newSelectedTags = currentTagIds.includes(tagId)
+        ? currentTagIds.filter((id: string) => id !== tagId)
+        : [...currentTagIds, tagId];
+      
+      console.log("Выбранные теги:", newSelectedTags);
       
       return {
         ...prev,
@@ -35,11 +40,15 @@ export const useFormHandling = (
 
   const handleCategorySelect = (categoryId: string) => {
     setState((prev: any) => {
-      const newSelectedCategories = prev.selectedCategories.includes(categoryId)
-        ? prev.selectedCategories.filter((id: string) => id !== categoryId)
-        : [...prev.selectedCategories, categoryId];
+      // Убедимся, что массив уже существует
+      const currentCategoryIds = Array.isArray(prev.selectedCategories) ? prev.selectedCategories : [];
       
-      // Directly set categoryIds as array
+      const newSelectedCategories = currentCategoryIds.includes(categoryId)
+        ? currentCategoryIds.filter((id: string) => id !== categoryId)
+        : [...currentCategoryIds, categoryId];
+      
+      console.log("Выбранные категории:", newSelectedCategories);
+      
       return {
         ...prev,
         selectedCategories: newSelectedCategories,
@@ -50,11 +59,15 @@ export const useFormHandling = (
 
   const handleMoodSelect = (moodId: string) => {
     setState((prev: any) => {
-      const newSelectedMoods = prev.selectedMoods.includes(moodId)
-        ? prev.selectedMoods.filter((id: string) => id !== moodId)
-        : [...prev.selectedMoods, moodId];
+      // Убедимся, что массив уже существует
+      const currentMoodIds = Array.isArray(prev.selectedMoods) ? prev.selectedMoods : [];
       
-      // Directly set moodIds as array
+      const newSelectedMoods = currentMoodIds.includes(moodId)
+        ? currentMoodIds.filter((id: string) => id !== moodId)
+        : [...currentMoodIds, moodId];
+      
+      console.log("Выбранные настроения:", newSelectedMoods);
+      
       return {
         ...prev,
         selectedMoods: newSelectedMoods,

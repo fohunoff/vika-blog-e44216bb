@@ -75,15 +75,22 @@ export function createDiaryEntriesApi() {
      */
     createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Ensure categoryIds and moodIds are properly formatted and not double-encoded
-        console.log("Sending create data to server:", data);
+        // Обеспечиваем, что массивы корректно форматированы
+        const formattedData = {
+          ...data,
+          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [data.categoryIds].filter(Boolean),
+          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [data.tagIds].filter(Boolean),
+          moodIds: Array.isArray(data.moodIds) ? data.moodIds : [data.moodIds].filter(Boolean)
+        };
+        
+        console.log("Отправка данных на сервер (создание):", JSON.stringify(formattedData));
         
         const response = await fetch(`${API_BASE_URL}/diary/entries`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(formattedData),
         });
         
         if (!response.ok) throw new Error('Network response was not ok');
@@ -99,15 +106,22 @@ export function createDiaryEntriesApi() {
      */
     updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
       try {
-        // Ensure categoryIds and moodIds are properly formatted and not double-encoded
-        console.log("Sending update data to server:", data);
+        // Обеспечиваем, что массивы корректно форматированы
+        const formattedData = {
+          ...data,
+          categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : [data.categoryIds].filter(Boolean),
+          tagIds: Array.isArray(data.tagIds) ? data.tagIds : [data.tagIds].filter(Boolean),
+          moodIds: Array.isArray(data.moodIds) ? data.moodIds : [data.moodIds].filter(Boolean)
+        };
+        
+        console.log("Отправка данных на сервер (обновление):", JSON.stringify(formattedData));
         
         const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify(formattedData),
         });
         
         if (!response.ok) throw new Error('Network response was not ok');

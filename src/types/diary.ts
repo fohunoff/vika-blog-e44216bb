@@ -23,11 +23,11 @@ export interface DiaryEntry {
   shortDescription?: string;
   imageSrc?: string;
   date: string;
-  categoryId: string;
-  categoryIds: string[]; // Always an array
+  categoryId?: string;
+  categoryIds: string[]; // Всегда массив
   tagIds: string[];
-  moodId: string;
-  moodIds: string[]; // Always an array
+  moodId?: string;
+  moodIds: string[]; // Всегда массив
 }
 
 export interface DiaryEntryFormData {
@@ -37,7 +37,7 @@ export interface DiaryEntryFormData {
   shortDescription: string;
   imageSrc: string;
   date: string;
-  categoryIds: string[];
+  categoryIds: string[]; // Всегда массив
   tagIds: string[];
-  moodIds: string[];
+  moodIds: string[]; // Всегда массив
 }

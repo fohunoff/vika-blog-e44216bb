@@ -36,6 +36,15 @@ const DiaryEntryForm = ({
   onTagSelect,
   onMoodSelect
 }: DiaryEntryFormProps) => {
+  // Добавим отладочную информацию
+  console.log("Форма. Выбранные теги:", selectedTags);
+  console.log("Форма. Выбранные категории:", selectedCategories);
+  console.log("Форма. Выбранные настроения:", selectedMoods);
+
+  useEffect(() => {
+    console.log("DiaryEntryForm - formData при загрузке:", formData);
+  }, []);
+  
   return (
     <div className="grid gap-4 py-4">
       <div className="grid gap-2">
