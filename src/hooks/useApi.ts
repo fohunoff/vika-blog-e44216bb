@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { api } from '../services/api';
@@ -70,6 +69,39 @@ export const useCafe = (id: string, options?: UseQueryOptions<any, Error, any, (
     enabled: !!id,
     ...options
   });
+};
+
+// Diary
+export const useDiaryEntry = (id: string, options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
+  const { api } = useApi();
+  return useApiQuery(['diary', 'entry', id], () => api.diary.getDiaryEntryById(id), {
+    enabled: !!id,
+    ...options
+  });
+};
+
+export const useCreateDiaryEntry = (options?: UseMutationOptions<DiaryEntry, Error, DiaryEntryFormData>) => {
+  const { api } = useApi();
+  return useApiMutation(
+    (data: DiaryEntryFormData) => api.diary.createDiaryEntry(data),
+    options
+  );
+};
+
+export const useUpdateDiaryEntry = (options?: UseMutationOptions<DiaryEntry, Error, { id: string; data: DiaryEntryFormData }>) => {
+  const { api } = useApi();
+  return useApiMutation(
+    ({ id, data }: { id: string; data: DiaryEntryFormData }) => api.diary.updateDiaryEntry(id, data),
+    options
+  );
+};
+
+export const useDeleteDiaryEntry = (options?: UseMutationOptions<void, Error, string>) => {
+  const { api } = useApi();
+  return useApiMutation(
+    (id: string) => api.diary.deleteDiaryEntry(id),
+    options
+  );
 };
 
 // Diary

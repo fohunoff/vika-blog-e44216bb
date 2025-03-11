@@ -3,11 +3,8 @@ import diaryCategories from '../../data/diary/diary-categories.json';
 import diaryTags from '../../data/diary/diary-tags.json';
 import diaryMoods from '../../data/diary/diary-moods.json';
 import { getData, getById, getByIds, retryPromise } from './utils';
-import { DiaryCategory, DiaryEntry, DiaryTag, DiaryMood } from '../../types/models';
+import { DiaryCategory, DiaryEntry, DiaryTag, DiaryMood, DiaryEntryFormData } from '../../types/models';
 
-/**
- * Base URL for API requests
- */
 const API_BASE_URL = 'http://localhost:3001';
 
 export function createDiaryApi() {
@@ -193,6 +190,61 @@ export function createDiaryApi() {
             };
           });
         });
+      }
+    },
+
+    /**
+     * Create a new diary entry
+     */
+    createDiaryEntry: async (data: DiaryEntryFormData): Promise<DiaryEntry> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/entries`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.error('Error creating diary entry:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Update an existing diary entry
+     */
+    updateDiaryEntry: async (id: string, data: DiaryEntryFormData): Promise<DiaryEntry> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.error('Error updating diary entry:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Delete a diary entry
+     */
+    deleteDiaryEntry: async (id: string): Promise<void> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+      } catch (error) {
+        console.error('Error deleting diary entry:', error);
+        throw error;
       }
     }
   };

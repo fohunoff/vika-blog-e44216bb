@@ -1,8 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
 import { DiaryEntry, DiaryEntryFormData } from "@/types/models";
 import { toast } from "@/components/ui/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCreateDiaryEntry, useUpdateDiaryEntry, useDeleteDiaryEntry } from "@/hooks/useApi";
 
 export const useDiaryEntries = () => {
   const { api } = useApi();
@@ -63,6 +64,65 @@ export const useDiaryEntries = () => {
 
     fetchData();
   }, [api]);
+
+  const queryClient = useQueryClient();
+  
+  const createEntry = useCreateDiaryEntry({
+    onSuccess: () => {
+      toast({
+        title: "Запись создана",
+        description: "Новая запись дневника успешно создана"
+      });
+      queryClient.invalidateQueries({ queryKey: ['diaryEntries'] });
+      setIsDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error creating entry:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка создания",
+        description: "Не удалось создать запись. Пожалуйста, попробуйте позже."
+      });
+    }
+  });
+
+  const updateEntry = useUpdateDiaryEntry({
+    onSuccess: () => {
+      toast({
+        title: "Запись обновлена",
+        description: "Запись дневника успешно обновлена"
+      });
+      queryClient.invalidateQueries({ queryKey: ['diaryEntries'] });
+      setIsDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error updating entry:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка обновления",
+        description: "Не удалось обновить запись. Пожалуйста, попробуйте позже."
+      });
+    }
+  });
+
+  const deleteEntry = useDeleteDiaryEntry({
+    onSuccess: () => {
+      toast({
+        title: "Запись удалена",
+        description: "Запись дневника успешно удалена"
+      });
+      queryClient.invalidateQueries({ queryKey: ['diaryEntries'] });
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error deleting entry:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка удаления",
+        description: "Не удалось удалить запись. Пожалуйста, попробуйте позже."
+      });
+    }
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -148,52 +208,23 @@ export const useDiaryEntries = () => {
 
   const handleSave = async () => {
     try {
-      toast({
-        title: "Изменения сохранены",
-        description: selectedEntry 
-          ? "Запись дневника успешно обновлена" 
-          : "Новая запись дневника успешно создана"
-      });
-      
       if (selectedEntry) {
-        setEntries(entries.map(entry => 
-          entry.id === selectedEntry ? { ...entry, ...formData } : entry
-        ));
+        await updateEntry.mutateAsync({ id: selectedEntry, data: formData });
       } else {
-        const newEntry = {
-          ...formData,
-          id: `entry-${Date.now()}`
-        };
-        setEntries([...entries, newEntry as DiaryEntry]);
+        await createEntry.mutateAsync(formData);
       }
-      
-      setIsDialogOpen(false);
     } catch (error) {
-      console.error("Error saving entry:", error);
-      toast({
-        variant: "destructive",
-        title: "Ошибка сохранения",
-        description: "Не удалось сохранить изменения. Пожалуйста, попробуйте позже."
-      });
+      // Error handling is done in mutation callbacks
     }
   };
 
   const handleDelete = async () => {
-    try {
-      toast({
-        title: "Запись удалена",
-        description: "Запись дневника успешно удалена"
-      });
-      
-      setEntries(entries.filter(entry => entry.id !== selectedEntry));
-      setIsDeleteDialogOpen(false);
-    } catch (error) {
-      console.error("Error deleting entry:", error);
-      toast({
-        variant: "destructive",
-        title: "Ошибка удаления",
-        description: "Не удалось удалить запись. Пожалуйста, попробуйте позже."
-      });
+    if (selectedEntry) {
+      try {
+        await deleteEntry.mutateAsync(selectedEntry);
+      } catch (error) {
+        // Error handling is done in mutation callbacks
+      }
     }
   };
 
