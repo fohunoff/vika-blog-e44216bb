@@ -16,7 +16,7 @@ export const useDialogState = () => {
       content: '',
       shortDescription: '',
       imageSrc: '',
-      date: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString().split('T')[0],
       categoryIds: [],
       tagIds: [],
       moodIds: []
@@ -39,7 +39,7 @@ export const useDialogState = () => {
         content: '',
         shortDescription: '',
         imageSrc: '',
-        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString().split('T')[0],
         categoryIds: [],
         tagIds: [],
         moodIds: []
@@ -54,20 +54,20 @@ export const useDialogState = () => {
 
   const openEditDialog = (entry: DiaryEntry) => {
     // Гарантируем, что все поля - массивы
-    const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds : 
+    const categoryIds = Array.isArray(entry.categoryIds) ? entry.categoryIds :
                         entry.categoryId ? [entry.categoryId] : [];
-    
+
     const tagIds = Array.isArray(entry.tagIds) ? entry.tagIds : [];
-    
-    const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds : 
+
+    const moodIds = Array.isArray(entry.moodIds) ? entry.moodIds :
                     entry.moodId ? [entry.moodId] : [];
-    
+
     // Отладочная информация
     console.log("Открытие диалога редактирования с записью:", entry);
     console.log("Подготовленные categoryIds:", categoryIds);
     console.log("Подготовленные tagIds:", tagIds);
     console.log("Подготовленные moodIds:", moodIds);
-    
+
     setState({
       ...state,
       formData: {
@@ -75,7 +75,7 @@ export const useDialogState = () => {
         content: entry.content,
         shortDescription: entry.shortDescription || '',
         imageSrc: entry.imageSrc || '',
-        date: entry.date,
+        createdAt: entry.createdAt,
         categoryIds: categoryIds,
         tagIds: tagIds,
         moodIds: moodIds
@@ -89,10 +89,10 @@ export const useDialogState = () => {
   };
 
   const openDeleteDialog = (entryId: string) => {
-    setState(prev => ({ 
-      ...prev, 
+    setState(prev => ({
+      ...prev,
       selectedEntry: entryId,
-      isDeleteDialogOpen: true 
+      isDeleteDialogOpen: true
     }));
   };
 

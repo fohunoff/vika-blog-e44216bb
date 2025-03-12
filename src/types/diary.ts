@@ -23,6 +23,8 @@ export interface DiaryEntry {
   shortDescription?: string;
   imageSrc?: string;
   date: string;
+  createdAt: string;
+  updatedAt: string;
   categoryId?: string; // Legacy field, kept for backward compatibility
   categoryIds: string[]; // Always an array
   tagIds: string[]; // Always an array
@@ -37,7 +39,7 @@ export interface DiaryEntryFormData {
   content: string;
   shortDescription: string;
   imageSrc: string;
-  date: string;
+  createdAt: string;
   categoryIds: string[]; // Always an array
   tagIds: string[]; // Always an array
   moodIds: string[]; // Always an array

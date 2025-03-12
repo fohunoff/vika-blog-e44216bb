@@ -14,13 +14,13 @@ interface DiaryEntryTableProps {
   displayMultipleNames: (ids: string[] | undefined, items: {id: string, name: string}[]) => string;
 }
 
-const DiaryEntryTable = ({ 
-  entries, 
-  categories, 
-  moods, 
-  onEdit, 
+const DiaryEntryTable = ({
+  entries,
+  categories,
+  moods,
+  onEdit,
   onDelete,
-  displayMultipleNames 
+  displayMultipleNames
 }: DiaryEntryTableProps) => {
   if (entries.length === 0) {
     return (
@@ -48,7 +48,7 @@ const DiaryEntryTable = ({
           {entries.map((entry) => (
             <TableRow key={entry.id}>
               <TableCell className="font-medium">{entry.title}</TableCell>
-              <TableCell>{entry.date}</TableCell>
+              <TableCell>{entry.createdAt}</TableCell>
               <TableCell>{displayMultipleNames(entry.categoryIds || [entry.categoryId], categories)}</TableCell>
               <TableCell>{displayMultipleNames(entry.moodIds || [entry.moodId], moods)}</TableCell>
               <TableCell className="text-right">

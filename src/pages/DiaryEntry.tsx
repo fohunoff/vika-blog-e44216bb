@@ -29,17 +29,17 @@ const DiaryEntryPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
+
     const fetchEntryData = async () => {
       if (!id) return;
-      
+
       try {
         setIsLoading(true);
         const [entryData, allEntries] = await Promise.all([
           api.diary.getDiaryEntryById(id),
           api.diary.getEnrichedDiaryEntries()
         ]);
-        
+
         if (!entryData) {
           toast({
             title: "Запись не найдена",
@@ -50,15 +50,15 @@ const DiaryEntryPage = () => {
         }
 
         // Ensure tagIds is an array
-        const tagIds = Array.isArray(entryData.tagIds) ? entryData.tagIds : 
+        const tagIds = Array.isArray(entryData.tagIds) ? entryData.tagIds :
                       (entryData.tagIds ? [entryData.tagIds] : []);
-        
+
         // Ensure categoryIds is an array
-        const categoryIds = Array.isArray(entryData.categoryIds) ? entryData.categoryIds : 
+        const categoryIds = Array.isArray(entryData.categoryIds) ? entryData.categoryIds :
                            [entryData.categoryId || entryData.categoryIds].filter(Boolean);
-        
+
         // Ensure moodIds is an array
-        const moodIds = Array.isArray(entryData.moodIds) ? entryData.moodIds : 
+        const moodIds = Array.isArray(entryData.moodIds) ? entryData.moodIds :
                        [entryData.moodId || entryData.moodIds].filter(Boolean);
 
         // Fetch category, tags and mood details
@@ -70,7 +70,7 @@ const DiaryEntryPage = () => {
           // Get first mood (if exists)
           moodIds.length > 0 ? api.diary.getMoodById(moodIds[0]) : Promise.resolve(null)
         ]);
-        
+
         // Prepare enriched entry
         const enrichedEntry = {
           ...entryData,
@@ -81,9 +81,9 @@ const DiaryEntryPage = () => {
           moodIds: moodIds,
           tagIds: tagIds
         };
-        
+
         setEntry(enrichedEntry);
-        
+
         // Find related entries (same category or at least one matching tag)
         if (allEntries && allEntries.length) {
           const related = allEntries
@@ -94,10 +94,10 @@ const DiaryEntryPage = () => {
               return sameCategory || hasMatchingTag;
             })
             .slice(0, 3); // Limit to 3 related entries
-          
+
           setRelatedEntries(related);
         }
-        
+
       } catch (error) {
         console.error("Error fetching entry:", error);
         toast({
@@ -109,10 +109,10 @@ const DiaryEntryPage = () => {
         setIsLoading(false);
       }
     };
-    
+
     fetchEntryData();
   }, [id, api.diary]);
-  
+
   // Format date to Russian locale
   const formatDate = (dateString: string) => {
     try {
@@ -156,12 +156,12 @@ const DiaryEntryPage = () => {
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
-      
+
       <article className="blog-container py-8 md:py-16">
         <Link to="/diary" className="inline-flex items-center text-gray-500 hover:text-blog-yellow mb-8 transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" /> Назад к дневнику
         </Link>
-        
+
         {entry?.imageSrc && (
           <div className="relative h-[300px] md:h-[500px] w-full mb-8 rounded-xl overflow-hidden">
             <img
@@ -171,20 +171,20 @@ const DiaryEntryPage = () => {
             />
           </div>
         )}
-        
+
         <div className="flex flex-wrap items-center gap-4 text-gray-500 mb-6">
           <div className="flex items-center">
             <Calendar size={18} className="mr-2" />
             <span>{entry ? formatDate(entry.date) : ''}</span>
           </div>
-          
+
           {entry?.mood && (
             <div className="flex items-center">
               <MessageSquare size={18} className="mr-2" />
               <span>{entry.mood}</span>
             </div>
           )}
-          
+
           {entry?.category && (
             <div className="flex items-center">
               <Tag size={18} className="mr-2" />
@@ -192,15 +192,15 @@ const DiaryEntryPage = () => {
             </div>
           )}
         </div>
-        
+
         <h1 className="text-3xl md:text-4xl font-bold mb-6">{entry?.title}</h1>
-        
+
         {entry?.shortDescription && (
           <p className="text-xl text-gray-700 mb-8 font-serif italic">
             {entry.shortDescription}
           </p>
         )}
-        
+
         <div className="flex flex-wrap gap-2 mb-8">
           {entry?.tags && entry.tags.length > 0 && entry.tags.map((tag, index) => (
             <Badge
@@ -212,7 +212,7 @@ const DiaryEntryPage = () => {
             </Badge>
           ))}
         </div>
-        
+
         <div className="my-8">
           {entry?.content && <EntryContent content={entry.content} />}
         </div>
@@ -240,12 +240,12 @@ const DiaryEntryPage = () => {
           </div>
         </section>
       )}
-      
+
       <DiaryTags
         tags={entry?.tags || []}
         onTagClick={() => {}}
       />
-      
+
       <Footer />
     </main>
   );

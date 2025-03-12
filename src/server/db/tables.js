@@ -178,22 +178,21 @@ export const createTables = async () => {
 
     // Diary Entries
     await dbAsync.run(`
-      CREATE TABLE IF NOT EXISTS diary_entries (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        shortDescription TEXT,
-        imageSrc TEXT,
-        date TEXT NOT NULL,
-        categoryId TEXT,
-        categoryIds TEXT,
-        tagIds TEXT,
-        moodId TEXT,
-        moodIds TEXT,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    CREATE TABLE IF NOT EXISTS diary_entries (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      shortDescription TEXT,
+      imageSrc TEXT,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               /* Добавляем новое поле */
+      categoryId TEXT,
+      categoryIds TEXT,
+      tagIds TEXT,
+      moodId TEXT,
+      moodIds TEXT,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
     // Diary Categories
     await dbAsync.run(`
@@ -552,7 +551,6 @@ export const tables = [
         content TEXT NOT NULL,
         shortDescription TEXT,
         imageSrc TEXT,
-        date TEXT NOT NULL,
         categoryId TEXT,
         categoryIds TEXT,
         tagIds TEXT,
@@ -563,7 +561,7 @@ export const tables = [
       )
     `,
     indexes: [
-      'CREATE INDEX IF NOT EXISTS idx_diary_entries_date ON diary_entries(date)'
+      'CREATE INDEX IF NOT EXISTS idx_diary_entries_date ON diary_entries(createdAt)'
     ]
   },
   {

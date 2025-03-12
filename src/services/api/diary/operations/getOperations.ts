@@ -20,7 +20,7 @@ export const getDiaryOperations = () => ({
         const response = await fetch(`${API_BASE_URL}/diary/entries`);
         if (!response.ok) throw new Error('Network response was not ok');
         const entries = await response.json();
-        
+
         // Process the response to ensure arrays are properly handled
         return processEntriesResponse(entries);
       },
@@ -38,9 +38,9 @@ export const getDiaryOperations = () => ({
         if (response.status === 404) return undefined;
         if (!response.ok) throw new Error('Network response was not ok');
         const entry = await response.json();
-        
+
         if (!entry) return undefined;
-        
+
         // Process the response to ensure arrays are properly handled
         return processEntryResponse(entry);
       },
@@ -59,6 +59,7 @@ export const getDiaryOperations = () => ({
         const entries = await response.json();
         return processEntriesResponse(entries);
       },
+        // fallback
       async () => {
         const entries = await getData(diaryEntries as DiaryEntry[]);
         const categories = await getData(diaryCategories as DiaryCategory[]);

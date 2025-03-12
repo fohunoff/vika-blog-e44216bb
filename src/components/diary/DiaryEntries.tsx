@@ -1,18 +1,19 @@
 
 import { BookOpen } from "lucide-react";
 import DiaryEntryCard from "./DiaryEntryCard";
-import { DiaryEntry } from "@/types/models";
+import {DiaryEntry, DiaryMood} from "@/types/models";
 
 interface DiaryEntriesProps {
   entries: (DiaryEntry & {
     category?: string;
-    tags?: string[];
     mood?: string;
+    tags?: string[];
   })[];
   isLoading: boolean;
+  moods: DiaryMood[]
 }
 
-const DiaryEntries = ({ entries, isLoading }: DiaryEntriesProps) => {
+const DiaryEntries = ({ entries, moods, isLoading }: DiaryEntriesProps) => {
   if (isLoading) {
     return (
       <div className="text-center py-12">
@@ -36,7 +37,7 @@ const DiaryEntries = ({ entries, isLoading }: DiaryEntriesProps) => {
   return (
     <div className="space-y-16">
       {entries.map((entry, index) => (
-        <DiaryEntryCard key={entry.id} entry={entry} index={index} />
+        <DiaryEntryCard key={entry.id} entry={entry} moods={moods} index={index} />
       ))}
     </div>
   );

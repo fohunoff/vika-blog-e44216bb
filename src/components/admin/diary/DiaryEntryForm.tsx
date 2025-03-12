@@ -44,7 +44,7 @@ const DiaryEntryForm = ({
   useEffect(() => {
     console.log("DiaryEntryForm - formData при загрузке:", formData);
   }, []);
-  
+
   return (
     <div className="grid gap-4 py-4">
       <div className="grid gap-2">
@@ -56,7 +56,7 @@ const DiaryEntryForm = ({
           onChange={onInputChange}
         />
       </div>
-      
+
       <div className="grid gap-2">
         <label htmlFor="shortDescription">Краткое описание</label>
         <Input
@@ -66,7 +66,7 @@ const DiaryEntryForm = ({
           onChange={onInputChange}
         />
       </div>
-      
+
       <div className="grid gap-2">
         <label htmlFor="content">Содержание</label>
         <div className="min-h-[300px] border border-input rounded-md">
@@ -89,7 +89,7 @@ const DiaryEntryForm = ({
           />
         </div>
       </div>
-      
+
       <div className="grid gap-2">
         <label htmlFor="imageSrc">URL изображения</label>
         <Input
@@ -99,18 +99,18 @@ const DiaryEntryForm = ({
           onChange={onInputChange}
         />
       </div>
-      
+
       <div className="grid gap-2">
         <label htmlFor="date">Дата</label>
         <Input
           id="date"
           name="date"
           type="date"
-          value={formData.date}
+          value={formData.createdAt}
           onChange={onInputChange}
         />
       </div>
-      
+
       <div className="grid gap-2">
         <label>Категории</label>
         <div className="flex flex-wrap gap-2">
@@ -131,7 +131,7 @@ const DiaryEntryForm = ({
           ))}
         </div>
       </div>
-      
+
       <div className="grid gap-2">
         <label>Настроения</label>
         <div className="flex flex-wrap gap-2">
@@ -152,7 +152,7 @@ const DiaryEntryForm = ({
           ))}
         </div>
       </div>
-      
+
       <div className="grid gap-2">
         <label>Теги</label>
         <div className="flex flex-wrap gap-2">

@@ -4,7 +4,7 @@ export interface DiaryFormState {
   content: string;
   shortDescription: string;
   imageSrc: string;
-  date: string;
+  createdAt: string;
   categoryIds: string[];
   tagIds: string[];
   moodIds: string[];

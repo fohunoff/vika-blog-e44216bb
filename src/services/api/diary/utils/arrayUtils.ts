@@ -21,12 +21,12 @@ export const ensureArray = (value: any): string[] => {
  */
 export const processEntryResponse = (entry: any) => {
   if (!entry) return entry;
-  
+
   return {
     ...entry,
     tagIds: ensureArray(entry.tagIds),
     categoryIds: ensureArray(entry.categoryIds),
-    moodIds: ensureArray(entry.moodIds)
+    moodIds: ensureArray(entry.moodIds),
   };
 };
 
@@ -35,7 +35,7 @@ export const processEntryResponse = (entry: any) => {
  */
 export const processEntriesResponse = (entries: any[]) => {
   if (!Array.isArray(entries)) return [];
-  
+
   return entries.map(entry => processEntryResponse(entry));
 };
 

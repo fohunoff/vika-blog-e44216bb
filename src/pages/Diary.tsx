@@ -27,22 +27,22 @@ const Diary = () => {
           api.diary.getMoods(),
           api.main.getIndexCategories()
         ]);
-        
+
         setAllMoods(moods);
-        
+
         const diaryPageInfo = navCategories.find(cat => cat.link === '/diary');
         setPageInfo(diaryPageInfo || null);
-        
+
         setRetryCount(0);
       } catch (error) {
         console.error("Error fetching page data:", error);
-        
+
         toast({
           title: "Ошибка загрузки данных",
           description: "Не удалось загрузить данные дневника. Пробуем снова...",
           variant: "destructive",
         });
-        
+
         if (retryCount < 3) {
           setRetryCount(prev => prev + 1);
           setTimeout(() => {
@@ -87,7 +87,7 @@ const Diary = () => {
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
-      
+
       <div className="blog-container py-12">
         <h1 className="section-title mb-8 text-center">
           {pageInfo?.title || "ЛИЧНЫЙ ДНЕВНИК"}
@@ -95,22 +95,22 @@ const Diary = () => {
         <p className="text-center text-xl mb-12 max-w-3xl mx-auto">
           {pageInfo?.pageDescription || "Здесь я делюсь своими мыслями, впечатлениями и моментами из повседневной жизни. Маленькие радости, открытия и размышления."}
         </p>
-        
+
         <DiarySearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       </div>
-      
-      <MoodFilter 
-        allMoods={allMoods} 
-        selectedMood={selectedMood} 
-        onMoodSelect={handleMoodSelect} 
+
+      <MoodFilter
+        allMoods={allMoods}
+        selectedMood={selectedMood}
+        onMoodSelect={handleMoodSelect}
       />
-      
+
       <div className="blog-container py-16">
-        <DiaryEntries entries={filteredEntries} isLoading={isLoading} />
+        <DiaryEntries entries={filteredEntries} moods={allMoods} isLoading={isLoading} />
       </div>
-      
+
       <DiaryTags tags={allTags.slice(0, 12)} onTagClick={setSearchQuery} />
-      
+
       <Footer />
     </main>
   );

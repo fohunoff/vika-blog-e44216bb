@@ -44,17 +44,19 @@ export const getEnrichedDiaryEntries = async (req, res) => {
     ]);
 
     const enrichedEntries = entries.map(entry => {
-      const category = categories.find(c => c.id === entry.categoryId);
+      const category = categories.find(c => c.id === entry.categoryIds[0]);
+
       const entryTags = entry.tagIds
         ? JSON.parse(entry.tagIds).map(id => tags.find(t => t.id === id)).filter(Boolean)
         : [];
-      const mood = moods.find(m => m.id === entry.moodId);
+
+      const mood = moods.find(m => m.id === entry.moodIds[0]);
 
       return {
         ...entry,
         category: category?.name,
-        tags: entryTags.map(t => t?.name),
-        mood: mood?.name
+        mood: mood?.name,
+        tags: entryTags.map(t => t?.name)
       };
     });
 
@@ -73,14 +75,13 @@ export const createDiaryEntry = async (req, res) => {
     content,
     shortDescription,
     imageSrc,
-    date,
     categoryIds,
     tagIds,
     moodIds
   } = req.body;
 
-  if (!title || !content || !date) {
-    return res.status(400).json({ error: "Title, content, and date are required" });
+  if (!title || !content) {
+    return res.status(400).json({ error: "Title and content are required" });
   }
 
   const newEntry = {
@@ -89,7 +90,6 @@ export const createDiaryEntry = async (req, res) => {
     content,
     shortDescription: shortDescription || "",
     imageSrc: imageSrc || "",
-    date,
     categoryId: categoryIds && categoryIds.length > 0 ? categoryIds[0] : null,
     categoryIds: JSON.stringify(categoryIds || []),
     tagIds: JSON.stringify(tagIds || []),
@@ -99,27 +99,26 @@ export const createDiaryEntry = async (req, res) => {
 
   const sql = `
     INSERT INTO diary_entries (
-      id, title, content, shortDescription, imageSrc, date, 
+      id, title, content, shortDescription, imageSrc,
       categoryId, categoryIds, tagIds, moodId, moodIds
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   try {
     await dbAsync.run(
-      sql,
-      [
-        newEntry.id,
-        newEntry.title,
-        newEntry.content,
-        newEntry.shortDescription,
-        newEntry.imageSrc,
-        newEntry.date,
-        newEntry.categoryId,
-        newEntry.categoryIds,
-        newEntry.tagIds,
-        newEntry.moodId,
-        newEntry.moodIds
-      ]
+        sql,
+        [
+          newEntry.id,
+          newEntry.title,
+          newEntry.content,
+          newEntry.shortDescription,
+          newEntry.imageSrc,
+          newEntry.categoryId,
+          newEntry.categoryIds,
+          newEntry.tagIds,
+          newEntry.moodId,
+          newEntry.moodIds
+        ]
     );
 
     console.log("Created diary entry with ID:", newEntry.id);
@@ -140,14 +139,13 @@ export const updateDiaryEntry = async (req, res) => {
     content,
     shortDescription,
     imageSrc,
-    date,
     categoryIds,
     tagIds,
     moodIds
   } = req.body;
 
-  if (!title || !content || !date) {
-    return res.status(400).json({ error: "Title, content, and date are required" });
+  if (!title || !content) {
+    return res.status(400).json({ error: "Title and content are required" });
   }
 
   const updatedEntry = {
@@ -156,7 +154,6 @@ export const updateDiaryEntry = async (req, res) => {
     content,
     shortDescription: shortDescription || "",
     imageSrc: imageSrc || "",
-    date,
     categoryId: categoryIds && categoryIds.length > 0 ? categoryIds[0] : null,
     categoryIds: JSON.stringify(categoryIds || []),
     tagIds: JSON.stringify(tagIds || []),
@@ -166,27 +163,27 @@ export const updateDiaryEntry = async (req, res) => {
 
   const sql = `
     UPDATE diary_entries 
-    SET title = ?, content = ?, shortDescription = ?, imageSrc = ?, date = ?,
-        categoryId = ?, categoryIds = ?, tagIds = ?, moodId = ?, moodIds = ?
+    SET title = ?, content = ?, shortDescription = ?, imageSrc = ?,
+        categoryId = ?, categoryIds = ?, tagIds = ?, moodId = ?, moodIds = ?,
+        updatedAt = CURRENT_TIMESTAMP
     WHERE id = ?
   `;
 
   try {
     const result = await dbAsync.run(
-      sql,
-      [
-        updatedEntry.title,
-        updatedEntry.content,
-        updatedEntry.shortDescription,
-        updatedEntry.imageSrc,
-        updatedEntry.date,
-        updatedEntry.categoryId,
-        updatedEntry.categoryIds,
-        updatedEntry.tagIds,
-        updatedEntry.moodId,
-        updatedEntry.moodIds,
-        id
-      ]
+        sql,
+        [
+          updatedEntry.title,
+          updatedEntry.content,
+          updatedEntry.shortDescription,
+          updatedEntry.imageSrc,
+          updatedEntry.categoryId,
+          updatedEntry.categoryIds,
+          updatedEntry.tagIds,
+          updatedEntry.moodId,
+          updatedEntry.moodIds,
+          id
+        ]
     );
 
     if (result.changes === 0) {

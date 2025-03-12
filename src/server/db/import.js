@@ -234,11 +234,29 @@ export const importData = async () => {
       // Import diary entries
       const diaryEntries = readJsonFile('src/data/diary.json');
       for (const entry of diaryEntries) {
+        // Преобразуем tagIds, categoryIds и moodIds в JSON строки, если они уже являются массивами
+        const tagIdsJson = Array.isArray(entry.tagIds) ? JSON.stringify(entry.tagIds) : entry.tagIds;
+
+        // Обрабатываем categoryIds - преобразуем в массив, если это строка или отсутствует
+        let categoryIds = entry.categoryIds;
+        if (!categoryIds && entry.categoryId) {
+          categoryIds = [entry.categoryId];
+        }
+        const categoryIdsJson = Array.isArray(categoryIds) ? JSON.stringify(categoryIds) : categoryIds;
+
+        // Обрабатываем moodIds - преобразуем в массив, если это строка или отсутствует
+        let moodIds = entry.moodIds;
+        if (!moodIds && entry.moodId) {
+          moodIds = [entry.moodId];
+        }
+        const moodIdsJson = Array.isArray(moodIds) ? JSON.stringify(moodIds) : moodIds;
+
         // Insert entry
         await dbAsync.run(`
           INSERT INTO diary_entries (
-            id, title, content, shortDescription, categoryId, moodId, date, imageSrc
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            id, title, content, shortDescription, categoryId, moodId, 
+            createdAt, imageSrc, tagIds, categoryIds, moodIds
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
           entry.id,
           entry.title,
@@ -246,18 +264,15 @@ export const importData = async () => {
           entry.shortDescription || null,
           entry.categoryId,
           entry.moodId,
-          entry.date,
-          entry.imageSrc || null
+          entry.createdAt,
+          entry.imageSrc || null,
+          tagIdsJson,                // JSON строка с тегами
+          categoryIdsJson,           // JSON строка с категориями
+          moodIdsJson                // JSON строка с настроениями
         ]);
 
-        // Insert tag mappings
-        // TODO: ошибка при инициализации --
-        // if (entry.tagIds && Array.isArray(entry.tagIds)) {
-        //   for (const tagId of entry.tagIds) {
-        //     await dbAsync.run('INSERT INTO diary_tag_map (diaryId, tagId) VALUES (?, ?)',
-        //         [entry.id, tagId]);
-        //   }
-        // }
+        // Удаленный код импорта тегов, так как tagIds теперь хранится прямо в diary_entries
+        // и нет необходимости в отдельной таблице diary_tag_map
       }
 
       // Import main navigation categories

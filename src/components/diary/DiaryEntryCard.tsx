@@ -5,18 +5,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { DiaryEntry } from "@/types/models";
+import {DiaryEntry, DiaryMood} from "@/types/models";
 
 interface DiaryEntryCardProps {
   entry: DiaryEntry & {
     category?: string;
-    tags?: string[];
     mood?: string;
+    tags?: string[];
   };
+  moods: DiaryMood[];
   index: number;
 }
 
-const DiaryEntryCard = ({ entry, index }: DiaryEntryCardProps) => {
+const DiaryEntryCard = ({ entry, moods, index }: DiaryEntryCardProps) => {
   // Format date to Russian locale
   const formatDate = (dateString: string) => {
     try {
@@ -26,6 +27,8 @@ const DiaryEntryCard = ({ entry, index }: DiaryEntryCardProps) => {
       return dateString;
     }
   };
+
+  const currentMood = moods.find(x => x.id === entry.moodIds[0])?.name;
 
   return (
     <article
@@ -47,12 +50,12 @@ const DiaryEntryCard = ({ entry, index }: DiaryEntryCardProps) => {
           <div className="flex items-center text-gray-500 text-sm mb-4 gap-4">
             <div className="flex items-center gap-1">
               <Calendar size={16} />
-              <span>{formatDate(entry.date)}</span>
+              <span>{formatDate(entry.createdAt)}</span>
             </div>
-            {entry.mood && (
+            {(entry.moodIds && currentMood) && (
               <div className="flex items-center gap-1">
                 <MessageSquare size={16} />
-                <span>{entry.mood}</span>
+                <span>{currentMood}</span>
               </div>
             )}
           </div>
