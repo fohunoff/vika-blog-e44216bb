@@ -5,7 +5,7 @@ import { DiaryEntry } from '@/types/diary';
 import DOMPurify from 'dompurify';
 import { formatDate, fetchAPI } from '@/nextjs-migration/lib/utils';
 import { notFound } from 'next/navigation';
-import DiaryTags from '@/components/diary/DiaryTags';
+import DiaryTags from '@/nextjs-migration/components/diary/DiaryTags';
 import RelatedEntries from '@/components/diary/RelatedEntries';
 import BlogHeader from '@/components/BlogHeader';
 import Footer from '@/components/Footer';

@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 
 export interface DiaryTagsProps {
   tags: string[];
-  onTagClick?: (tag: string) => void;
+  onTagClick?: (tag: string) => void; // Made onTagClick optional with the ? symbol
 }
 
 const DiaryTags = ({ tags, onTagClick }: DiaryTagsProps) => {
