@@ -2,6 +2,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getDiaryEntry, getRelatedEntries } from '@/nextjs-migration/services/diaryService';
+import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
 import DiaryEntryView from './components/DiaryEntryView';
 
 // Use this function to generate metadata for the page (SEO)
@@ -47,7 +48,11 @@ export default async function DiaryEntryPage({ params }: { params: { id: string 
     
     console.log('Fetched related entries:', relatedEntries.length);
     
-    return <DiaryEntryView entry={entry} relatedEntries={relatedEntries} />;
+    return (
+      <MainLayout>
+        <DiaryEntryView entry={entry} relatedEntries={relatedEntries} />
+      </MainLayout>
+    );
   } catch (error) {
     console.error('Error in DiaryEntryPage:', error);
     notFound();
