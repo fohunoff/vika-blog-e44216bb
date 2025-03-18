@@ -1,7 +1,6 @@
 
 import { Metadata } from 'next';
-import BlogHeader from '@/components/BlogHeader';
-import Footer from '@/components/Footer';
+import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
 import DiaryEntries from '@/components/diary/DiaryEntries';
 import DiarySearch from '@/components/diary/DiarySearch';
 import MoodFilter from '@/components/diary/MoodFilter';
@@ -37,9 +36,7 @@ export default async function DiaryPage() {
   const handleMoodSelect = () => {};
 
   return (
-    <main className="min-h-screen pt-24">
-      <BlogHeader />
-      
+    <MainLayout>
       <section className="blog-container py-8 md:py-16">
         <h1 className="text-4xl font-bold mb-8">Дневник</h1>
         
@@ -73,8 +70,6 @@ export default async function DiaryPage() {
           </div>
         </div>
       </section>
-      
-      <Footer />
-    </main>
+    </MainLayout>
   );
 }

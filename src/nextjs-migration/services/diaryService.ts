@@ -1,7 +1,11 @@
 
 import { DiaryEntry } from '@/types/diary';
 
-export async function getDiaryEntry(id: string): Promise<DiaryEntry | null> {
+export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
+  tags?: string[];
+  category?: string;
+  mood?: string;
+}) | null> {
   try {
     const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
     const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, { next: { revalidate: 60 } });
@@ -68,7 +72,12 @@ export async function getDiaryEntry(id: string): Promise<DiaryEntry | null> {
   }
 }
 
-export async function getRelatedEntries(currentEntryId: string, currentEntry: DiaryEntry): Promise<DiaryEntry[]> {
+export async function getRelatedEntries(currentEntryId: string, 
+  currentEntry: DiaryEntry & { category?: string; tags?: string[] }): Promise<(DiaryEntry & {
+    tags?: string[];
+    category?: string;
+    mood?: string;
+  })[]> {
   try {
     const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
     const response = await fetch(`${API_BASE_URL}/diary/entries/enriched`, { next: { revalidate: 60 } });
