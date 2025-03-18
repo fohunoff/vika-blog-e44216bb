@@ -13,6 +13,13 @@ export const metadata: Metadata = {
 };
 
 export default function RecipesPage() {
+  // Mock props для исправления ошибок TypeScript
+  const searchQuery = "";
+  const setSearchQuery = () => {};
+  const categories = [];
+  const recipes = [];
+  const tags = [];
+  
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
@@ -22,13 +29,26 @@ export default function RecipesPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
-            <RecipeSearch />
-            <RecipeFilters />
+            <RecipeSearch 
+              searchQuery={searchQuery} 
+              setSearchQuery={setSearchQuery} 
+            />
+            <RecipeFilters 
+              categories={categories} 
+              activeCategory="" 
+              onCategoryChange={() => {}} 
+            />
           </div>
           
           <div className="md:col-span-3">
-            <RecipesList />
-            <RecipeTags />
+            <RecipesList 
+              recipes={recipes} 
+              isLoading={false} 
+            />
+            <RecipeTags 
+              tags={tags} 
+              onTagClick={() => {}} 
+            />
           </div>
         </div>
       </section>

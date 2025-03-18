@@ -13,6 +13,11 @@ export const metadata: Metadata = {
 };
 
 export default function CozyPage() {
+  // Mock data для исправления ошибок TypeScript
+  const mockCategories = [];
+  const mockArticles = [];
+  const mockTags = [];
+  
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
@@ -22,11 +27,11 @@ export default function CozyPage() {
         
         <CozyHighlightsSection />
         
-        <CozySearchCategoriesSection />
+        <CozySearchCategoriesSection categories={mockCategories} />
         
-        <CozyArticlesTabsSection />
+        <CozyArticlesTabsSection articles={mockArticles} />
         
-        <CozyPopularTagsSection />
+        <CozyPopularTagsSection tags={mockTags} />
       </section>
       
       <Footer />

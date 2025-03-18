@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
-import { getDiaryEntryById, getDiaryCategories, getDiaryTags, getDiaryMoods, getEnrichedDiaryEntries } from '@/lib/api';
 import BlogHeader from '@/components/BlogHeader';
 import Footer from '@/components/Footer';
 import EntryContent from '@/components/diary/EntryContent';
@@ -14,6 +13,28 @@ import EntryDescription from '@/components/diary/EntryDescription';
 import EntryFooter from '@/components/diary/EntryFooter';
 import RelatedEntries from '@/components/diary/RelatedEntries';
 import DiaryTags from '@/components/diary/DiaryTags';
+import { fetchAPI } from '@/lib/utils';
+
+// API functions
+async function getDiaryEntryById(id: string) {
+  return fetchAPI(`/diary/entries/${id}`);
+}
+
+async function getDiaryCategories() {
+  return fetchAPI(`/diary/categories`);
+}
+
+async function getDiaryTags() {
+  return fetchAPI(`/diary/tags`);
+}
+
+async function getDiaryMoods() {
+  return fetchAPI(`/diary/moods`);
+}
+
+async function getEnrichedDiaryEntries() {
+  return fetchAPI(`/diary/entries/enriched`);
+}
 
 // Define types for page params and searchParams
 type Props = {

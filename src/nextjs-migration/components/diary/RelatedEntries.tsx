@@ -1,38 +1,46 @@
 
+import React from 'react';
 import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
-import { DiaryEntry } from '@/types/diary';
+
+interface RelatedEntryProps {
+  id: string;
+  title: string;
+  createdAt: string;
+  shortDescription?: string;
+}
 
 interface RelatedEntriesProps {
-  entries: (DiaryEntry & {
-    category?: string;
-    tags?: string[];
-    mood?: string;
-  })[];
+  entries: RelatedEntryProps[];
 }
 
 const RelatedEntries = ({ entries }: RelatedEntriesProps) => {
-  if (entries.length === 0) return null;
+  if (!entries || entries.length === 0) return null;
   
   return (
-    <section className="bg-gray-50 py-12">
-      <div className="blog-container">
-        <h2 className="text-2xl font-bold mb-8">Похожие записи</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {entries.map((relatedEntry) => (
-            <Link
-              key={relatedEntry.id}
-              href={`/diary/${relatedEntry.id}`}
-              className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <h3 className="font-bold text-lg mb-2 line-clamp-2">{relatedEntry.title}</h3>
-              <p className="text-gray-600 text-sm mb-3">{formatDate(relatedEntry.createdAt)}</p>
-              <p className="line-clamp-3 text-gray-700">
-                {relatedEntry.shortDescription || relatedEntry.content.substring(0, 120)}...
-              </p>
+    <section className="blog-container py-10 border-t border-gray-100">
+      <h2 className="text-xl font-semibold mb-4">Похожие записи</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {entries.map((entry) => (
+          <div key={entry.id} className="p-4 border border-gray-100 rounded hover:border-gray-300 transition-colors">
+            <Link href={`/diary/${entry.id}`}>
+              <div className="mb-2 font-medium hover:text-blue-600 transition-colors">
+                {entry.title}
+              </div>
             </Link>
-          ))}
-        </div>
+            
+            <div className="text-sm text-gray-500">
+              {formatDate(entry.createdAt)}
+            </div>
+            
+            {entry.shortDescription && (
+              <p className="mt-2 text-sm text-gray-700 line-clamp-2">
+                {entry.shortDescription}
+              </p>
+            )}
+          </div>
+        ))}
       </div>
     </section>
   );
