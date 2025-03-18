@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 
-interface NewsletterData {
+export interface NewsletterData {
   title: string;
   description: string;
   buttonText: string;

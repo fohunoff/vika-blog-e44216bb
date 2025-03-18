@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-interface HeroData {
+export interface HeroData {
   title: string;
   subtitle: string;
   buttonText: string;
