@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/nextjs-migration/lib/utils';
 
 interface RelatedEntry {
   id: string;

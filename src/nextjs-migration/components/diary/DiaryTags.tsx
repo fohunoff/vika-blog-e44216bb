@@ -16,7 +16,7 @@ const DiaryTags = ({ tags, onTagClick }: DiaryTagsProps) => {
         <Badge
           key={index}
           variant="secondary"
-          className="bg-blog-yellow-light text-blog-black cursor-pointer hover:bg-blog-yellow"
+          className={`bg-blog-yellow-light text-blog-black ${onTagClick ? 'cursor-pointer hover:bg-blog-yellow' : ''}`}
           onClick={() => onTagClick && onTagClick(tag)}
         >
           {tag}

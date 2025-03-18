@@ -1,33 +1,44 @@
 
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { format, parseISO } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
-// Utility for creating classNames with Tailwind support
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
-// Utility for formatting dates
+/**
+ * Форматирует дату в читаемый формат на русском языке
+ */
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('ru', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(date);
+  if (!dateString) return '';
+  
+  try {
+    const date = typeof dateString === 'string' ? parseISO(dateString) : dateString;
+    return format(date, 'd MMMM yyyy', { locale: ru });
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
 }
 
-// Utility for working with API
+/**
+ * Выполняет fetch запрос к API
+ */
 export async function fetchAPI(endpoint: string, options?: RequestInit) {
-  const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const url = `${API_BASE_URL}${endpoint}`;
   
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null;
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      ...options,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
-    throw new Error(`API error: ${response.statusText}`);
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching ${url}:`, error);
+    throw error;
   }
-  
-  return response.json();
 }

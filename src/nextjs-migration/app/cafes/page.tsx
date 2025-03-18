@@ -6,20 +6,46 @@ import CafeSearch from '@/components/cafes/CafeSearch';
 import CafesList from '@/components/cafes/CafesList';
 import CafePopularTags from '@/components/cafes/CafePopularTags';
 import CafeFilters from '@/components/cafes/CafeFilters';
+import { fetchAPI } from '@/nextjs-migration/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Кафе | Мой блог',
   description: 'Обзоры кафе и ресторанов. Уютные места для отдыха и вкусной еды.',
 };
 
-export default function CafesPage() {
-  // Mock data for TypeScript compliance
+// Функции для получения данных
+async function getCafes() {
+  return fetchAPI('/cafes');
+}
+
+async function getCafeCategories() {
+  return fetchAPI('/cafes/categories');
+}
+
+async function getCafeTags() {
+  return fetchAPI('/cafes/tags');
+}
+
+async function getCafePriceRanges() {
+  return fetchAPI('/cafes/price-ranges');
+}
+
+export default async function CafesPage() {
+  // Получаем данные с сервера
+  const [cafes, categories, tags, priceRanges] = await Promise.all([
+    getCafes(),
+    getCafeCategories(),
+    getCafeTags(),
+    getCafePriceRanges()
+  ]).catch(error => {
+    console.error('Error fetching cafe data:', error);
+    return [[], [], [], []];
+  });
+  
+  // Создаем пустое состояние для поиска, в Next.js его можно будет
+  // реализовать через Search Params или клиентские компоненты
   const searchQuery = "";
   const setSearchQuery = () => {};
-  const cafes = [];
-  const tags = [];
-  const categories = [];
-  const priceRanges = [];
   
   return (
     <main className="min-h-screen pt-24">
@@ -34,12 +60,31 @@ export default function CafesPage() {
               searchQuery={searchQuery} 
               setSearchQuery={setSearchQuery} 
             />
-            <CafeFilters 
-              categories={categories}
-              priceRanges={priceRanges}
-              selectedCategory=""
-              selectedPriceRange=""
-            />
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Категории</h3>
+              <div className="space-y-2">
+                {categories && categories.map((category: any) => (
+                  <div 
+                    key={category.id}
+                    className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer"
+                  >
+                    <span>{category.name}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <h3 className="text-lg font-semibold mb-4 mt-6">Ценовая категория</h3>
+              <div className="space-y-2">
+                {priceRanges && priceRanges.map((range: any) => (
+                  <div 
+                    key={range.id}
+                    className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer"
+                  >
+                    <span>{range.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           
           <div className="md:col-span-3">
@@ -47,9 +92,20 @@ export default function CafesPage() {
               cafes={cafes} 
               isLoading={false} 
             />
-            <CafePopularTags 
-              tags={tags}
-            />
+            
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Популярные теги</h3>
+              <div className="flex flex-wrap gap-2">
+                {tags && tags.map((tag: any) => (
+                  <span 
+                    key={tag.id}
+                    className="bg-blog-yellow-light text-blog-black px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blog-yellow"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

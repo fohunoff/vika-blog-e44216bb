@@ -5,24 +5,24 @@ import Footer from '@/components/Footer';
 import DiaryEntries from '@/components/diary/DiaryEntries';
 import DiarySearch from '@/components/diary/DiarySearch';
 import MoodFilter from '@/components/diary/MoodFilter';
-import { fetchAPI } from '@/lib/utils';
+import { fetchAPI } from '@/nextjs-migration/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Дневник | Личные записи',
   description: 'Мой личный дневник. Мысли, впечатления и заметки о разных моментах жизни.',
 };
 
-// API functions - moving them here instead of importing from lib/api
+// Функции для получения данных
 async function getEnrichedDiaryEntries() {
-  return fetchAPI(`/diary/entries/enriched`);
+  return fetchAPI('/diary/entries/enriched');
 }
 
 async function getDiaryMoods() {
-  return fetchAPI(`/diary/moods`);
+  return fetchAPI('/diary/moods');
 }
 
 export default async function DiaryPage() {
-  // Fetch all entries and moods
+  // Получаем данные с сервера
   const [entries, moods] = await Promise.all([
     getEnrichedDiaryEntries(),
     getDiaryMoods()
@@ -49,11 +49,19 @@ export default async function DiaryPage() {
               searchQuery={searchQuery} 
               setSearchQuery={setSearchQuery} 
             />
-            <MoodFilter 
-              moods={moods} 
-              selectedMood={null} 
-              onMoodSelect={handleMoodSelect} 
-            />
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Настроения</h3>
+              <div className="space-y-2">
+                {moods && moods.map((mood: any) => (
+                  <div 
+                    key={mood.id}
+                    className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer"
+                  >
+                    <span>{mood.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           
           <div className="md:col-span-3">
