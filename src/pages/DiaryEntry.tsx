@@ -63,20 +63,20 @@ const DiaryEntryPage = () => {
 
         // Fetch category, tags and mood details
         const [categoryData, tagsData, moodData] = await Promise.all([
-          // Get first category (if exists)
-          categoryIds.length > 0 ? api.diary.getCategoryById(categoryIds[0]) : Promise.resolve(null),
+          // Get all categories
+          Promise.all(categoryIds.map((categoryId: string) => api.diary.getCategoryById(categoryId))),
           // Get all tags
           Promise.all(tagIds.map((tagId: string) => api.diary.getTagById(tagId))),
-          // Get first mood (if exists)
-          moodIds.length > 0 ? api.diary.getMoodById(moodIds[0]) : Promise.resolve(null)
+          // Get all moods
+          Promise.all(moodIds.map((moodId: string) => api.diary.getMoodById(moodId))),
         ]);
 
         // Prepare enriched entry
         const enrichedEntry = {
           ...entryData,
-          category: categoryData?.name,
           tags: tagsData.filter(Boolean).map(tag => tag?.name),
-          mood: moodData?.name,
+          category: categoryData.filter(Boolean).find(category => category)?.name,
+          mood: moodData.filter(Boolean).find(mood => mood)?.name,
           categoryIds: categoryIds,
           moodIds: moodIds,
           tagIds: tagIds
