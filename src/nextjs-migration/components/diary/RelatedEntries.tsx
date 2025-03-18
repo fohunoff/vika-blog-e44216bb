@@ -3,43 +3,42 @@ import React from 'react';
 import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
 
-interface RelatedEntryProps {
+interface RelatedEntry {
   id: string;
   title: string;
   createdAt: string;
   shortDescription?: string;
+  content?: string;
 }
 
 interface RelatedEntriesProps {
-  entries: RelatedEntryProps[];
+  entries: RelatedEntry[];
+  isLoading?: boolean;
 }
 
-const RelatedEntries = ({ entries }: RelatedEntriesProps) => {
-  if (!entries || entries.length === 0) return null;
-  
+const RelatedEntries = ({ entries, isLoading = false }: RelatedEntriesProps) => {
+  if (isLoading) {
+    return <div className="animate-pulse">Loading related entries...</div>;
+  }
+
+  if (!entries || entries.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="blog-container py-10 border-t border-gray-100">
-      <h2 className="text-xl font-semibold mb-4">Похожие записи</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {entries.map((entry) => (
-          <div key={entry.id} className="p-4 border border-gray-100 rounded hover:border-gray-300 transition-colors">
-            <Link href={`/diary/${entry.id}`}>
-              <div className="mb-2 font-medium hover:text-blue-600 transition-colors">
-                {entry.title}
-              </div>
-            </Link>
-            
-            <div className="text-sm text-gray-500">
-              {formatDate(entry.createdAt)}
-            </div>
-            
-            {entry.shortDescription && (
-              <p className="mt-2 text-sm text-gray-700 line-clamp-2">
-                {entry.shortDescription}
+    <section className="mt-12 pt-8 border-t border-gray-100">
+      <h2 className="text-2xl font-bold mb-6">Похожие записи</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {entries.map(entry => (
+          <Link href={`/diary/${entry.id}`} key={entry.id}>
+            <div className="bg-white border border-gray-100 rounded-xl p-5 h-full hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-lg mb-2 line-clamp-2">{entry.title}</h3>
+              <p className="text-gray-500 text-sm mb-3">{formatDate(entry.createdAt)}</p>
+              <p className="text-gray-700 line-clamp-3">
+                {entry.shortDescription || entry.content?.substring(0, 120)}...
               </p>
-            )}
-          </div>
+            </div>
+          </Link>
         ))}
       </div>
     </section>

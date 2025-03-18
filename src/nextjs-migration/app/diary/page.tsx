@@ -58,7 +58,8 @@ export default async function DiaryPage() {
           
           <div className="md:col-span-3">
             <DiaryEntries 
-              entries={entries} 
+              entries={entries}
+              moods={moods}
               isLoading={false} 
             />
           </div>
