@@ -74,35 +74,65 @@ function adaptPostsData(posts: LatestPost[]): any[] {
 }
 
 // Функции для получения данных
-async function getHeroData() {
-  return fetchAPI('/main/hero').then(data => ({
-    title: data.title || defaultHero.title,
-    subtitle: data.description || defaultHero.subtitle,
-    buttonText: data.primaryButton?.text || defaultHero.buttonText,
-    buttonLink: data.primaryButton?.link || defaultHero.buttonLink,
-    imageUrl: data.mainImage?.src || defaultHero.imageUrl
-  })).catch(() => defaultHero);
+async function getHeroData(): Promise<ComponentHeroData> {
+  try {
+    const data = await fetchAPI<any>('/main/hero');
+    return {
+      title: data.title || defaultHero.title,
+      subtitle: data.description || defaultHero.subtitle,
+      buttonText: data.primaryButton?.text || defaultHero.buttonText,
+      buttonLink: data.primaryButton?.link || defaultHero.buttonLink,
+      imageUrl: data.mainImage?.src || defaultHero.imageUrl
+    };
+  } catch (error) {
+    console.error('Error fetching hero data:', error);
+    return defaultHero;
+  }
 }
 
 async function getCategories() {
-  return fetchAPI('/main/categories').then(data => adaptCategoryData(data)).catch(() => [] as any[]);
+  try {
+    const data = await fetchAPI<MainCategory[]>('/main/categories');
+    return adaptCategoryData(data);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [] as any[];
+  }
 }
 
 async function getLatestPosts() {
-  return fetchAPI('/main/latest-posts').then(data => adaptPostsData(data)).catch(() => [] as any[]);
+  try {
+    const data = await fetchAPI<LatestPost[]>('/main/latest-posts');
+    return adaptPostsData(data);
+  } catch (error) {
+    console.error('Error fetching latest posts:', error);
+    return [] as any[];
+  }
 }
 
 async function getAboutData() {
-  return fetchAPI('/main/about').catch(() => defaultAbout) as Promise<MainAboutData>;
+  try {
+    const data = await fetchAPI<MainAboutData>('/main/about');
+    return data;
+  } catch (error) {
+    console.error('Error fetching about data:', error);
+    return defaultAbout;
+  }
 }
 
-async function getNewsletterData() {
-  return fetchAPI('/main/newsletter').then(data => ({
-    title: data.title || defaultNewsletter.title,
-    description: data.description || defaultNewsletter.description,
-    buttonText: 'Подписаться',
-    placeholderText: 'Ваш email'
-  })).catch(() => defaultNewsletter);
+async function getNewsletterData(): Promise<ComponentNewsletterData> {
+  try {
+    const data = await fetchAPI<any>('/main/newsletter');
+    return {
+      title: data.title || defaultNewsletter.title,
+      description: data.description || defaultNewsletter.description,
+      buttonText: 'Подписаться',
+      placeholderText: 'Ваш email'
+    };
+  } catch (error) {
+    console.error('Error fetching newsletter data:', error);
+    return defaultNewsletter;
+  }
 }
 
 export default async function HomePage() {

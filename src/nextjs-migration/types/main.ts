@@ -6,4 +6,15 @@ export interface Category {
   title?: string;
   description?: string;
   imageSrc?: string;
+  bgColor?: string;
+}
+
+export interface Post {
+  id: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  category: string;
+  image: string;
+  link: string;
 }

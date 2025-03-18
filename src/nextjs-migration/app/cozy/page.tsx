@@ -15,28 +15,48 @@ export const metadata: Metadata = {
 
 // Функции для получения данных
 async function getCozyHighlights(): Promise<CozyArticle[]> {
-  return fetchAPI('/cozy/highlights');
+  try {
+    return await fetchAPI<CozyArticle[]>('/cozy/highlights');
+  } catch (error) {
+    console.error('Error fetching cozy highlights:', error);
+    return [] as CozyArticle[];
+  }
 }
 
 async function getCozyArticles(): Promise<CozyArticle[]> {
-  return fetchAPI('/cozy/articles');
+  try {
+    return await fetchAPI<CozyArticle[]>('/cozy/articles');
+  } catch (error) {
+    console.error('Error fetching cozy articles:', error);
+    return [] as CozyArticle[];
+  }
 }
 
 async function getCozyCategories(): Promise<CozyCategory[]> {
-  return fetchAPI('/cozy/categories');
+  try {
+    return await fetchAPI<CozyCategory[]>('/cozy/categories');
+  } catch (error) {
+    console.error('Error fetching cozy categories:', error);
+    return [] as CozyCategory[];
+  }
 }
 
 async function getCozyTags(): Promise<CozyTag[]> {
-  return fetchAPI('/cozy/tags');
+  try {
+    return await fetchAPI<CozyTag[]>('/cozy/tags');
+  } catch (error) {
+    console.error('Error fetching cozy tags:', error);
+    return [] as CozyTag[];
+  }
 }
 
 export default async function CozyPage() {
   // Получаем данные с сервера
   const [highlights, articles, categories, tags] = await Promise.all([
-    getCozyHighlights().catch(() => [] as CozyArticle[]),
-    getCozyArticles().catch(() => [] as CozyArticle[]),
-    getCozyCategories().catch(() => [] as CozyCategory[]),
-    getCozyTags().catch(() => [] as CozyTag[])
+    getCozyHighlights(),
+    getCozyArticles(),
+    getCozyCategories(),
+    getCozyTags()
   ]);
   
   return (

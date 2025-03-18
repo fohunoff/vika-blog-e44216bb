@@ -1,34 +1,28 @@
 
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
+import { CozyTag } from '@/types/cozy';
 
 interface CozyTagsSectionProps {
-  tags: string[];
+  tags: CozyTag[];
 }
 
 const CozyTagsSection = ({ tags }: CozyTagsSectionProps) => {
-  // Если теги не предоставлены, показываем заглушки
-  const displayTags = tags.length > 0 ? tags : [
-    'Уют', 'Интерьер', 'Декор', 'Растения', 'Освещение', 'Текстиль',
-    'Минимализм', 'Скандинавский стиль', 'Лофт', 'Прованс', 'Хранение', 
-    'Цвет', 'Планировка', 'Ремонт', 'Мебель', 'Аксессуары'
-  ];
-
   return (
-    <div className="bg-white p-8 rounded-lg shadow-sm">
-      <h3 className="text-xl font-bold mb-6">Популярные темы</h3>
+    <section className="mt-12">
+      <h2 className="text-2xl font-semibold mb-6">Популярные теги</h2>
+      
       <div className="flex flex-wrap gap-2">
-        {displayTags.map((tag, index) => (
-          <Link href={`/cozy/tag/${encodeURIComponent(tag)}`} key={index}>
-            <Badge
-              className="bg-blog-gray text-gray-700 hover:bg-blog-yellow hover:text-blog-black cursor-pointer px-3 py-1.5"
-            >
-              {tag}
-            </Badge>
+        {tags.map((tag) => (
+          <Link 
+            key={tag.id} 
+            href={`/cozy/tag/${tag.id}`}
+            className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+          >
+            {tag.name}
           </Link>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 
