@@ -1,5 +1,5 @@
-
 import { dbAsync } from '../../db/config.js';
+import { removeIdFromEntries } from './diaryUtils.js';
 
 // Get diary moods
 export const getDiaryMoods = async (req, res) => {
@@ -84,6 +84,10 @@ export const deleteDiaryMood = async (req, res) => {
       return res.status(404).json({ error: 'Mood not found' });
     }
     
+    // First remove this mood ID from all entries that use it
+    await removeIdFromEntries(id, 'mood');
+    
+    // Then delete the mood
     await dbAsync.run('DELETE FROM diary_moods WHERE id = ?', [id]);
     res.json({ message: 'Mood deleted successfully' });
   } catch (error) {

@@ -43,3 +43,59 @@ export async function filterValidIds(typeTable, ids) {
     throw new Error(`Failed to filter IDs against ${typeTable}`);
   }
 }
+
+// Utility function to remove an ID from all diary entries
+export async function removeIdFromEntries(idToRemove, idType) {
+  try {
+    const entries = await dbAsync.all('SELECT id, categoryIds, tagIds, moodIds FROM diary_entries');
+    
+    for (const entry of entries) {
+      let updated = false;
+      let categoryIds = JSON.parse(entry.categoryIds || '[]');
+      let tagIds = JSON.parse(entry.tagIds || '[]');
+      let moodIds = JSON.parse(entry.moodIds || '[]');
+      
+      // Update the appropriate array based on the ID type
+      if (idType === 'category' && categoryIds.includes(idToRemove)) {
+        categoryIds = categoryIds.filter(id => id !== idToRemove);
+        updated = true;
+      } else if (idType === 'tag' && tagIds.includes(idToRemove)) {
+        tagIds = tagIds.filter(id => id !== idToRemove);
+        updated = true;
+      } else if (idType === 'mood' && moodIds.includes(idToRemove)) {
+        moodIds = moodIds.filter(id => id !== idToRemove);
+        updated = true;
+      }
+      
+      // If we've removed an ID, update the entry
+      if (updated) {
+        const categoryId = categoryIds.length > 0 ? categoryIds[0] : null;
+        const moodId = moodIds.length > 0 ? moodIds[0] : null;
+        
+        await dbAsync.run(
+          `UPDATE diary_entries 
+           SET categoryIds = ?, 
+               categoryId = ?,
+               tagIds = ?, 
+               moodIds = ?,
+               moodId = ?,
+               updatedAt = CURRENT_TIMESTAMP
+           WHERE id = ?`,
+          [
+            JSON.stringify(categoryIds),
+            categoryId,
+            JSON.stringify(tagIds),
+            JSON.stringify(moodIds),
+            moodId,
+            entry.id
+          ]
+        );
+        console.log(`Updated entry ${entry.id} to remove ${idType} ID: ${idToRemove}`);
+      }
+    }
+    console.log(`Removed ${idType} ID ${idToRemove} from all entries`);
+  } catch (error) {
+    console.error(`Error removing ${idType} ID from entries:`, error);
+    throw new Error(`Failed to update entries after ${idType} deletion`);
+  }
+}

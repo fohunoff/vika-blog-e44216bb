@@ -1,5 +1,5 @@
-
 import { dbAsync } from '../../db/config.js';
+import { removeIdFromEntries } from './diaryUtils.js';
 
 // Get diary categories
 export const getDiaryCategories = async (req, res) => {
@@ -84,6 +84,10 @@ export const deleteDiaryCategory = async (req, res) => {
       return res.status(404).json({ error: 'Category not found' });
     }
     
+    // First remove this category ID from all entries that use it
+    await removeIdFromEntries(id, 'category');
+    
+    // Then delete the category
     await dbAsync.run('DELETE FROM diary_categories WHERE id = ?', [id]);
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {

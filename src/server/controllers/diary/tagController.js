@@ -1,5 +1,5 @@
-
 import { dbAsync } from '../../db/config.js';
+import { removeIdFromEntries } from './diaryUtils.js';
 
 // Get diary tags
 export const getDiaryTags = async (req, res) => {
@@ -108,6 +108,10 @@ export const deleteDiaryTag = async (req, res) => {
       return res.status(404).json({ error: 'Tag not found' });
     }
     
+    // First remove this tag ID from all entries that use it
+    await removeIdFromEntries(id, 'tag');
+    
+    // Then delete the tag
     await dbAsync.run('DELETE FROM diary_tags WHERE id = ?', [id]);
     res.json({ message: 'Tag deleted successfully' });
   } catch (error) {
