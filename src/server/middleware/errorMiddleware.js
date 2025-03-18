@@ -17,3 +17,15 @@ export const notFound = (req, res, next) => {
   res.status(404);
   next(error);
 };
+
+// Async handler to avoid try-catch blocks in route handlers
+export const handleAsync = (fn) => {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+};
+
