@@ -2,6 +2,30 @@
 import { db, dbAsync } from '../db/config.js';
 import { v4 as uuidv4 } from 'uuid';
 
+// Utility function to validate IDs against existing records
+async function validateIds(typeTable, ids) {
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return { valid: true, invalidIds: [] };
+  }
+
+  try {
+    // Get all valid IDs from the database
+    const validRecords = await dbAsync.all(`SELECT id FROM ${typeTable}`);
+    const validIds = validRecords.map(record => record.id);
+    
+    // Check which IDs from the request are invalid
+    const invalidIds = ids.filter(id => !validIds.includes(id));
+    
+    return {
+      valid: invalidIds.length === 0,
+      invalidIds
+    };
+  } catch (error) {
+    console.error(`Error validating IDs against ${typeTable}:`, error);
+    throw new Error(`Failed to validate IDs against ${typeTable}`);
+  }
+}
+
 // GET all diary entries
 export const getDiaryEntries = async (req, res) => {
   try {
@@ -84,27 +108,54 @@ export const createDiaryEntry = async (req, res) => {
     return res.status(400).json({ error: "Title and content are required" });
   }
 
-  const newEntry = {
-    id: `diary-entry-${uuidv4()}`,
-    title,
-    content,
-    shortDescription: shortDescription || "",
-    imageSrc: imageSrc || "",
-    categoryId: categoryIds && categoryIds.length > 0 ? categoryIds[0] : null,
-    categoryIds: JSON.stringify(categoryIds || []),
-    tagIds: JSON.stringify(tagIds || []),
-    moodId: moodIds && moodIds.length > 0 ? moodIds[0] : null,
-    moodIds: JSON.stringify(moodIds || [])
-  };
-
-  const sql = `
-    INSERT INTO diary_entries (
-      id, title, content, shortDescription, imageSrc,
-      categoryId, categoryIds, tagIds, moodId, moodIds
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-
   try {
+    // Validate category IDs
+    const categoryValidation = await validateIds('diary_categories', categoryIds);
+    if (!categoryValidation.valid) {
+      return res.status(400).json({ 
+        error: "Invalid category IDs", 
+        invalidIds: categoryValidation.invalidIds 
+      });
+    }
+
+    // Validate tag IDs
+    const tagValidation = await validateIds('diary_tags', tagIds);
+    if (!tagValidation.valid) {
+      return res.status(400).json({ 
+        error: "Invalid tag IDs", 
+        invalidIds: tagValidation.invalidIds 
+      });
+    }
+
+    // Validate mood IDs
+    const moodValidation = await validateIds('diary_moods', moodIds);
+    if (!moodValidation.valid) {
+      return res.status(400).json({ 
+        error: "Invalid mood IDs", 
+        invalidIds: moodValidation.invalidIds 
+      });
+    }
+
+    const newEntry = {
+      id: `diary-entry-${uuidv4()}`,
+      title,
+      content,
+      shortDescription: shortDescription || "",
+      imageSrc: imageSrc || "",
+      categoryId: categoryIds && categoryIds.length > 0 ? categoryIds[0] : null,
+      categoryIds: JSON.stringify(categoryIds || []),
+      tagIds: JSON.stringify(tagIds || []),
+      moodId: moodIds && moodIds.length > 0 ? moodIds[0] : null,
+      moodIds: JSON.stringify(moodIds || [])
+    };
+
+    const sql = `
+      INSERT INTO diary_entries (
+        id, title, content, shortDescription, imageSrc,
+        categoryId, categoryIds, tagIds, moodId, moodIds
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
     await dbAsync.run(
         sql,
         [
@@ -148,28 +199,55 @@ export const updateDiaryEntry = async (req, res) => {
     return res.status(400).json({ error: "Title and content are required" });
   }
 
-  const updatedEntry = {
-    id,
-    title,
-    content,
-    shortDescription: shortDescription || "",
-    imageSrc: imageSrc || "",
-    categoryId: categoryIds && categoryIds.length > 0 ? categoryIds[0] : null,
-    categoryIds: JSON.stringify(categoryIds || []),
-    tagIds: JSON.stringify(tagIds || []),
-    moodId: moodIds && moodIds.length > 0 ? moodIds[0] : null,
-    moodIds: JSON.stringify(moodIds || [])
-  };
-
-  const sql = `
-    UPDATE diary_entries 
-    SET title = ?, content = ?, shortDescription = ?, imageSrc = ?,
-        categoryId = ?, categoryIds = ?, tagIds = ?, moodId = ?, moodIds = ?,
-        updatedAt = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `;
-
   try {
+    // Validate category IDs
+    const categoryValidation = await validateIds('diary_categories', categoryIds);
+    if (!categoryValidation.valid) {
+      return res.status(400).json({ 
+        error: "Invalid category IDs", 
+        invalidIds: categoryValidation.invalidIds 
+      });
+    }
+
+    // Validate tag IDs
+    const tagValidation = await validateIds('diary_tags', tagIds);
+    if (!tagValidation.valid) {
+      return res.status(400).json({ 
+        error: "Invalid tag IDs", 
+        invalidIds: tagValidation.invalidIds 
+      });
+    }
+
+    // Validate mood IDs
+    const moodValidation = await validateIds('diary_moods', moodIds);
+    if (!moodValidation.valid) {
+      return res.status(400).json({ 
+        error: "Invalid mood IDs", 
+        invalidIds: moodValidation.invalidIds 
+      });
+    }
+
+    const updatedEntry = {
+      id,
+      title,
+      content,
+      shortDescription: shortDescription || "",
+      imageSrc: imageSrc || "",
+      categoryId: categoryIds && categoryIds.length > 0 ? categoryIds[0] : null,
+      categoryIds: JSON.stringify(categoryIds || []),
+      tagIds: JSON.stringify(tagIds || []),
+      moodId: moodIds && moodIds.length > 0 ? moodIds[0] : null,
+      moodIds: JSON.stringify(moodIds || [])
+    };
+
+    const sql = `
+      UPDATE diary_entries 
+      SET title = ?, content = ?, shortDescription = ?, imageSrc = ?,
+          categoryId = ?, categoryIds = ?, tagIds = ?, moodId = ?, moodIds = ?,
+          updatedAt = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+
     const result = await dbAsync.run(
         sql,
         [
