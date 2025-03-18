@@ -48,6 +48,64 @@ export function createDiaryTagsApi() {
         },
         () => getByIds(diaryTags as DiaryTag[], ids)
       );
+    },
+
+    /**
+     * Create a new diary tag
+     */
+    createTag: async (data: { name: string }): Promise<DiaryTag> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/tags`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.error('Error creating tag:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Update an existing diary tag
+     */
+    updateTag: async (id: string, data: { name: string }): Promise<DiaryTag> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/tags/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.error('Error updating tag:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Delete a diary tag
+     */
+    deleteTag: async (id: string): Promise<void> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/tags/${id}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+      } catch (error) {
+        console.error('Error deleting tag:', error);
+        throw error;
+      }
     }
   };
 }

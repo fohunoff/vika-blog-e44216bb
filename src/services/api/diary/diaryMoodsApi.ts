@@ -33,6 +33,64 @@ export function createDiaryMoodsApi() {
         },
         () => getById(diaryMoods as DiaryMood[], id)
       );
+    },
+
+    /**
+     * Create a new diary mood
+     */
+    createMood: async (data: { name: string; icon?: string }): Promise<DiaryMood> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/moods`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.error('Error creating mood:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Update an existing diary mood
+     */
+    updateMood: async (id: string, data: { name: string; icon?: string }): Promise<DiaryMood> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/moods/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+      } catch (error) {
+        console.error('Error updating mood:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Delete a diary mood
+     */
+    deleteMood: async (id: string): Promise<void> => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/diary/moods/${id}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+      } catch (error) {
+        console.error('Error deleting mood:', error);
+        throw error;
+      }
     }
   };
 }

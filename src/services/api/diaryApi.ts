@@ -22,14 +22,23 @@ export function createDiaryApi() {
     // Categories API
     getCategories: categoriesApi.getCategories,
     getCategoryById: categoriesApi.getCategoryById,
+    createCategory: categoriesApi.createCategory,
+    updateCategory: categoriesApi.updateCategory,
+    deleteCategory: categoriesApi.deleteCategory,
 
     // Tags API
     getTags: tagsApi.getTags,
     getTagById: tagsApi.getTagById,
     getTagsByIds: tagsApi.getTagsByIds,
+    createTag: tagsApi.createTag,
+    updateTag: tagsApi.updateTag,
+    deleteTag: tagsApi.deleteTag,
 
     // Moods API
     getMoods: moodsApi.getMoods,
-    getMoodById: moodsApi.getMoodById
+    getMoodById: moodsApi.getMoodById,
+    createMood: moodsApi.createMood,
+    updateMood: moodsApi.updateMood,
+    deleteMood: moodsApi.deleteMood
   };
 }
