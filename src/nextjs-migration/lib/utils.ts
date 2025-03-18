@@ -2,12 +2,12 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-// Утилита для создания classNames с поддержкой Tailwind
+// Utility for creating classNames with Tailwind support
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Утилита для форматирования даты
+// Utility for formatting dates
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('ru', {
@@ -17,7 +17,7 @@ export function formatDate(dateString: string): string {
   }).format(date);
 }
 
-// Утилита для работы с API
+// Utility for working with API
 export async function fetchAPI(endpoint: string, options?: RequestInit) {
   const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
   const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
