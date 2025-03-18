@@ -56,3 +56,12 @@ export interface LatestPost {
   imageSrc: string;
   link: string;
 }
+
+export interface Category {
+  id: string;
+  navTitle: string;
+  link: string;
+  title?: string;
+  description?: string;
+  imageSrc?: string;
+}
