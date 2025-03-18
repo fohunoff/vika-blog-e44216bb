@@ -17,6 +17,7 @@ export const useDiaryEntryData = (id?: string) => {
   useEffect(() => {
     if (id) {
       window.scrollTo(0, 0);
+      setIsLoading(true); // Ensure we reset loading state when ID changes
       fetchEntryData();
     }
   }, [id, api.diary]);
@@ -111,7 +112,11 @@ export const useDiaryEntryData = (id?: string) => {
     } catch (error) {
       handleError(error);
     } finally {
-      setIsLoading(false);
+      // Add a small delay to ensure loading state is visible for a minimum time
+      // This prevents flickering for very fast loads
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     }
   };
 
@@ -123,6 +128,7 @@ export const useDiaryEntryData = (id?: string) => {
       description: "Не удалось загрузить запись дневника. Пожалуйста, попробуйте позже.",
       variant: "destructive",
     });
+    setIsLoading(false);
   };
 
   // Not found handling utility
