@@ -1,18 +1,26 @@
+
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { DiaryEntry } from '@/types/diary';
-import DOMPurify from 'dompurify';
-import { formatDate, fetchAPI } from '@/nextjs-migration/lib/utils';
 import { notFound } from 'next/navigation';
-import DiaryTags from '@/nextjs-migration/components/diary/DiaryTags';
-import RelatedEntries from '@/components/diary/RelatedEntries';
 import BlogHeader from '@/components/BlogHeader';
 import Footer from '@/components/Footer';
-import EntryFooter from '@/components/diary/EntryFooter';
-import EntryMeta from '@/components/diary/EntryMeta';
+import DiaryTags from '@/nextjs-migration/components/diary/DiaryTags';
+import EntryMeta from '@/nextjs-migration/components/diary/EntryMeta';
+import EntryFooter from '@/nextjs-migration/components/diary/EntryFooter';
+import EntryHeader from '@/nextjs-migration/components/diary/EntryHeader';
+import EntryDescription from '@/nextjs-migration/components/diary/EntryDescription';
+import RelatedEntries from '@/nextjs-migration/components/diary/RelatedEntries';
+import ClientEntryContent from '@/nextjs-migration/components/diary/ClientEntryContent';
+import { 
+  getDiaryEntryById, 
+  getDiaryCategories, 
+  getDiaryTags, 
+  getDiaryMoods, 
+  getEnrichedDiaryEntries,
+  enrichEntryWithMetadata,
+  findRelatedEntries
+} from '@/nextjs-migration/services/diaryService';
 
-// Генерация метаданных для записи
+// Generate metadata for the entry
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   try {
     const entry = await getDiaryEntryById(params.id);
@@ -42,81 +50,11 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-// API функции для получения данных
-async function getDiaryEntryById(id: string) {
-  try {
-    return await fetchAPI(`/diary/entries/${id}`);
-  } catch (error) {
-    console.error('Error fetching diary entry:', error);
-    return null;
-  }
-}
-
-async function getDiaryCategories() {
-  try {
-    return await fetchAPI('/diary/categories');
-  } catch (error) {
-    console.error('Error fetching diary categories:', error);
-    return [];
-  }
-}
-
-async function getDiaryTags() {
-  try {
-    return await fetchAPI('/diary/tags');
-  } catch (error) {
-    console.error('Error fetching diary tags:', error);
-    return [];
-  }
-}
-
-async function getDiaryMoods() {
-  try {
-    return await fetchAPI('/diary/moods');
-  } catch (error) {
-    console.error('Error fetching diary moods:', error);
-    return [];
-  }
-}
-
-async function getEnrichedDiaryEntries() {
-  try {
-    return await fetchAPI('/diary/entries/enriched');
-  } catch (error) {
-    console.error('Error fetching enriched diary entries:', error);
-    return [];
-  }
-}
-
-// Компонент для отображения содержимого записи
-const EntryContent = ({ content }: { content: string }) => {
-  let sanitizedContent = "";
-  
-  // Проверяем, выполняемся ли мы на клиенте или сервере
-  if (typeof window !== 'undefined') {
-    // На клиенте используем DOMPurify
-    sanitizedContent = DOMPurify.sanitize(content, {
-      USE_PROFILES: { html: true },
-      ADD_ATTR: ['target'],
-    });
-  } else {
-    // На сервере просто возвращаем контент
-    sanitizedContent = content;
-  }
-
-  return (
-    <div 
-      className="diary-content ql-editor"
-      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-    />
-  );
-};
-
-// Основной компонент страницы
+// Main page component
 export default async function DiaryEntryPage({ params }: { params: { id: string } }) {
   const id = params.id;
   
-  // Получаем все необходимые данные с сервера
+  // Fetch all necessary data from the server
   const [entryData, categories, tags, moods, allEntries] = await Promise.all([
     getDiaryEntryById(id),
     getDiaryCategories(),
@@ -125,73 +63,26 @@ export default async function DiaryEntryPage({ params }: { params: { id: string 
     getEnrichedDiaryEntries()
   ]);
   
-  // Если запись не найдена, возвращаем 404
+  // If entry not found, return 404
   if (!entryData) {
     notFound();
   }
   
-  // Нормализация массивов данных
-  const tagIds = Array.isArray(entryData.tagIds) ? entryData.tagIds :
-                (entryData.tagIds ? [entryData.tagIds] : []);
-  
-  const categoryIds = Array.isArray(entryData.categoryIds) ? entryData.categoryIds :
-                    [entryData.categoryId || entryData.categoryIds].filter(Boolean);
-  
-  const moodIds = Array.isArray(entryData.moodIds) ? entryData.moodIds :
-                 [entryData.moodId || entryData.moodIds].filter(Boolean);
+  // Enrich entry with metadata
+  const entry = enrichEntryWithMetadata(entryData, categories, tags, moods);
 
-  // Получение связанных метаданных
-  const categoryData = categoryIds.map(categoryId => 
-    categories.find((category: any) => category.id === categoryId)
-  ).filter(Boolean);
-  
-  const tagsData = tagIds.map(tagId => 
-    tags.find((tag: any) => tag.id === tagId)
-  ).filter(Boolean);
-  
-  const moodData = moodIds.map(moodId => 
-    moods.find((mood: any) => mood.id === moodId)
-  ).filter(Boolean);
-
-  // Обогащение записи метаданными
-  const entry = {
-    ...entryData,
-    tags: tagsData.filter(Boolean).map((tag: any) => tag?.name),
-    category: categoryData.filter(Boolean).find((category: any) => category)?.name,
-    mood: moodData.filter(Boolean).find((mood: any) => mood)?.name,
-    categoryIds,
-    moodIds,
-    tagIds
-  };
-
-  // Поиск связанных записей
-  const relatedEntries = allEntries
-    .filter((e: any) => e.id !== id) // Исключить текущую запись
-    .filter((e: any) => {
-      const sameCategory = e.category === entry.category;
-      const hasMatchingTag = e.tags?.some((tag: string) => entry.tags?.includes(tag));
-      return sameCategory || hasMatchingTag;
-    })
-    .slice(0, 3); // Ограничение до 3 связанных записей
+  // Find related entries
+  const relatedEntries = findRelatedEntries(allEntries, id, entry);
 
   return (
     <main className="min-h-screen pt-24">
       <BlogHeader />
 
       <article className="blog-container py-8 md:py-16">
-        <Link href="/diary" className="inline-flex items-center text-gray-500 hover:text-blog-yellow mb-8 transition-colors">
-          <ArrowLeft className="mr-2 h-4 w-4"/> Назад к дневнику
-        </Link>
-
-        {entry.imageSrc && (
-          <div className="relative h-[300px] md:h-[500px] w-full mb-8 rounded-xl overflow-hidden">
-            <img
-              src={entry.imageSrc}
-              alt={entry.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+        <EntryHeader 
+          entryImage={entry.imageSrc} 
+          title={entry.title} 
+        />
 
         <EntryMeta entry={entry} />
 
@@ -210,7 +101,7 @@ export default async function DiaryEntryPage({ params }: { params: { id: string 
         </div>
 
         <div className="my-8">
-          {entry.content && <EntryContent content={entry.content}/>}
+          {entry.content && <ClientEntryContent content={entry.content}/>}
         </div>
 
         <EntryFooter updatedAt={entry.updatedAt} />

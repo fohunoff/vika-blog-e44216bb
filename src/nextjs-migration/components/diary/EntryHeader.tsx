@@ -19,13 +19,11 @@ const EntryHeader = ({ entryImage, title }: EntryHeaderProps) => {
 
       {entryImage && (
         <div className="relative h-[300px] md:h-[500px] w-full mb-8 rounded-xl overflow-hidden">
-          <Image
+          {/* If using Next.js Image optimization */}
+          <img
             src={entryImage}
             alt={title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 50vw"
-            priority
+            className="w-full h-full object-cover"
           />
         </div>
       )}
