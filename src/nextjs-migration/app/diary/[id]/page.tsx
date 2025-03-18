@@ -1,117 +1,79 @@
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import BlogHeader from '@/components/BlogHeader';
-import Footer from '@/components/Footer';
-import DiaryTags from '@/nextjs-migration/components/diary/DiaryTags';
-import EntryMeta from '@/nextjs-migration/components/diary/EntryMeta';
-import EntryFooter from '@/nextjs-migration/components/diary/EntryFooter';
+import { DiaryEntry } from '@/types/diary';
+import { formatDate } from '@/nextjs-migration/lib/utils';
+import { Badge } from '@/nextjs-migration/components/ui/badge';
 import EntryHeader from '@/nextjs-migration/components/diary/EntryHeader';
+import EntryMeta from '@/nextjs-migration/components/diary/EntryMeta';
 import EntryDescription from '@/nextjs-migration/components/diary/EntryDescription';
-import RelatedEntries from '@/nextjs-migration/components/diary/RelatedEntries';
 import ClientEntryContent from '@/nextjs-migration/components/diary/ClientEntryContent';
-import { 
-  getDiaryEntryById, 
-  getDiaryCategories, 
-  getDiaryTags, 
-  getDiaryMoods, 
-  getEnrichedDiaryEntries,
-  enrichEntryWithMetadata,
-  findRelatedEntries
-} from '@/nextjs-migration/services/diaryService';
+import EntryFooter from '@/nextjs-migration/components/diary/EntryFooter';
+import RelatedEntries from '@/nextjs-migration/components/diary/RelatedEntries';
+import DiaryTags from '@/nextjs-migration/components/diary/DiaryTags';
+import { getDiaryEntry, getRelatedEntries } from '@/nextjs-migration/services/diaryService';
 
-// Generate metadata for the entry
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   try {
-    const entry = await getDiaryEntryById(params.id);
-    
-    if (!entry) {
-      return {
-        title: 'Запись не найдена | Дневник',
-        description: 'К сожалению, запрашиваемая запись дневника не существует.',
-      };
-    }
+    const entry = await getDiaryEntry(params.id);
+    if (!entry) return { title: 'Запись не найдена | Дневник' };
     
     return {
       title: `${entry.title} | Дневник`,
       description: entry.shortDescription || `Запись дневника: ${entry.title}`,
-      openGraph: {
-        title: entry.title,
-        description: entry.shortDescription || `Запись дневника: ${entry.title}`,
-        images: entry.imageSrc ? [{ url: entry.imageSrc }] : [],
-      },
     };
   } catch (error) {
-    console.error('Error generating metadata:', error);
-    return {
-      title: 'Дневник | Личные записи',
-      description: 'Мой личный дневник. Мысли, впечатления и заметки о разных моментах жизни.',
-    };
+    return { title: 'Ошибка загрузки | Дневник' };
   }
 }
 
-// Main page component
 export default async function DiaryEntryPage({ params }: { params: { id: string } }) {
-  const id = params.id;
-  
-  // Fetch all necessary data from the server
-  const [entryData, categories, tags, moods, allEntries] = await Promise.all([
-    getDiaryEntryById(id),
-    getDiaryCategories(),
-    getDiaryTags(),
-    getDiaryMoods(),
-    getEnrichedDiaryEntries()
-  ]);
-  
-  // If entry not found, return 404
-  if (!entryData) {
-    notFound();
-  }
-  
-  // Enrich entry with metadata
-  const entry = enrichEntryWithMetadata(entryData, categories, tags, moods);
+  try {
+    const entry = await getDiaryEntry(params.id);
+    
+    if (!entry) {
+      notFound();
+    }
+    
+    const relatedEntries = await getRelatedEntries(params.id, entry);
 
-  // Find related entries
-  const relatedEntries = findRelatedEntries(allEntries, id, entry);
-
-  return (
-    <main className="min-h-screen pt-24">
-      <BlogHeader />
-
+    return (
       <article className="blog-container py-8 md:py-16">
         <EntryHeader 
           entryImage={entry.imageSrc} 
           title={entry.title} 
         />
-
-        <EntryMeta entry={entry} />
-
+        
+        <EntryMeta 
+          createdAt={entry.createdAt} 
+          mood={entry.mood} 
+          category={entry.category}
+        />
+        
         <h1 className="text-3xl md:text-4xl font-bold mb-6">{entry.title}</h1>
+        
+        <EntryDescription description={entry.shortDescription} />
 
-        {entry.shortDescription && (
-          <p className="text-xl text-gray-700 mb-8 font-serif italic">
-            {entry.shortDescription}
-          </p>
+        {entry.tags && entry.tags.length > 0 && (
+          <DiaryTags tags={entry.tags} />
         )}
-
-        <div className="flex flex-wrap gap-2 mb-8">
-          {entry.tags && entry.tags.length > 0 && (
-            <DiaryTags tags={entry.tags} />
-          )}
-        </div>
-
+        
         <div className="my-8">
-          {entry.content && <ClientEntryContent content={entry.content}/>}
+          {entry.content && <ClientEntryContent content={entry.content} />}
         </div>
-
+        
         <EntryFooter updatedAt={entry.updatedAt} />
+        
+        {relatedEntries.length > 0 && (
+          <section className="bg-gray-50 py-12 mt-12 -mx-4 md:-mx-8 px-4 md:px-8">
+            <h2 className="text-2xl font-bold mb-8">Похожие записи</h2>
+            <RelatedEntries entries={relatedEntries} />
+          </section>
+        )}
       </article>
-
-      {relatedEntries.length > 0 && (
-        <RelatedEntries entries={relatedEntries} />
-      )}
-
-      <Footer />
-    </main>
-  );
+    );
+  } catch (error) {
+    console.error('Error in DiaryEntryPage:', error);
+    notFound();
+  }
 }
