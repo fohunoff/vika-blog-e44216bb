@@ -6,6 +6,7 @@ import CozyHighlightsSection from '@/nextjs-migration/components/cozy/CozyHighli
 import CozySearchSection from '@/nextjs-migration/components/cozy/CozySearchSection';
 import CozyArticlesSection from '@/nextjs-migration/components/cozy/CozyArticlesSection';
 import CozyTagsSection from '@/nextjs-migration/components/cozy/CozyTagsSection';
+import { CozyArticle, CozyCategory, CozyTag } from '@/types/cozy';
 
 export const metadata: Metadata = {
   title: 'Уют | Мой блог',
@@ -13,29 +14,29 @@ export const metadata: Metadata = {
 };
 
 // Функции для получения данных
-async function getCozyHighlights() {
+async function getCozyHighlights(): Promise<CozyArticle[]> {
   return fetchAPI('/cozy/highlights');
 }
 
-async function getCozyArticles() {
+async function getCozyArticles(): Promise<CozyArticle[]> {
   return fetchAPI('/cozy/articles');
 }
 
-async function getCozyCategories() {
+async function getCozyCategories(): Promise<CozyCategory[]> {
   return fetchAPI('/cozy/categories');
 }
 
-async function getCozyTags() {
+async function getCozyTags(): Promise<CozyTag[]> {
   return fetchAPI('/cozy/tags');
 }
 
 export default async function CozyPage() {
   // Получаем данные с сервера
   const [highlights, articles, categories, tags] = await Promise.all([
-    getCozyHighlights().catch(() => []),
-    getCozyArticles().catch(() => []),
-    getCozyCategories().catch(() => []),
-    getCozyTags().catch(() => [])
+    getCozyHighlights().catch(() => [] as CozyArticle[]),
+    getCozyArticles().catch(() => [] as CozyArticle[]),
+    getCozyCategories().catch(() => [] as CozyCategory[]),
+    getCozyTags().catch(() => [] as CozyTag[])
   ]);
   
   return (

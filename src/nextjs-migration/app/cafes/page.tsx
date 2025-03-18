@@ -5,6 +5,7 @@ import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
 import CafesList from '@/nextjs-migration/components/cafes/CafesList';
 import CafeSearch from '@/nextjs-migration/components/cafes/CafeSearch';
 import CafeSidebar from '@/nextjs-migration/components/cafes/CafeSidebar';
+import { Cafe, CafeCategory, CafeTag, CafePriceRange } from '@/types/cafe';
 
 export const metadata: Metadata = {
   title: 'Кафе | Мой блог',
@@ -12,29 +13,29 @@ export const metadata: Metadata = {
 };
 
 // Функции для получения данных
-async function getCafes() {
+async function getCafes(): Promise<(Cafe & { categories?: string[], tags?: string[] })[]> {
   return fetchAPI('/cafes');
 }
 
-async function getCafeCategories() {
+async function getCafeCategories(): Promise<CafeCategory[]> {
   return fetchAPI('/cafes/categories');
 }
 
-async function getCafeTags() {
+async function getCafeTags(): Promise<CafeTag[]> {
   return fetchAPI('/cafes/tags');
 }
 
-async function getCafePriceRanges() {
+async function getCafePriceRanges(): Promise<CafePriceRange[]> {
   return fetchAPI('/cafes/price-ranges');
 }
 
 export default async function CafesPage() {
   // Получаем данные с сервера
   const [cafes, categories, tags, priceRanges] = await Promise.all([
-    getCafes().catch(() => []),
-    getCafeCategories().catch(() => []),
-    getCafeTags().catch(() => []),
-    getCafePriceRanges().catch(() => [])
+    getCafes().catch(() => [] as (Cafe & { categories?: string[], tags?: string[] })[]),
+    getCafeCategories().catch(() => [] as CafeCategory[]),
+    getCafeTags().catch(() => [] as CafeTag[]),
+    getCafePriceRanges().catch(() => [] as CafePriceRange[])
   ]);
   
   return (
@@ -59,7 +60,7 @@ export default async function CafesPage() {
               <div className="mt-8">
                 <h3 className="text-lg font-semibold mb-4">Популярные теги</h3>
                 <div className="flex flex-wrap gap-2">
-                  {tags.map((tag: any) => (
+                  {tags.map((tag: CafeTag) => (
                     <span 
                       key={tag.id}
                       className="bg-blog-yellow-light text-blog-black px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blog-yellow"

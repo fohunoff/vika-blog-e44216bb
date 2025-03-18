@@ -1,97 +1,44 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
-import { Cozy } from '@/types/cozy';
-
-interface CozyHighlightCardProps {
-  article: Cozy;
-}
-
-const CozyHighlightCard = ({ article }: CozyHighlightCardProps) => {
-  const { id, title, content, image, type } = article;
-
-  return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm group">
-      <div className="flex flex-col md:flex-row h-full">
-        <div className="md:w-2/5 relative">
-          <div className="relative w-full h-64 md:h-full">
-            <Image
-              src={image}
-              alt={title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          </div>
-        </div>
-
-        <div className="md:w-3/5 p-6 flex flex-col justify-between">
-          <div>
-            <div className="mb-3">
-              <span className="text-sm font-medium text-blog-yellow">{type}</span>
-            </div>
-            <h3 className="text-2xl font-bold mb-3">{title}</h3>
-            <p className="text-gray-600">{content}</p>
-          </div>
-
-          <Link 
-            href={`/cozy/article/${id}`}
-            className="inline-flex items-center mt-4 font-medium text-blog-yellow hover:underline"
-          >
-            Читать полностью
-            <ArrowRight size={16} className="ml-2" />
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { CozyArticle } from '@/types/cozy';
 
 interface CozyHighlightsSectionProps {
-  highlights: Cozy[];
+  highlights: CozyArticle[];
 }
 
 const CozyHighlightsSection = ({ highlights }: CozyHighlightsSectionProps) => {
-  // Если записи не предоставлены, показываем заглушки
-  const displayHighlights = highlights.length > 0 ? highlights.slice(0, 4) : [
-    {
-      id: 'highlight-1',
-      title: 'Создаем уютную атмосферу в гостиной',
-      content: 'Советы и рекомендации для создания комфортного пространства в вашей гостиной.',
-      image: '/placeholder.svg',
-      type: 'Интерьер',
-      category: 'Гостиная',
-      tags: ['Уют', 'Интерьер', 'Декор'],
-      date: new Date().toISOString()
-    },
-    {
-      id: 'highlight-2',
-      title: 'Ароматы для дома: как создать приятную атмосферу',
-      content: 'Выбор ароматов для разных комнат и способы их использования для создания особой атмосферы.',
-      image: '/placeholder.svg',
-      type: 'Атмосфера',
-      category: 'Ароматы',
-      tags: ['Ароматы', 'Дом', 'Уют'],
-      date: new Date().toISOString()
-    }
-  ];
-
+  // Only display up to 4 highlights
+  const displayHighlights = highlights.slice(0, 4);
+  
   return (
-    <section className="mb-16">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold">Рекомендуем</h2>
-        <Link href="/cozy/highlights" className="text-blog-yellow hover:underline inline-flex items-center">
-          Все материалы
-          <ArrowRight size={16} className="ml-2" />
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
+    <section className="mb-12">
+      <h2 className="text-2xl font-semibold mb-6">Рекомендуемые материалы</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {displayHighlights.map((highlight) => (
-          <CozyHighlightCard
-            key={highlight.id}
-            article={highlight}
-          />
+          <div key={highlight.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all">
+            <Link href={`/cozy/${highlight.id}`} className="block">
+              <div className="relative h-48">
+                <Image
+                  src={highlight.image || '/placeholder.svg'}
+                  alt={highlight.title}
+                  fill
+                  className="object-cover"
+                />
+                {highlight.type && (
+                  <span className="absolute top-3 right-3 bg-blog-yellow text-blog-black px-3 py-1 rounded-full text-sm">
+                    {highlight.type}
+                  </span>
+                )}
+              </div>
+              
+              <div className="p-4">
+                <h3 className="text-xl font-bold mb-2">{highlight.title}</h3>
+                <p className="text-gray-600 line-clamp-3">{highlight.content.substring(0, 150)}...</p>
+              </div>
+            </Link>
+          </div>
         ))}
       </div>
     </section>

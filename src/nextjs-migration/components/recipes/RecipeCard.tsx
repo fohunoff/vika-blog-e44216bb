@@ -17,12 +17,16 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
     id,
     title,
     description,
-    cookingTime,
-    difficultyLevel,
+    prepTime,
+    cookTime,
+    difficulty,
     imageSrc,
     categories = [],
     tags = []
   } = recipe;
+
+  // Calculate total cooking time if available
+  const totalCookingTime = prepTime && cookTime ? parseInt(prepTime) + parseInt(cookTime) : null;
 
   return (
     <article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
@@ -35,9 +39,9 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
             className="object-cover transition-transform duration-500 hover:scale-105"
           />
           
-          {difficultyLevel && (
+          {difficulty && (
             <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded text-sm font-medium">
-              {difficultyLevel}
+              {difficulty}
             </div>
           )}
         </div>
@@ -48,10 +52,10 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
           <h3 className="text-xl font-bold mb-2 hover:text-blog-yellow transition-colors">{title}</h3>
         </Link>
         
-        {cookingTime && (
+        {totalCookingTime && (
           <div className="flex items-center mb-3 text-gray-600 text-sm">
             <Clock size={16} className="mr-1" />
-            <span>{cookingTime} мин</span>
+            <span>{totalCookingTime} мин</span>
           </div>
         )}
         
