@@ -1,31 +1,33 @@
 
-"use client";
+'use client';
 
 import DOMPurify from 'dompurify';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import '../../styles/quill-viewer.css';
 
 interface EntryContentProps {
   content: string;
 }
 
 const EntryContent = ({ content }: EntryContentProps) => {
-  const [sanitizedContent, setSanitizedContent] = useState<string>('');
-  
+  const contentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Sanitize the HTML only in the browser
-      const purified = DOMPurify.sanitize(content, {
+    if (contentRef.current && typeof window !== 'undefined') {
+      // Санитизация HTML для предотвращения XSS-атак
+      const sanitizedContent = DOMPurify.sanitize(content, {
         USE_PROFILES: { html: true },
-        ADD_ATTR: ['target'], // Allow target attribute for links
+        ADD_ATTR: ['target'], // Разрешаем атрибут target для ссылок
       });
-      setSanitizedContent(purified);
+      
+      contentRef.current.innerHTML = sanitizedContent;
     }
   }, [content]);
 
   return (
     <div 
+      ref={contentRef}
       className="diary-content ql-editor"
-      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );
 };

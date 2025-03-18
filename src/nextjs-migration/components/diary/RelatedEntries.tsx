@@ -1,57 +1,40 @@
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { formatDate } from '@/utils/dateFormatters';
 import { DiaryEntry } from '@/types/diary';
 
 interface RelatedEntriesProps {
   entries: (DiaryEntry & {
-    category?: string;
     tags?: string[];
+    category?: string;
     mood?: string;
   })[];
 }
 
 const RelatedEntries = ({ entries }: RelatedEntriesProps) => {
+  if (!entries || entries.length === 0) return null;
+  
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {entries.map((entry) => (
-        <article 
-          key={entry.id}
-          className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group"
-        >
-          <Link href={`/diary/${entry.id}`} className="block">
-            <div className="relative h-48 overflow-hidden">
-              <Image
-                src={entry.imageSrc || '/placeholder.svg'}
-                alt={entry.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-          </Link>
-          
-          <div className="p-4">
-            <div className="flex justify-between items-center mb-2 text-sm text-gray-500">
-              <span>{formatDate(entry.createdAt)}</span>
-              {entry.mood && <span>{entry.mood}</span>}
-            </div>
-            
-            <Link href={`/diary/${entry.id}`}>
-              <h3 className="font-bold mb-2 hover:text-blog-yellow transition-colors">
-                {entry.title}
-              </h3>
-            </Link>
-            
-            {entry.shortDescription && (
-              <p className="text-gray-600 text-sm line-clamp-2">
-                {entry.shortDescription}
+    <section className="bg-gray-50 py-12 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 mt-12">
+      <div>
+        <h2 className="text-2xl font-bold mb-8">Похожие записи</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {entries.map((entry) => (
+            <Link
+              key={entry.id}
+              href={`/diary/${entry.id}`}
+              className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <h3 className="font-bold text-lg mb-2 line-clamp-2">{entry.title}</h3>
+              <p className="text-gray-600 text-sm mb-3">{formatDate(entry.createdAt)}</p>
+              <p className="line-clamp-3 text-gray-700">
+                {entry.shortDescription || entry.content?.substring(0, 120) + '...'}
               </p>
-            )}
-          </div>
-        </article>
-      ))}
-    </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };
 

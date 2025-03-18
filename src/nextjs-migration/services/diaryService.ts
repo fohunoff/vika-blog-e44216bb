@@ -1,24 +1,28 @@
 
 import { DiaryEntry } from '@/types/diary';
+import { revalidatePath } from 'next/cache';
 
+// URL для API запросов
+const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
+
+/**
+ * Получение записи дневника по ID с дополнительными метаданными
+ */
 export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
   tags?: string[];
   category?: string;
   mood?: string;
 }) | null> {
   try {
-    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
-    
     // Поддержка как числовых, так и строковых ID
     const entryId = id.startsWith('diary-entry-') ? id : `diary-entry-${id}`;
     
-    console.log(`Fetching diary entry with ID: ${entryId}`);
+    // Запрос данных записи с сервера (на стороне сервера Next.js)
     const response = await fetch(`${API_BASE_URL}/diary/entries/${entryId}`, { 
-      next: { revalidate: 60 } 
+      next: { revalidate: 60 } // Кеширование на 60 секунд
     });
     
     if (response.status === 404) {
-      console.log('Entry not found');
       return null;
     }
     
@@ -27,9 +31,8 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
     }
     
     const entryData = await response.json();
-    console.log('Entry data fetched:', entryData ? 'success' : 'empty');
     
-    // Fetch additional metadata
+    // Получение дополнительных метаданных одновременно
     const [categoriesResponse, tagsResponse, moodsResponse] = await Promise.all([
       fetch(`${API_BASE_URL}/diary/categories`, { next: { revalidate: 3600 } }),
       fetch(`${API_BASE_URL}/diary/tags`, { next: { revalidate: 3600 } }),
@@ -40,7 +43,7 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
     const tags = await tagsResponse.json();
     const moods = await moodsResponse.json();
     
-    // Normalize array data
+    // Нормализация данных массивов
     const tagIds = Array.isArray(entryData.tagIds) ? entryData.tagIds :
                   (entryData.tagIds ? [entryData.tagIds] : []);
                   
@@ -50,7 +53,7 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
     const moodIds = Array.isArray(entryData.moodIds) ? entryData.moodIds :
                    [entryData.moodId || entryData.moodIds].filter(Boolean);
     
-    // Get related metadata
+    // Получение связанных метаданных
     const categoryData = categoryIds.map(categoryId => 
       categories.find((category: any) => category.id === categoryId)
     ).filter(Boolean);
@@ -63,7 +66,7 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
       moods.find((mood: any) => mood.id === moodId)
     ).filter(Boolean);
     
-    // Enhance entry with metadata
+    // Обогащение записи метаданными
     const enrichedEntry = {
       ...entryData,
       tags: tagsData.filter(Boolean).map((tag: any) => tag?.name),
@@ -81,6 +84,9 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
   }
 }
 
+/**
+ * Получение связанных записей
+ */
 export async function getRelatedEntries(currentEntryId: string, 
   currentEntry: DiaryEntry & { category?: string; tags?: string[] }): Promise<(DiaryEntry & {
     tags?: string[];
@@ -88,8 +94,10 @@ export async function getRelatedEntries(currentEntryId: string,
     mood?: string;
   })[]> {
   try {
-    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
-    const response = await fetch(`${API_BASE_URL}/diary/entries/enriched`, { next: { revalidate: 60 } });
+    // Запрос к API (на стороне сервера Next.js)
+    const response = await fetch(`${API_BASE_URL}/diary/entries/enriched`, { 
+      next: { revalidate: 60 } 
+    });
     
     if (!response.ok) {
       throw new Error('Failed to fetch related entries');
@@ -97,15 +105,15 @@ export async function getRelatedEntries(currentEntryId: string,
     
     const allEntries = await response.json();
     
-    // Find related entries
+    // Поиск связанных записей
     const relatedEntries = allEntries
-      .filter((e: any) => e.id !== currentEntryId) // Exclude current entry
+      .filter((e: any) => e.id !== currentEntryId) // Исключаем текущую запись
       .filter((e: any) => {
         const sameCategory = e.category === currentEntry.category;
         const hasMatchingTag = e.tags?.some((tag: string) => currentEntry.tags?.includes(tag));
         return sameCategory || hasMatchingTag;
       })
-      .slice(0, 3); // Limit to 3 related entries
+      .slice(0, 3); // Ограничение до 3 связанных записей
     
     return relatedEntries;
   } catch (error) {
@@ -114,13 +122,16 @@ export async function getRelatedEntries(currentEntryId: string,
   }
 }
 
+/**
+ * Получение всех записей дневника с метаданными
+ */
 export async function getAllDiaryEntries(): Promise<(DiaryEntry & {
   tags?: string[];
   category?: string;
   mood?: string;
 })[]> {
   try {
-    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
+    // Запрос данных с сервера (на стороне сервера Next.js)
     const response = await fetch(`${API_BASE_URL}/diary/entries/enriched`, { 
       next: { revalidate: 60 } 
     });
@@ -137,9 +148,11 @@ export async function getAllDiaryEntries(): Promise<(DiaryEntry & {
   }
 }
 
+/**
+ * Получение всех настроений
+ */
 export async function getDiaryMoods() {
   try {
-    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
     const response = await fetch(`${API_BASE_URL}/diary/moods`, { 
       next: { revalidate: 3600 } 
     });
@@ -156,9 +169,11 @@ export async function getDiaryMoods() {
   }
 }
 
+/**
+ * Получение всех категорий
+ */
 export async function getDiaryCategories() {
   try {
-    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
     const response = await fetch(`${API_BASE_URL}/diary/categories`, { 
       next: { revalidate: 3600 } 
     });
@@ -175,9 +190,11 @@ export async function getDiaryCategories() {
   }
 }
 
+/**
+ * Получение всех тегов
+ */
 export async function getDiaryTags() {
   try {
-    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
     const response = await fetch(`${API_BASE_URL}/diary/tags`, { 
       next: { revalidate: 3600 } 
     });
@@ -191,5 +208,77 @@ export async function getDiaryTags() {
   } catch (error) {
     console.error('Error fetching diary tags:', error);
     return [];
+  }
+}
+
+/**
+ * Добавление новой записи (для API маршрутов)
+ */
+export async function createDiaryEntry(data: any) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/diary/entries`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to create entry: ${response.statusText}`);
+    }
+    
+    revalidatePath('/diary');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating diary entry:', error);
+    throw error;
+  }
+}
+
+/**
+ * Обновление записи (для API маршрутов)
+ */
+export async function updateDiaryEntry(id: string, data: any) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to update entry: ${response.statusText}`);
+    }
+    
+    revalidatePath(`/diary/${id}`);
+    revalidatePath('/diary');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating diary entry:', error);
+    throw error;
+  }
+}
+
+/**
+ * Удаление записи (для API маршрутов)
+ */
+export async function deleteDiaryEntry(id: string) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to delete entry: ${response.statusText}`);
+    }
+    
+    revalidatePath('/diary');
+    return true;
+  } catch (error) {
+    console.error('Error deleting diary entry:', error);
+    throw error;
   }
 }

@@ -31,22 +31,16 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 // Серверный компонент для получения данных и рендеринга страницы дневника
 export default async function DiaryEntryPage({ params }: { params: { id: string } }) {
-  console.log('Fetching diary entry with ID:', params.id);
-  
   try {
-    // Получаем запись
+    // Получаем запись полностью на сервере
     const entry = await getDiaryEntry(params.id);
-    
-    console.log('Fetched entry:', entry ? 'Found' : 'Not found');
     
     if (!entry) {
       notFound();
     }
     
-    // Получаем связанные записи
+    // Получаем связанные записи на сервере
     const relatedEntries = await getRelatedEntries(params.id, entry);
-    
-    console.log('Fetched related entries:', relatedEntries.length);
     
     return (
       <MainLayout>
