@@ -1,8 +1,8 @@
 
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
 
 interface EntryDescriptionProps {
-  title: string;
+  title?: string;
   shortDescription?: string;
   tags?: string[];
 }
@@ -36,20 +36,6 @@ const EntryDescription = (props: EntryDescriptionProps | LegacyEntryDescriptionP
         <p className="text-xl text-gray-700 mb-8 font-serif italic">
           {shortDescription}
         </p>
-      )}
-
-      {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-8">
-          {tags.map((tag, index) => (
-            <Badge
-              key={index}
-              variant="secondary"
-              className="bg-blog-yellow-light text-blog-black"
-            >
-              {tag}
-            </Badge>
-          ))}
-        </div>
       )}
     </>
   );

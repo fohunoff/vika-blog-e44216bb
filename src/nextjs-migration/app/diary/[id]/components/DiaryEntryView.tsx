@@ -24,6 +24,12 @@ interface DiaryEntryViewProps {
 }
 
 export default function DiaryEntryView({ entry, relatedEntries }: DiaryEntryViewProps) {
+  // Ensure we have the entry data to display
+  if (!entry) {
+    console.error('No entry data provided to DiaryEntryView');
+    return <div>Запись не найдена</div>;
+  }
+
   return (
     <MainLayout>
       <article className="blog-container py-8 md:py-16">

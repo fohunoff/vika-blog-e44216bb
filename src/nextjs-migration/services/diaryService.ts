@@ -8,9 +8,17 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
 }) | null> {
   try {
     const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
-    const response = await fetch(`${API_BASE_URL}/diary/entries/${id}`, { next: { revalidate: 60 } });
+    
+    // Support both numeric and string IDs
+    const entryId = id.startsWith('diary-entry-') ? id : `diary-entry-${id}`;
+    
+    console.log(`Fetching diary entry with ID: ${entryId}`);
+    const response = await fetch(`${API_BASE_URL}/diary/entries/${entryId}`, { 
+      next: { revalidate: 60 } 
+    });
     
     if (response.status === 404) {
+      console.log('Entry not found');
       return null;
     }
     
@@ -19,6 +27,7 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
     }
     
     const entryData = await response.json();
+    console.log('Entry data fetched:', entryData ? 'success' : 'empty');
     
     // Fetch additional metadata
     const [categoriesResponse, tagsResponse, moodsResponse] = await Promise.all([

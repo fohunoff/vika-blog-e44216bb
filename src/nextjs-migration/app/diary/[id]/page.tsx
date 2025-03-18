@@ -30,9 +30,13 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 // Server component for fetching data and rendering the diary entry
 export default async function DiaryEntryPage({ params }: { params: { id: string } }) {
+  console.log('Fetching diary entry with ID:', params.id);
+  
   try {
     // Fetch the diary entry
     const entry = await getDiaryEntry(params.id);
+    
+    console.log('Fetched entry:', entry ? 'Found' : 'Not found');
     
     if (!entry) {
       notFound();
@@ -40,6 +44,8 @@ export default async function DiaryEntryPage({ params }: { params: { id: string 
     
     // Fetch related entries
     const relatedEntries = await getRelatedEntries(params.id, entry);
+    
+    console.log('Fetched related entries:', relatedEntries.length);
     
     return <DiaryEntryView entry={entry} relatedEntries={relatedEntries} />;
   } catch (error) {
