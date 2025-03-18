@@ -1,72 +1,47 @@
 
 import { Metadata } from 'next';
+import Link from 'next/link';
+import { 
+  getAllDiaryEntries, 
+  getDiaryMoods, 
+  getDiaryCategories, 
+  getDiaryTags 
+} from '@/nextjs-migration/services/diaryService';
 import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
-import DiaryEntries from '@/components/diary/DiaryEntries';
-import DiarySearch from '@/components/diary/DiarySearch';
-import MoodFilter from '@/components/diary/MoodFilter';
-import { fetchAPI } from '@/nextjs-migration/lib/utils';
+import DiaryEntryList from '@/nextjs-migration/components/diary/DiaryEntryList';
+import DiarySearchHeader from '@/nextjs-migration/components/diary/DiarySearchHeader';
+import DiarySidebar from '@/nextjs-migration/components/diary/DiarySidebar';
 
 export const metadata: Metadata = {
   title: 'Дневник | Личные записи',
   description: 'Мой личный дневник. Мысли, впечатления и заметки о разных моментах жизни.',
 };
 
-// Функции для получения данных
-async function getEnrichedDiaryEntries() {
-  return fetchAPI('/diary/entries/enriched');
-}
-
-async function getDiaryMoods() {
-  return fetchAPI('/diary/moods');
-}
-
 export default async function DiaryPage() {
   // Получаем данные с сервера
-  const [entries, moods] = await Promise.all([
-    getEnrichedDiaryEntries(),
-    getDiaryMoods()
+  const [entries, moods, categories, tags] = await Promise.all([
+    getAllDiaryEntries(),
+    getDiaryMoods(),
+    getDiaryCategories(),
+    getDiaryTags()
   ]);
-
-  // Создаем пустое состояние для поиска, в Next.js его можно будет
-  // реализовать через Search Params или клиентские компоненты
-  const searchQuery = "";
-  const setSearchQuery = () => {};
-  
-  // В серверном компоненте нужно использовать "use client" для событий
-  const handleMoodSelect = () => {};
 
   return (
     <MainLayout>
       <section className="blog-container py-8 md:py-16">
-        <h1 className="text-4xl font-bold mb-8">Дневник</h1>
+        <DiarySearchHeader />
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
-            <DiarySearch 
-              searchQuery={searchQuery} 
-              setSearchQuery={setSearchQuery} 
+            <DiarySidebar 
+              moods={moods} 
+              categories={categories} 
+              tags={tags} 
             />
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-4">Настроения</h3>
-              <div className="space-y-2">
-                {moods && moods.map((mood: any) => (
-                  <div 
-                    key={mood.id}
-                    className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer"
-                  >
-                    <span>{mood.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
           
           <div className="md:col-span-3">
-            <DiaryEntries 
-              entries={entries}
-              moods={moods}
-              isLoading={false} 
-            />
+            <DiaryEntryList entries={entries} />
           </div>
         </div>
       </section>

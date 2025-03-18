@@ -9,7 +9,7 @@ export async function getDiaryEntry(id: string): Promise<(DiaryEntry & {
   try {
     const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
     
-    // Support both numeric and string IDs
+    // Поддержка как числовых, так и строковых ID
     const entryId = id.startsWith('diary-entry-') ? id : `diary-entry-${id}`;
     
     console.log(`Fetching diary entry with ID: ${entryId}`);
@@ -110,6 +110,86 @@ export async function getRelatedEntries(currentEntryId: string,
     return relatedEntries;
   } catch (error) {
     console.error('Error fetching related entries:', error);
+    return [];
+  }
+}
+
+export async function getAllDiaryEntries(): Promise<(DiaryEntry & {
+  tags?: string[];
+  category?: string;
+  mood?: string;
+})[]> {
+  try {
+    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
+    const response = await fetch(`${API_BASE_URL}/diary/entries/enriched`, { 
+      next: { revalidate: 60 } 
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch entries: ${response.statusText}`);
+    }
+    
+    const entries = await response.json();
+    return entries;
+  } catch (error) {
+    console.error('Error fetching all diary entries:', error);
+    return [];
+  }
+}
+
+export async function getDiaryMoods() {
+  try {
+    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
+    const response = await fetch(`${API_BASE_URL}/diary/moods`, { 
+      next: { revalidate: 3600 } 
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch moods: ${response.statusText}`);
+    }
+    
+    const moods = await response.json();
+    return moods;
+  } catch (error) {
+    console.error('Error fetching diary moods:', error);
+    return [];
+  }
+}
+
+export async function getDiaryCategories() {
+  try {
+    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
+    const response = await fetch(`${API_BASE_URL}/diary/categories`, { 
+      next: { revalidate: 3600 } 
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch categories: ${response.statusText}`);
+    }
+    
+    const categories = await response.json();
+    return categories;
+  } catch (error) {
+    console.error('Error fetching diary categories:', error);
+    return [];
+  }
+}
+
+export async function getDiaryTags() {
+  try {
+    const API_BASE_URL = process.env.API_URL || 'http://localhost:3001';
+    const response = await fetch(`${API_BASE_URL}/diary/tags`, { 
+      next: { revalidate: 3600 } 
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch tags: ${response.statusText}`);
+    }
+    
+    const tags = await response.json();
+    return tags;
+  } catch (error) {
+    console.error('Error fetching diary tags:', error);
     return [];
   }
 }

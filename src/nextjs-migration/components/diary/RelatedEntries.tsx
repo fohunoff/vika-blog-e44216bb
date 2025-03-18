@@ -1,47 +1,57 @@
 
-import React from 'react';
 import Link from 'next/link';
-import { formatDate } from '@/nextjs-migration/lib/utils';
-
-interface RelatedEntry {
-  id: string;
-  title: string;
-  createdAt: string;
-  shortDescription?: string;
-  content?: string;
-}
+import Image from 'next/image';
+import { formatDate } from '@/utils/dateFormatters';
+import { DiaryEntry } from '@/types/diary';
 
 interface RelatedEntriesProps {
-  entries: RelatedEntry[];
-  isLoading?: boolean;
+  entries: (DiaryEntry & {
+    category?: string;
+    tags?: string[];
+    mood?: string;
+  })[];
 }
 
-const RelatedEntries = ({ entries, isLoading = false }: RelatedEntriesProps) => {
-  if (isLoading) {
-    return <div className="animate-pulse">Loading related entries...</div>;
-  }
-
-  if (!entries || entries.length === 0) {
-    return null;
-  }
-
+const RelatedEntries = ({ entries }: RelatedEntriesProps) => {
   return (
-    <section className="mt-12 pt-8 border-t border-gray-100">
-      <h2 className="text-2xl font-bold mb-6">Похожие записи</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {entries.map(entry => (
-          <Link href={`/diary/${entry.id}`} key={entry.id}>
-            <div className="bg-white border border-gray-100 rounded-xl p-5 h-full hover:shadow-md transition-shadow">
-              <h3 className="font-bold text-lg mb-2 line-clamp-2">{entry.title}</h3>
-              <p className="text-gray-500 text-sm mb-3">{formatDate(entry.createdAt)}</p>
-              <p className="text-gray-700 line-clamp-3">
-                {entry.shortDescription || entry.content?.substring(0, 120)}...
-              </p>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {entries.map((entry) => (
+        <article 
+          key={entry.id}
+          className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group"
+        >
+          <Link href={`/diary/${entry.id}`} className="block">
+            <div className="relative h-48 overflow-hidden">
+              <Image
+                src={entry.imageSrc || '/placeholder.svg'}
+                alt={entry.title}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
             </div>
           </Link>
-        ))}
-      </div>
-    </section>
+          
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-2 text-sm text-gray-500">
+              <span>{formatDate(entry.createdAt)}</span>
+              {entry.mood && <span>{entry.mood}</span>}
+            </div>
+            
+            <Link href={`/diary/${entry.id}`}>
+              <h3 className="font-bold mb-2 hover:text-blog-yellow transition-colors">
+                {entry.title}
+              </h3>
+            </Link>
+            
+            {entry.shortDescription && (
+              <p className="text-gray-600 text-sm line-clamp-2">
+                {entry.shortDescription}
+              </p>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
   );
 };
 

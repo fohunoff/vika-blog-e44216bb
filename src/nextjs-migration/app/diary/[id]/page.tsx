@@ -3,9 +3,9 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getDiaryEntry, getRelatedEntries } from '@/nextjs-migration/services/diaryService';
 import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
-import DiaryEntryView from './components/DiaryEntryView';
+import DiaryEntryView from '@/nextjs-migration/components/diary/DiaryEntryView';
 
-// Use this function to generate metadata for the page (SEO)
+// Генерация метаданных для страницы (SEO)
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   try {
     const entry = await getDiaryEntry(params.id);
@@ -29,12 +29,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-// Server component for fetching data and rendering the diary entry
+// Серверный компонент для получения данных и рендеринга страницы дневника
 export default async function DiaryEntryPage({ params }: { params: { id: string } }) {
   console.log('Fetching diary entry with ID:', params.id);
   
   try {
-    // Fetch the diary entry
+    // Получаем запись
     const entry = await getDiaryEntry(params.id);
     
     console.log('Fetched entry:', entry ? 'Found' : 'Not found');
@@ -43,7 +43,7 @@ export default async function DiaryEntryPage({ params }: { params: { id: string 
       notFound();
     }
     
-    // Fetch related entries
+    // Получаем связанные записи
     const relatedEntries = await getRelatedEntries(params.id, entry);
     
     console.log('Fetched related entries:', relatedEntries.length);

@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import DOMPurify from 'dompurify';
 import { useEffect, useState } from 'react';

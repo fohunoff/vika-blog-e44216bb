@@ -1,7 +1,7 @@
 
 import { ReactNode } from 'react';
-import BlogHeader from '@/nextjs-migration/components/BlogHeader';
-import Footer from '@/nextjs-migration/components/Footer';
+import BlogHeader from '../BlogHeader';
+import Footer from '../Footer';
 
 interface MainLayoutProps {
   children: ReactNode;

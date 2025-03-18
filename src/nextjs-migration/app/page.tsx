@@ -1,35 +1,61 @@
 
 import { Metadata } from 'next';
 import Link from 'next/link';
-import BlogHeader from '@/components/BlogHeader';
-import Footer from '@/components/Footer';
-import HeroSection from '@/components/main/HeroSection';
-import CategorySection from '@/components/main/CategorySection';
-import LatestPosts from '@/components/main/LatestPosts';
-import AboutSection from '@/components/main/AboutSection';
-import NewsletterSection from '@/components/main/NewsletterSection';
+import { fetchAPI } from '@/nextjs-migration/lib/api';
+import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
+import HeroSection from '@/nextjs-migration/components/main/HeroSection';
+import CategorySection from '@/nextjs-migration/components/main/CategorySection';
+import LatestPostsSection from '@/nextjs-migration/components/main/LatestPostsSection';
+import AboutSection from '@/nextjs-migration/components/main/AboutSection';
+import NewsletterSection from '@/nextjs-migration/components/main/NewsletterSection';
 
 export const metadata: Metadata = {
   title: 'Главная | Мой блог',
   description: 'Мой персональный блог о жизни, творчестве и интересных открытиях',
 };
 
-export default function HomePage() {
+// Функции для получения данных
+async function getHeroData() {
+  return fetchAPI('/main/hero');
+}
+
+async function getCategories() {
+  return fetchAPI('/main/categories');
+}
+
+async function getLatestPosts() {
+  return fetchAPI('/main/latest-posts');
+}
+
+async function getAboutData() {
+  return fetchAPI('/main/about');
+}
+
+async function getNewsletterData() {
+  return fetchAPI('/main/newsletter');
+}
+
+export default async function HomePage() {
+  // Получаем данные с сервера
+  const [heroData, categories, latestPosts, aboutData, newsletterData] = await Promise.all([
+    getHeroData().catch(() => null),
+    getCategories().catch(() => []),
+    getLatestPosts().catch(() => []),
+    getAboutData().catch(() => null),
+    getNewsletterData().catch(() => null)
+  ]);
+
   return (
-    <main className="min-h-screen">
-      <BlogHeader />
+    <MainLayout>
+      <HeroSection data={heroData} />
       
-      <HeroSection />
+      <CategorySection categories={categories} />
       
-      <CategorySection />
+      <LatestPostsSection posts={latestPosts} />
       
-      <LatestPosts />
+      <AboutSection data={aboutData} />
       
-      <AboutSection />
-      
-      <NewsletterSection />
-      
-      <Footer />
-    </main>
+      <NewsletterSection data={newsletterData} />
+    </MainLayout>
   );
 }

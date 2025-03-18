@@ -1,90 +1,35 @@
 
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
-import { Category } from '@/types/main';
+import { MobileMenu } from './MobileMenu';
 
 const BlogHeader = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/main/categories');
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-blog-white shadow-md py-3' 
-          : 'bg-transparent py-6'
-      }`}
-    >
-      <div className="blog-container">
-        <nav className="flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-display font-bold tracking-tight">
-              МОЙ<span className="text-blog-yellow">БЛОГ</span>
-            </h1>
+    <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+      <div className="blog-container flex justify-between items-center py-4">
+        <Link href="/" className="text-2xl font-bold font-display">
+          МОЙ БЛОГ
+        </Link>
+
+        {/* Десктопное меню */}
+        <nav className="hidden md:flex space-x-8">
+          <Link href="/recipes" className="hover:text-blog-yellow transition-colors">
+            Рецепты
           </Link>
-
-          <div className="hidden md:flex gap-8 items-center">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={category.link}
-                className="text-blog-black hover:text-blog-yellow transition-colors"
-              >
-                {category.navTitle}
-              </Link>
-            ))}
-          </div>
-
-          <button
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X /> : <Menu />}
-          </button>
+          <Link href="/diary" className="hover:text-blog-yellow transition-colors">
+            Дневник
+          </Link>
+          <Link href="/cafes" className="hover:text-blog-yellow transition-colors">
+            Кафе
+          </Link>
+          <Link href="/cozy" className="hover:text-blog-yellow transition-colors">
+            Уют
+          </Link>
         </nav>
 
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 top-16 bg-blog-white z-40 p-5 flex flex-col gap-6 animate-fade-in">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={category.link}
-                className="text-xl font-medium hover:text-blog-yellow"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {category.navTitle}
-              </Link>
-            ))}
-          </div>
-        )}
+        {/* Мобильное меню */}
+        <div className="md:hidden">
+          <MobileMenu />
+        </div>
       </div>
     </header>
   );

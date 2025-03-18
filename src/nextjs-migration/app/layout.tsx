@@ -3,18 +3,19 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({
+// Подключаем шрифт Inter
+const inter = Inter({ 
   subsets: ['latin', 'cyrillic'],
   display: 'swap',
-  variable: '--font-sans',
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
-  title: {
-    template: '%s | Мой блог',
-    default: 'Мой блог',
+  title: 'Мой блог',
+  description: 'Персональный блог о жизни, вкусной еде, путешествиях и уютных местах',
+  icons: {
+    icon: '/favicon.ico',
   },
-  description: 'Персональный блог о жизни, идеях и опыте',
 };
 
 export default function RootLayout({
@@ -24,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className={inter.variable}>
-      <body className="min-h-screen bg-white text-blog-black">
+      <body>
         {children}
       </body>
     </html>
