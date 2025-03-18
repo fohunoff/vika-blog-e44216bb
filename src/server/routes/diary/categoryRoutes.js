@@ -1,7 +1,7 @@
 
 import express from 'express';
 import { body } from 'express-validator';
-import { validateRequest } from '../../middleware/validationMiddleware.js';
+import { validateRequest, validateIdParam } from '../../middleware/validationMiddleware.js';
 import { db } from '../../db/config.js';
 import { handleAsync } from '../../middleware/errorMiddleware.js';
 
@@ -39,7 +39,7 @@ router.get('/', handleAsync(async (req, res) => {
  *       404:
  *         description: Category not found
  */
-router.get('/:id', handleAsync(async (req, res) => {
+router.get('/:id', validateIdParam, handleAsync(async (req, res) => {
   const category = await db.get('SELECT * FROM diary_categories WHERE id = ?', req.params.id);
   if (!category) {
     return res.status(404).json({ message: 'Category not found' });
@@ -119,6 +119,7 @@ router.post(
 router.put(
   '/:id',
   [
+    validateIdParam,
     body('name').trim().notEmpty().withMessage('Name is required'),
     validateRequest
   ],
@@ -159,7 +160,7 @@ router.put(
  *       404:
  *         description: Category not found
  */
-router.delete('/:id', handleAsync(async (req, res) => {
+router.delete('/:id', validateIdParam, handleAsync(async (req, res) => {
   const { id } = req.params;
   
   // Check if category exists
