@@ -51,7 +51,7 @@ const DiaryEntryPage = () => {
         
         <h1 className="text-3xl md:text-4xl font-bold mb-6">{entry.title}</h1>
         
-        <EntryDescription description={entry.shortDescription} />
+        <EntryDescription description={entry.shortDescription || ''} />
 
         {entry.tags && entry.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-8">

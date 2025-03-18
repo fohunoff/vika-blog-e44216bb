@@ -1,25 +1,27 @@
 
+import React from 'react';
+import { AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import BlogHeader from '../BlogHeader';
-import Footer from '../Footer';
+import { Button } from '../ui/button';
 
-const EntryNotFound = () => {
+interface EntryNotFoundProps {
+  error?: Error | null;
+}
+
+const EntryNotFound = ({ error }: EntryNotFoundProps) => {
+  const errorMessage = error?.message || "Запись не найдена";
+  
   return (
-    <main className="min-h-screen pt-24">
-      <BlogHeader />
-      <div className="blog-container py-16 text-center">
-        <h1 className="section-title mb-4">Запись не найдена</h1>
-        <p className="mb-8">К сожалению, запрашиваемая запись дневника не существует.</p>
-        <Link to="/diary">
-          <Button className="bg-blog-yellow text-blog-black hover:bg-blog-yellow/80">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Вернуться к дневнику
-          </Button>
-        </Link>
-      </div>
-      <Footer />
-    </main>
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
+      <h2 className="text-2xl font-bold mb-2">Запись не найдена</h2>
+      <p className="text-gray-600 mb-6 max-w-md">
+        {errorMessage}. Возможно, запись была удалена или вы перешли по неверной ссылке.
+      </p>
+      <Link to="/diary">
+        <Button>Вернуться к списку записей</Button>
+      </Link>
+    </div>
   );
 };
 

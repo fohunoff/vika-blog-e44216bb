@@ -13,6 +13,7 @@ export const useDiaryEntryData = (id?: string) => {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [relatedEntries, setRelatedEntries] = useState<any[]>([]);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -84,6 +85,7 @@ export const useDiaryEntryData = (id?: string) => {
 
     try {
       setIsLoading(true);
+      setError(null);
       const [entryData, allEntries] = await Promise.all([
         api.diary.getDiaryEntryById(id),
         api.diary.getEnrichedDiaryEntries()
@@ -123,6 +125,7 @@ export const useDiaryEntryData = (id?: string) => {
   // Error handling utility
   const handleError = (error: any) => {
     console.error("Error fetching entry:", error);
+    setError(error instanceof Error ? error : new Error("An unknown error occurred"));
     toast({
       title: "Ошибка загрузки",
       description: "Не удалось загрузить запись дневника. Пожалуйста, попробуйте позже.",
@@ -133,6 +136,8 @@ export const useDiaryEntryData = (id?: string) => {
 
   // Not found handling utility
   const handleEntryNotFound = () => {
+    const notFoundError = new Error("Запись не найдена");
+    setError(notFoundError);
     toast({
       title: "Запись не найдена",
       description: "Запрашиваемая запись дневника не существует",
@@ -144,6 +149,7 @@ export const useDiaryEntryData = (id?: string) => {
   return {
     entry,
     isLoading,
-    relatedEntries
+    relatedEntries,
+    error
   };
 };
