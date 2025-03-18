@@ -3,9 +3,8 @@ import { Calendar, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import { ru } from "date-fns/locale";
-import {DiaryEntry, DiaryMood} from "@/types/models";
+import { DiaryEntry, DiaryMood } from "@/types/models";
+import { formatDate } from "@/utils/dateFormatters";
 
 interface DiaryEntryCardProps {
   entry: DiaryEntry & {
@@ -18,16 +17,6 @@ interface DiaryEntryCardProps {
 }
 
 const DiaryEntryCard = ({ entry, moods, index }: DiaryEntryCardProps) => {
-  // Format date to Russian locale
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return format(date, "d MMMM yyyy", { locale: ru });
-    } catch (e) {
-      return dateString;
-    }
-  };
-
   let currentMood: string | undefined = undefined;
 
   entry.moodIds.forEach((moodId) => {
@@ -37,7 +26,7 @@ const DiaryEntryCard = ({ entry, moods, index }: DiaryEntryCardProps) => {
     if (mood) {
       currentMood = mood.name;
     }
-  })
+  });
 
   return (
     <article

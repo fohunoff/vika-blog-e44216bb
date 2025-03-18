@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+
 import { useQuery, useMutation, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { DiaryEntry, DiaryEntryFormData } from '../types/diary';
@@ -56,6 +56,10 @@ export const useCozyTags = (options?: UseQueryOptions<any, Error, any, (string |
   return useApiQuery(['cozyTags'], () => api.cozy.getTags(), options);
 };
 
+export const useCozyArticles = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
+  return useApiQuery(['cozy', 'articles'], () => api.cozy.getArticles(), options);
+};
+
 // Cafes
 export const useCafes = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['cafes'], () => api.cafes.getCafes(), options);
@@ -81,6 +85,15 @@ export const useDiaryEntry = (id: string, options?: UseQueryOptions<any, Error, 
   });
 };
 
+export const useDiaryEntries = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
+  return useApiQuery(['diaryEntries'], () => api.diary.getDiaryEntries(), options);
+};
+
+export const useEnrichedDiaryEntries = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
+  return useApiQuery(['enrichedDiaryEntries'], () => api.diary.getEnrichedDiaryEntries(), options);
+};
+
+// Diary Mutations
 export const useCreateDiaryEntry = (options?: UseMutationOptions<DiaryEntry, Error, DiaryEntryFormData>) => {
   const { api } = useApi();
   return useApiMutation(
@@ -105,29 +118,7 @@ export const useDeleteDiaryEntry = (options?: UseMutationOptions<void, Error, st
   );
 };
 
-// Diary
-export const useDiaryEntries = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
-  return useApiQuery(['diaryEntries'], () => api.diary.getDiaryEntries(), options);
-};
-
-export const useEnrichedDiaryEntries = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
-  return useApiQuery(['enrichedDiaryEntries'], () => api.diary.getEnrichedDiaryEntries(), options);
-};
-
 // Recipes
 export const useRecipes = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
   return useApiQuery(['recipes'], () => api.recipes.getRecipes(), options);
-};
-
-/**
- * Get cozy articles
- */
-export const useCozyArticles = (options?: UseQueryOptions<any, Error, any, (string | number | null)[]>) => {
-  const { api } = useApi();
-
-  return useQuery({
-    queryKey: ['cozy', 'articles'],
-    queryFn: () => api.cozy.getArticles(),
-    ...options
-  });
 };
