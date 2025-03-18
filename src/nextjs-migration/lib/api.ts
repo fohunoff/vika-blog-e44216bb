@@ -1,5 +1,5 @@
 
-import { fetchAPI } from "@/lib/utils";
+import { fetchAPI } from "@/nextjs-migration/lib/utils";
 import { DiaryEntry, DiaryCategory, DiaryTag, DiaryMood } from "@/types/diary";
 
 /**

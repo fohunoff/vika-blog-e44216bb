@@ -1,4 +1,3 @@
-
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -10,6 +9,8 @@ import DiaryTags from '@/components/diary/DiaryTags';
 import RelatedEntries from '@/components/diary/RelatedEntries';
 import BlogHeader from '@/components/BlogHeader';
 import Footer from '@/components/Footer';
+import EntryFooter from '@/components/diary/EntryFooter';
+import EntryMeta from '@/components/diary/EntryMeta';
 
 // Генерация метаданных для записи
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -192,23 +193,7 @@ export default async function DiaryEntryPage({ params }: { params: { id: string 
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-4 text-gray-500 mb-6">
-          <div className="flex items-center">
-            <span>{formatDate(entry.createdAt)}</span>
-          </div>
-
-          {entry?.mood && (
-            <div className="flex items-center">
-              <span>{entry.mood}</span>
-            </div>
-          )}
-
-          {entry?.category && (
-            <div className="flex items-center">
-              <span>{entry.category}</span>
-            </div>
-          )}
-        </div>
+        <EntryMeta entry={entry} />
 
         <h1 className="text-3xl md:text-4xl font-bold mb-6">{entry.title}</h1>
 
@@ -228,11 +213,7 @@ export default async function DiaryEntryPage({ params }: { params: { id: string 
           {entry.content && <EntryContent content={entry.content}/>}
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-gray-500 mb-6 text-sm">
-          <div className="flex items-center">
-            <span>Отредактировано: {formatDate(entry.updatedAt)}</span>
-          </div>
-        </div>
+        <EntryFooter updatedAt={entry.updatedAt} />
       </article>
 
       {relatedEntries.length > 0 && (
