@@ -6,7 +6,7 @@ import {
   getDiaryMoods, 
   getDiaryCategories, 
   getDiaryTags 
-} from '@/nextjs-migration/services/diaryService';
+} from '@/nextjs-migration/services/diary';
 import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
 import DiaryEntryList from '@/nextjs-migration/components/diary/DiaryEntryList';
 import DiarySearchHeader from '@/nextjs-migration/components/diary/DiarySearchHeader';

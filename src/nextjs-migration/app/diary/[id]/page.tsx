@@ -1,7 +1,7 @@
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getDiaryEntry, getRelatedEntries } from '@/nextjs-migration/services/diaryService';
+import { getDiaryEntry, getRelatedEntries } from '@/nextjs-migration/services/diary';
 import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
 import DiaryEntryView from '@/nextjs-migration/components/diary/DiaryEntryView';
 

@@ -1,7 +1,7 @@
 
 import { GetServerSideProps } from 'next';
 import { DiaryEntry } from '@/types/diary';
-import DiaryEntryPage from '@/components/diary/DiaryEntryPage';
+import DiaryEntryPage from '@/nextjs-migration/components/diary/DiaryEntryPage';
 
 // Types for SSR
 interface DiaryEntryPageProps {
