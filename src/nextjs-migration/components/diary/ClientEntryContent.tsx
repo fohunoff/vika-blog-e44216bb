@@ -3,6 +3,7 @@
 
 import DOMPurify from 'dompurify';
 import { useEffect, useState } from 'react';
+import '../../styles/quill-viewer.css';
 
 interface EntryContentProps {
   content: string;
@@ -13,7 +14,7 @@ const ClientEntryContent = ({ content }: EntryContentProps) => {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Sanitize the HTML only in the browser
+      // Sanitize HTML to prevent XSS attacks
       const purified = DOMPurify.sanitize(content, {
         USE_PROFILES: { html: true },
         ADD_ATTR: ['target'], // Allow target attribute for links

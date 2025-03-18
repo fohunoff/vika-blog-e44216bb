@@ -4,10 +4,10 @@ import { ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/utils/dateFormatters';
 import { DiaryEntry } from '@/types/diary';
-import EntryContent from './EntryContent';
+import ClientEntryContent from './ClientEntryContent';
 import RelatedEntries from './RelatedEntries';
 
-// Типы данных для компонента
+// Types for component
 interface DiaryEntryViewProps {
   entry: (DiaryEntry & {
     tags?: string[];
@@ -78,7 +78,7 @@ const DiaryEntryView = ({ entry, relatedEntries }: DiaryEntryViewProps) => {
         </div>
 
         <div className="my-8">
-          <EntryContent content={entry.content || ''} />
+          <ClientEntryContent content={entry.content || ''} />
         </div>
 
         <div className="flex flex-wrap items-center gap-4 text-gray-500 mb-6 text-sm">
@@ -89,7 +89,26 @@ const DiaryEntryView = ({ entry, relatedEntries }: DiaryEntryViewProps) => {
       </article>
 
       {relatedEntries.length > 0 && (
-        <RelatedEntries entries={relatedEntries} />
+        <section className="bg-gray-50 py-12 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 mt-12">
+          <div>
+            <h2 className="text-2xl font-bold mb-8">Похожие записи</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedEntries.map((relatedEntry) => (
+                <Link
+                  key={relatedEntry.id}
+                  href={`/diary/${relatedEntry.id}`}
+                  className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <h3 className="font-bold text-lg mb-2 line-clamp-2">{relatedEntry.title}</h3>
+                  <p className="text-gray-600 text-sm mb-3">{formatDate(relatedEntry.createdAt)}</p>
+                  <p className="line-clamp-3 text-gray-700">
+                    {relatedEntry.shortDescription || relatedEntry.content?.substring(0, 120) + '...'}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
     </section>
   );
