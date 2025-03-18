@@ -1,10 +1,7 @@
 
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
-import { DiaryEntry } from '@/types/diary';
-import { useDiaryEntryData } from '@/hooks/useDiaryEntryData';
 import MainLayout from '@/components/layout/MainLayout';
 import EntryHeader from '@/components/diary/EntryHeader';
 import EntryMeta from '@/components/diary/EntryMeta';
@@ -14,68 +11,47 @@ import EntryFooter from '@/components/diary/EntryFooter';
 import RelatedEntries from '@/components/diary/RelatedEntries';
 import EntryLoading from '@/components/diary/EntryLoading';
 import EntryNotFound from '@/components/diary/EntryNotFound';
+import { useApi } from '@/hooks/useApi';
 
 const DiaryEntryPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { entry, relatedEntries, isLoading, error } = useDiaryEntryData(id || '');
-
-  if (isLoading) {
-    return (
-      <MainLayout>
-        <EntryLoading />
-      </MainLayout>
-    );
+  
+  // Redirect to diary page if no ID is provided
+  if (!id) {
+    return <Navigate to="/diary" />;
   }
-
-  if (error || !entry) {
-    return (
-      <MainLayout>
-        <EntryNotFound error={error} />
-      </MainLayout>
-    );
-  }
+  
+  // Import the SSR data from Next.js page
+  // This is a transitional approach - we're getting the pre-rendered HTML from Next.js
+  // but still using React Router for navigation
+  useEffect(() => {
+    // Scroll to top on page load
+    window.scrollTo(0, 0);
+    
+    // Add a class to the body to indicate we're in SSR mode
+    document.body.classList.add('ssr-mode');
+    
+    return () => {
+      document.body.classList.remove('ssr-mode');
+    };
+  }, [id]);
 
   return (
     <MainLayout>
-      <article className="blog-container py-8 md:py-16">
-        <EntryHeader 
-          entryImage={entry.imageSrc} 
-          title={entry.title} 
-        />
+      <div className="blog-container py-8 md:py-16">
+        <Link to="/diary" className="inline-flex items-center text-gray-500 hover:text-blog-yellow mb-8 transition-colors">
+          <ArrowLeft className="mr-2 h-4 w-4"/> Назад к дневнику
+        </Link>
         
-        <EntryMeta 
-          createdAt={entry.createdAt} 
-          mood={entry.mood} 
-          category={entry.category}
-        />
-        
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">{entry.title}</h1>
-        
-        <EntryDescription description={entry.shortDescription || ''} />
-
-        {entry.tags && entry.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-8">
-            {entry.tags.map((tag, index) => (
-              <span 
-                key={index}
-                className="bg-blog-yellow-light text-blog-black px-3 py-1 rounded-full text-sm"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-        
-        <div className="my-8">
-          {entry.content && <EntryContent content={entry.content} />}
+        {/* 
+          This is a transitional component that will eventually be replaced
+          with fully server-rendered content from Next.js. For now, we're using
+          this empty div as a placeholder for the SSR content.
+        */}
+        <div id="ssr-diary-entry-content">
+          <EntryLoading />
         </div>
-        
-        <EntryFooter updatedAt={entry.updatedAt} />
-      </article>
-
-      {relatedEntries.length > 0 && (
-        <RelatedEntries entries={relatedEntries} />
-      )}
+      </div>
     </MainLayout>
   );
 };

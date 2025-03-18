@@ -1,23 +1,22 @@
 
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import BlogHeader from '@/components/BlogHeader';
-import Footer from '@/components/Footer';
+import { AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import MainLayout from '@/nextjs-migration/components/layout/MainLayout';
 
 export default function DiaryEntryNotFound() {
   return (
-    <main className="min-h-screen pt-24">
-      <BlogHeader />
-      <div className="blog-container py-16 text-center">
-        <h1 className="section-title mb-4">Запись не найдена</h1>
-        <p className="mb-8">К сожалению, запрашиваемая запись дневника не существует.</p>
+    <MainLayout>
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Запись не найдена</h2>
+        <p className="text-gray-600 mb-6 max-w-md">
+          Возможно, запись была удалена или вы перешли по неверной ссылке.
+        </p>
         <Link href="/diary">
-          <div className="bg-blog-yellow text-blog-black hover:bg-blog-yellow/80 py-2 px-4 rounded flex items-center justify-center">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Вернуться к дневнику
-          </div>
+          <Button>Вернуться к списку записей</Button>
         </Link>
       </div>
-      <Footer />
-    </main>
+    </MainLayout>
   );
 }
