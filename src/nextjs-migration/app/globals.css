@@ -1,0 +1,76 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Глобальные контейнеры и переменные */
+:root {
+  --blog-yellow: #FFCA28;
+  --blog-yellow-light: #FFF8E1;
+  --blog-black: #212121;
+}
+
+.blog-container {
+  @apply container mx-auto px-4 max-w-6xl;
+}
+
+.section-title {
+  @apply text-3xl font-bold mb-6;
+}
+
+/* Стили для Quill контента */
+.diary-content {
+  @apply text-gray-800 text-lg leading-relaxed;
+}
+
+.diary-content h1 {
+  @apply text-3xl font-bold my-6;
+}
+
+.diary-content h2 {
+  @apply text-2xl font-bold my-5;
+}
+
+.diary-content h3 {
+  @apply text-xl font-bold my-4;
+}
+
+.diary-content p {
+  @apply my-4;
+}
+
+.diary-content ul, .diary-content ol {
+  @apply pl-5 my-4;
+}
+
+.diary-content ul {
+  @apply list-disc;
+}
+
+.diary-content ol {
+  @apply list-decimal;
+}
+
+.diary-content blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4;
+}
+
+.diary-content a {
+  @apply text-blue-600 hover:underline;
+}
+
+.diary-content img {
+  @apply max-w-full h-auto my-6 rounded;
+}
+
+.diary-content .ql-align-center {
+  @apply text-center;
+}
+
+.diary-content .ql-align-right {
+  @apply text-right;
+}
+
+.diary-content .ql-align-justify {
+  @apply text-justify;
+}
