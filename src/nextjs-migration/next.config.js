@@ -3,9 +3,9 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost'], // Добавьте здесь все домены, с которых загружаются изображения
+    domains: ['localhost'], // Add all domains from which images are loaded
   },
-  // Настройка среды API (значения будут заменены настоящими env переменными)
+  // API environment configuration (values will be replaced with actual env variables)
   env: {
     API_URL: process.env.API_URL || 'http://localhost:3001',
   },
