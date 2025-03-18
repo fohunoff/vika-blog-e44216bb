@@ -26,6 +26,25 @@ async function validateIds(typeTable, ids) {
   }
 }
 
+// Utility function to filter invalid IDs from an array
+async function filterValidIds(typeTable, ids) {
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return [];
+  }
+
+  try {
+    // Get all valid IDs from the database
+    const validRecords = await dbAsync.all(`SELECT id FROM ${typeTable}`);
+    const validIds = validRecords.map(record => record.id);
+    
+    // Filter out invalid IDs
+    return ids.filter(id => validIds.includes(id));
+  } catch (error) {
+    console.error(`Error filtering IDs against ${typeTable}:`, error);
+    throw new Error(`Failed to filter IDs against ${typeTable}`);
+  }
+}
+
 // GET all diary entries
 export const getDiaryEntries = async (req, res) => {
   try {
@@ -200,31 +219,31 @@ export const updateDiaryEntry = async (req, res) => {
   }
 
   try {
-    // Validate category IDs
-    const categoryValidation = await validateIds('diary_categories', categoryIds);
-    if (!categoryValidation.valid) {
-      return res.status(400).json({ 
-        error: "Invalid category IDs", 
-        invalidIds: categoryValidation.invalidIds 
-      });
-    }
+    // First, filter out non-existent IDs from the arrays
+    const filteredCategoryIds = await filterValidIds('diary_categories', categoryIds);
+    const filteredTagIds = await filterValidIds('diary_tags', tagIds);
+    const filteredMoodIds = await filterValidIds('diary_moods', moodIds);
 
-    // Validate tag IDs
-    const tagValidation = await validateIds('diary_tags', tagIds);
-    if (!tagValidation.valid) {
-      return res.status(400).json({ 
-        error: "Invalid tag IDs", 
-        invalidIds: tagValidation.invalidIds 
-      });
-    }
+    // Log the filtered IDs for debugging
+    console.log("Original category IDs:", categoryIds);
+    console.log("Filtered category IDs:", filteredCategoryIds);
+    
+    console.log("Original tag IDs:", tagIds);
+    console.log("Filtered tag IDs:", filteredTagIds);
+    
+    console.log("Original mood IDs:", moodIds);
+    console.log("Filtered mood IDs:", filteredMoodIds);
 
-    // Validate mood IDs
-    const moodValidation = await validateIds('diary_moods', moodIds);
-    if (!moodValidation.valid) {
-      return res.status(400).json({ 
-        error: "Invalid mood IDs", 
-        invalidIds: moodValidation.invalidIds 
-      });
+    // Check if any IDs were filtered out
+    const removedCategoryIds = categoryIds?.filter(id => !filteredCategoryIds.includes(id)) || [];
+    const removedTagIds = tagIds?.filter(id => !filteredTagIds.includes(id)) || [];
+    const removedMoodIds = moodIds?.filter(id => !filteredMoodIds.includes(id)) || [];
+    
+    if (removedCategoryIds.length > 0 || removedTagIds.length > 0 || removedMoodIds.length > 0) {
+      console.log("Some IDs were filtered out because they no longer exist in the database:");
+      if (removedCategoryIds.length > 0) console.log("Removed category IDs:", removedCategoryIds);
+      if (removedTagIds.length > 0) console.log("Removed tag IDs:", removedTagIds);
+      if (removedMoodIds.length > 0) console.log("Removed mood IDs:", removedMoodIds);
     }
 
     const updatedEntry = {
@@ -233,11 +252,11 @@ export const updateDiaryEntry = async (req, res) => {
       content,
       shortDescription: shortDescription || "",
       imageSrc: imageSrc || "",
-      categoryId: categoryIds && categoryIds.length > 0 ? categoryIds[0] : null,
-      categoryIds: JSON.stringify(categoryIds || []),
-      tagIds: JSON.stringify(tagIds || []),
-      moodId: moodIds && moodIds.length > 0 ? moodIds[0] : null,
-      moodIds: JSON.stringify(moodIds || [])
+      categoryId: filteredCategoryIds && filteredCategoryIds.length > 0 ? filteredCategoryIds[0] : null,
+      categoryIds: JSON.stringify(filteredCategoryIds || []),
+      tagIds: JSON.stringify(filteredTagIds || []),
+      moodId: filteredMoodIds && filteredMoodIds.length > 0 ? filteredMoodIds[0] : null,
+      moodIds: JSON.stringify(filteredMoodIds || [])
     };
 
     const sql = `
