@@ -28,10 +28,16 @@ const DiaryEntryCard = ({ entry, moods, index }: DiaryEntryCardProps) => {
     }
   };
 
-  const currentMood = moods.find(x => x.id === entry.moodIds[0])?.name;
+  let currentMood: string | undefined = undefined;
 
-  console.log('entry.moodIds', entry.moodIds)
-  console.log('currentMood', currentMood)
+  entry.moodIds.forEach((moodId) => {
+    if (currentMood) return;
+    const mood = moods.find(x => x.id === moodId);
+
+    if (mood) {
+      currentMood = mood.name;
+    }
+  })
 
   return (
     <article
