@@ -1,5 +1,7 @@
 
 import express from 'express';
+import { body } from 'express-validator';
+import { validateRequest, validateIdParam } from '../../middleware/validationMiddleware.js';
 import {
   getDiaryEntries,
   getDiaryEntryById,
@@ -8,6 +10,7 @@ import {
   updateDiaryEntry,
   deleteDiaryEntry
 } from '../../controllers/diaryController.js';
+import { handleAsync } from '../../middleware/errorMiddleware.js';
 
 const router = express.Router();
 
@@ -20,6 +23,44 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of diary entries
+ */
+router.get('/diary/entries', handleAsync(getDiaryEntries));
+
+/**
+ * @swagger
+ * /diary/entries/enriched:
+ *   get:
+ *     summary: Get enriched diary entries with categories, tags and moods
+ *     tags: [Diary]
+ *     responses:
+ *       200:
+ *         description: List of enriched diary entries
+ */
+router.get('/diary/entries/enriched', handleAsync(getEnrichedDiaryEntries));
+
+/**
+ * @swagger
+ * /diary/entries/{id}:
+ *   get:
+ *     summary: Get a diary entry by ID
+ *     tags: [Diary]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Diary entry found
+ *       404:
+ *         description: Diary entry not found
+ */
+router.get('/diary/entries/:id', validateIdParam, handleAsync(getDiaryEntryById));
+
+/**
+ * @swagger
+ * /diary/entries:
  *   post:
  *     summary: Create a new diary entry
  *     tags: [Diary]
@@ -32,10 +73,6 @@ const router = express.Router();
  *             required:
  *               - title
  *               - content
- *               - date
- *               - categoryIds
- *               - tagIds
- *               - moodIds
  *             properties:
  *               title:
  *                 type: string
@@ -45,9 +82,6 @@ const router = express.Router();
  *                 type: string
  *               imageSrc:
  *                 type: string
- *               date:
- *                 type: string
- *                 format: date
  *               categoryIds:
  *                 type: array
  *                 items:
@@ -65,22 +99,20 @@ const router = express.Router();
  *         description: Created diary entry
  *       400:
  *         description: Invalid input
- * 
+ */
+router.post(
+  '/diary/entries',
+  [
+    body('title').notEmpty().withMessage('Title is required'),
+    body('content').notEmpty().withMessage('Content is required'),
+    validateRequest
+  ],
+  handleAsync(createDiaryEntry)
+);
+
+/**
+ * @swagger
  * /diary/entries/{id}:
- *   get:
- *     summary: Get a diary entry by ID
- *     tags: [Diary]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Diary entry found
- *       404:
- *         description: Diary entry not found
  *   put:
  *     summary: Update a diary entry
  *     tags: [Diary]
@@ -95,12 +127,51 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/DiaryEntry'
+ *             type: object
+ *             required:
+ *               - title
+ *               - content
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               shortDescription:
+ *                 type: string
+ *               imageSrc:
+ *                 type: string
+ *               categoryIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               tagIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               moodIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Updated diary entry
  *       404:
  *         description: Diary entry not found
+ */
+router.put(
+  '/diary/entries/:id',
+  [
+    validateIdParam,
+    body('title').notEmpty().withMessage('Title is required'),
+    body('content').notEmpty().withMessage('Content is required'),
+    validateRequest
+  ],
+  handleAsync(updateDiaryEntry)
+);
+
+/**
+ * @swagger
+ * /diary/entries/{id}:
  *   delete:
  *     summary: Delete a diary entry
  *     tags: [Diary]
@@ -116,23 +187,6 @@ const router = express.Router();
  *       404:
  *         description: Diary entry not found
  */
-
-// GET all diary entries
-router.get('/diary/entries', getDiaryEntries);
-
-// GET enriched diary entries
-router.get('/diary/entries/enriched', getEnrichedDiaryEntries);
-
-// GET a specific diary entry by ID
-router.get('/diary/entries/:id', getDiaryEntryById);
-
-// POST a new diary entry
-router.post('/diary/entries', createDiaryEntry);
-
-// PUT (update) a diary entry
-router.put('/diary/entries/:id', updateDiaryEntry);
-
-// DELETE a diary entry
-router.delete('/diary/entries/:id', deleteDiaryEntry);
+router.delete('/diary/entries/:id', validateIdParam, handleAsync(deleteDiaryEntry));
 
 export default router;

@@ -7,10 +7,10 @@ import entryRoutes from './diary/entryRoutes.js';
 
 const router = express.Router();
 
-// Use all the diary-related routes
+// Mount all the diary-related routes
+router.use('/', entryRoutes);
 router.use('/', categoryRoutes);
 router.use('/', tagRoutes);
 router.use('/', moodRoutes);
-router.use('/', entryRoutes);
 
 export default router;

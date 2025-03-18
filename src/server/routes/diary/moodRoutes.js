@@ -1,8 +1,14 @@
 
 import express from 'express';
 import { body } from 'express-validator';
-import { validateRequest } from '../../middleware/validationMiddleware.js';
-import { db } from '../../db/config.js';
+import { validateRequest, validateIdParam } from '../../middleware/validationMiddleware.js';
+import { 
+  getDiaryMoods,
+  getDiaryMoodById,
+  createDiaryMood,
+  updateDiaryMood,
+  deleteDiaryMood 
+} from '../../controllers/diaryController.js';
 import { handleAsync } from '../../middleware/errorMiddleware.js';
 
 const router = express.Router();
@@ -17,10 +23,7 @@ const router = express.Router();
  *       200:
  *         description: List of diary moods
  */
-router.get('/', handleAsync(async (req, res) => {
-  const moods = await db.all('SELECT * FROM diary_moods ORDER BY name');
-  res.json(moods);
-}));
+router.get('/diary/moods', handleAsync(getDiaryMoods));
 
 /**
  * @swagger
@@ -39,13 +42,7 @@ router.get('/', handleAsync(async (req, res) => {
  *       404:
  *         description: Mood not found
  */
-router.get('/:id', handleAsync(async (req, res) => {
-  const mood = await db.get('SELECT * FROM diary_moods WHERE id = ?', req.params.id);
-  if (!mood) {
-    return res.status(404).json({ message: 'Mood not found' });
-  }
-  res.json(mood);
-}));
+router.get('/diary/moods/:id', validateIdParam, handleAsync(getDiaryMoodById));
 
 /**
  * @swagger
@@ -69,23 +66,12 @@ router.get('/:id', handleAsync(async (req, res) => {
  *         description: Created diary mood
  */
 router.post(
-  '/',
+  '/diary/moods',
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     validateRequest
   ],
-  handleAsync(async (req, res) => {
-    const { name, icon } = req.body;
-    const id = `mood-${Date.now()}`;
-    
-    await db.run(
-      'INSERT INTO diary_moods (id, name, icon) VALUES (?, ?, ?)',
-      [id, name, icon || null]
-    );
-    
-    const newMood = await db.get('SELECT * FROM diary_moods WHERE id = ?', id);
-    res.status(201).json(newMood);
-  })
+  handleAsync(createDiaryMood)
 );
 
 /**
@@ -117,29 +103,13 @@ router.post(
  *         description: Mood not found
  */
 router.put(
-  '/:id',
+  '/diary/moods/:id',
   [
+    validateIdParam,
     body('name').trim().notEmpty().withMessage('Name is required'),
     validateRequest
   ],
-  handleAsync(async (req, res) => {
-    const { name, icon } = req.body;
-    const { id } = req.params;
-    
-    // Check if mood exists
-    const existingMood = await db.get('SELECT * FROM diary_moods WHERE id = ?', id);
-    if (!existingMood) {
-      return res.status(404).json({ message: 'Mood not found' });
-    }
-    
-    await db.run(
-      'UPDATE diary_moods SET name = ?, icon = ? WHERE id = ?',
-      [name, icon || null, id]
-    );
-    
-    const updatedMood = await db.get('SELECT * FROM diary_moods WHERE id = ?', id);
-    res.json(updatedMood);
-  })
+  handleAsync(updateDiaryMood)
 );
 
 /**
@@ -159,17 +129,6 @@ router.put(
  *       404:
  *         description: Mood not found
  */
-router.delete('/:id', handleAsync(async (req, res) => {
-  const { id } = req.params;
-  
-  // Check if mood exists
-  const existingMood = await db.get('SELECT * FROM diary_moods WHERE id = ?', id);
-  if (!existingMood) {
-    return res.status(404).json({ message: 'Mood not found' });
-  }
-  
-  await db.run('DELETE FROM diary_moods WHERE id = ?', id);
-  res.json({ message: 'Mood deleted successfully' });
-}));
+router.delete('/diary/moods/:id', validateIdParam, handleAsync(deleteDiaryMood));
 
 export default router;

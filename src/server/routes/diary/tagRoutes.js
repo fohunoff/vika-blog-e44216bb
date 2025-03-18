@@ -1,8 +1,15 @@
 
 import express from 'express';
 import { body } from 'express-validator';
-import { validateRequest } from '../../middleware/validationMiddleware.js';
-import { db } from '../../db/config.js';
+import { validateRequest, validateIdParam, validateIdsQuery } from '../../middleware/validationMiddleware.js';
+import { 
+  getDiaryTags, 
+  getDiaryTagById,
+  getDiaryTagsByIds,
+  createDiaryTag,
+  updateDiaryTag,
+  deleteDiaryTag 
+} from '../../controllers/diaryController.js';
 import { handleAsync } from '../../middleware/errorMiddleware.js';
 
 const router = express.Router();
@@ -17,10 +24,7 @@ const router = express.Router();
  *       200:
  *         description: List of diary tags
  */
-router.get('/', handleAsync(async (req, res) => {
-  const tags = await db.all('SELECT * FROM diary_tags ORDER BY name');
-  res.json(tags);
-}));
+router.get('/diary/tags', handleAsync(getDiaryTags));
 
 /**
  * @swagger
@@ -39,13 +43,7 @@ router.get('/', handleAsync(async (req, res) => {
  *       404:
  *         description: Tag not found
  */
-router.get('/:id', handleAsync(async (req, res) => {
-  const tag = await db.get('SELECT * FROM diary_tags WHERE id = ?', req.params.id);
-  if (!tag) {
-    return res.status(404).json({ message: 'Tag not found' });
-  }
-  res.json(tag);
-}));
+router.get('/diary/tags/:id', validateIdParam, handleAsync(getDiaryTagById));
 
 /**
  * @swagger
@@ -63,23 +61,7 @@ router.get('/:id', handleAsync(async (req, res) => {
  *       200:
  *         description: List of requested diary tags
  */
-router.get('/multiple', handleAsync(async (req, res) => {
-  const { ids } = req.query;
-  
-  if (!ids) {
-    return res.json([]);
-  }
-  
-  const tagIds = ids.split(',');
-  const placeholders = tagIds.map(() => '?').join(',');
-  
-  const tags = await db.all(
-    `SELECT * FROM diary_tags WHERE id IN (${placeholders}) ORDER BY name`,
-    tagIds
-  );
-  
-  res.json(tags);
-}));
+router.get('/diary/tags/multiple', validateIdsQuery, handleAsync(getDiaryTagsByIds));
 
 /**
  * @swagger
@@ -101,23 +83,12 @@ router.get('/multiple', handleAsync(async (req, res) => {
  *         description: Created diary tag
  */
 router.post(
-  '/',
+  '/diary/tags',
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     validateRequest
   ],
-  handleAsync(async (req, res) => {
-    const { name } = req.body;
-    const id = `tag-diary-${Date.now()}`;
-    
-    await db.run(
-      'INSERT INTO diary_tags (id, name) VALUES (?, ?)',
-      [id, name]
-    );
-    
-    const newTag = await db.get('SELECT * FROM diary_tags WHERE id = ?', id);
-    res.status(201).json(newTag);
-  })
+  handleAsync(createDiaryTag)
 );
 
 /**
@@ -147,29 +118,13 @@ router.post(
  *         description: Tag not found
  */
 router.put(
-  '/:id',
+  '/diary/tags/:id',
   [
+    validateIdParam,
     body('name').trim().notEmpty().withMessage('Name is required'),
     validateRequest
   ],
-  handleAsync(async (req, res) => {
-    const { name } = req.body;
-    const { id } = req.params;
-    
-    // Check if tag exists
-    const existingTag = await db.get('SELECT * FROM diary_tags WHERE id = ?', id);
-    if (!existingTag) {
-      return res.status(404).json({ message: 'Tag not found' });
-    }
-    
-    await db.run(
-      'UPDATE diary_tags SET name = ? WHERE id = ?',
-      [name, id]
-    );
-    
-    const updatedTag = await db.get('SELECT * FROM diary_tags WHERE id = ?', id);
-    res.json(updatedTag);
-  })
+  handleAsync(updateDiaryTag)
 );
 
 /**
@@ -189,17 +144,6 @@ router.put(
  *       404:
  *         description: Tag not found
  */
-router.delete('/:id', handleAsync(async (req, res) => {
-  const { id } = req.params;
-  
-  // Check if tag exists
-  const existingTag = await db.get('SELECT * FROM diary_tags WHERE id = ?', id);
-  if (!existingTag) {
-    return res.status(404).json({ message: 'Tag not found' });
-  }
-  
-  await db.run('DELETE FROM diary_tags WHERE id = ?', id);
-  res.json({ message: 'Tag deleted successfully' });
-}));
+router.delete('/diary/tags/:id', validateIdParam, handleAsync(deleteDiaryTag));
 
 export default router;

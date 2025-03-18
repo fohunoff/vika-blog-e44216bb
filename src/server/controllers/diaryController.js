@@ -217,16 +217,17 @@ export const deleteDiaryEntry = async (req, res) => {
   }
 };
 
+// CATEGORY CONTROLLERS
 // Get diary categories
 export const getDiaryCategories = async (req, res) => {
   try {
-    const categories = await dbAsync.all('SELECT * FROM diary_categories');
+    const categories = await dbAsync.all('SELECT * FROM diary_categories ORDER BY name');
     res.json(categories);
   } catch (error) {
     console.error('Error fetching diary categories:', error);
     res.status(500).json({error: 'Failed to fetch diary categories'});
   }
-}
+};
 
 // Get diary category by ID
 export const getDiaryCategoryById = async (req, res) => {
@@ -235,7 +236,7 @@ export const getDiaryCategoryById = async (req, res) => {
     const category = await dbAsync.get('SELECT * FROM diary_categories WHERE id = ?', [id]);
 
     if (!category) {
-      return res.status(404).json({ error: 'Diary category not found' });
+      return res.status(404).json({ error: 'Category not found' });
     }
 
     res.json(category);
@@ -245,16 +246,80 @@ export const getDiaryCategoryById = async (req, res) => {
   }
 };
 
+// Create diary category
+export const createDiaryCategory = async (req, res) => {
+  try {
+    const { name, image } = req.body;
+    const id = `category-diary-${Date.now()}`;
+    
+    await dbAsync.run(
+      'INSERT INTO diary_categories (id, name, image) VALUES (?, ?, ?)',
+      [id, name, image || null]
+    );
+    
+    const newCategory = await dbAsync.get('SELECT * FROM diary_categories WHERE id = ?', [id]);
+    res.status(201).json(newCategory);
+  } catch (error) {
+    console.error('Error creating diary category:', error);
+    res.status(500).json({ error: 'Failed to create diary category' });
+  }
+};
+
+// Update diary category
+export const updateDiaryCategory = async (req, res) => {
+  try {
+    const { name, image } = req.body;
+    const { id } = req.params;
+    
+    // Check if category exists
+    const existingCategory = await dbAsync.get('SELECT * FROM diary_categories WHERE id = ?', [id]);
+    if (!existingCategory) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    await dbAsync.run(
+      'UPDATE diary_categories SET name = ?, image = ? WHERE id = ?',
+      [name, image || null, id]
+    );
+    
+    const updatedCategory = await dbAsync.get('SELECT * FROM diary_categories WHERE id = ?', [id]);
+    res.json(updatedCategory);
+  } catch (error) {
+    console.error(`Error updating diary category ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to update diary category' });
+  }
+};
+
+// Delete diary category
+export const deleteDiaryCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if category exists
+    const existingCategory = await dbAsync.get('SELECT * FROM diary_categories WHERE id = ?', [id]);
+    if (!existingCategory) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    await dbAsync.run('DELETE FROM diary_categories WHERE id = ?', [id]);
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    console.error(`Error deleting diary category ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to delete diary category' });
+  }
+};
+
+// TAG CONTROLLERS
 // Get diary tags
 export const getDiaryTags = async (req, res) => {
   try {
-    const tags = await dbAsync.all('SELECT * FROM diary_tags');
+    const tags = await dbAsync.all('SELECT * FROM diary_tags ORDER BY name');
     res.json(tags);
   } catch (error) {
     console.error('Error fetching diary tags:', error);
     res.status(500).json({error: 'Failed to fetch diary tags'});
   }
-}
+};
 
 // Get diary tag by ID
 export const getDiaryTagById = async (req, res) => {
@@ -263,7 +328,7 @@ export const getDiaryTagById = async (req, res) => {
     const tag = await dbAsync.get('SELECT * FROM diary_tags WHERE id = ?', [id]);
 
     if (!tag) {
-      return res.status(404).json({ error: 'Diary tag not found' });
+      return res.status(404).json({ error: 'Tag not found' });
     }
 
     res.json(tag);
@@ -271,7 +336,7 @@ export const getDiaryTagById = async (req, res) => {
     console.error(`Error fetching diary tag ${req.params.id}:`, error);
     res.status(500).json({error: 'Failed to fetch diary tag'});
   }
-}
+};
 
 // Get diary tags by IDs
 export const getDiaryTagsByIds = async (req, res) => {
@@ -297,25 +362,89 @@ export const getDiaryTagsByIds = async (req, res) => {
   }
 };
 
+// Create diary tag
+export const createDiaryTag = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const id = `tag-diary-${Date.now()}`;
+    
+    await dbAsync.run(
+      'INSERT INTO diary_tags (id, name) VALUES (?, ?)',
+      [id, name]
+    );
+    
+    const newTag = await dbAsync.get('SELECT * FROM diary_tags WHERE id = ?', [id]);
+    res.status(201).json(newTag);
+  } catch (error) {
+    console.error('Error creating diary tag:', error);
+    res.status(500).json({ error: 'Failed to create diary tag' });
+  }
+};
+
+// Update diary tag
+export const updateDiaryTag = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const { id } = req.params;
+    
+    // Check if tag exists
+    const existingTag = await dbAsync.get('SELECT * FROM diary_tags WHERE id = ?', [id]);
+    if (!existingTag) {
+      return res.status(404).json({ error: 'Tag not found' });
+    }
+    
+    await dbAsync.run(
+      'UPDATE diary_tags SET name = ? WHERE id = ?',
+      [name, id]
+    );
+    
+    const updatedTag = await dbAsync.get('SELECT * FROM diary_tags WHERE id = ?', [id]);
+    res.json(updatedTag);
+  } catch (error) {
+    console.error(`Error updating diary tag ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to update diary tag' });
+  }
+};
+
+// Delete diary tag
+export const deleteDiaryTag = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if tag exists
+    const existingTag = await dbAsync.get('SELECT * FROM diary_tags WHERE id = ?', [id]);
+    if (!existingTag) {
+      return res.status(404).json({ error: 'Tag not found' });
+    }
+    
+    await dbAsync.run('DELETE FROM diary_tags WHERE id = ?', [id]);
+    res.json({ message: 'Tag deleted successfully' });
+  } catch (error) {
+    console.error(`Error deleting diary tag ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to delete diary tag' });
+  }
+};
+
+// MOOD CONTROLLERS
 // Get diary moods
 export const getDiaryMoods = async (req, res) => {
   try {
-    const moods = await dbAsync.all('SELECT * FROM diary_moods');
+    const moods = await dbAsync.all('SELECT * FROM diary_moods ORDER BY name');
     res.json(moods);
   } catch (error) {
     console.error('Error fetching diary moods:', error);
     res.status(500).json({error: 'Failed to fetch diary moods'});
   }
-}
+};
 
 // Get diary mood by ID
 export const getDiaryMoodById = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const mood = await dbAsync.get('SELECT * FROM diary_moods WHERE id = ?', [id]);
 
     if (!mood) {
-      return res.status(404).json({error: 'Diary mood not found'});
+      return res.status(404).json({ error: 'Mood not found' });
     }
 
     res.json(mood);
@@ -323,4 +452,67 @@ export const getDiaryMoodById = async (req, res) => {
     console.error(`Error fetching diary mood ${req.params.id}:`, error);
     res.status(500).json({error: 'Failed to fetch diary mood'});
   }
-}
+};
+
+// Create diary mood
+export const createDiaryMood = async (req, res) => {
+  try {
+    const { name, icon } = req.body;
+    const id = `mood-${Date.now()}`;
+    
+    await dbAsync.run(
+      'INSERT INTO diary_moods (id, name, icon) VALUES (?, ?, ?)',
+      [id, name, icon || null]
+    );
+    
+    const newMood = await dbAsync.get('SELECT * FROM diary_moods WHERE id = ?', [id]);
+    res.status(201).json(newMood);
+  } catch (error) {
+    console.error('Error creating diary mood:', error);
+    res.status(500).json({ error: 'Failed to create diary mood' });
+  }
+};
+
+// Update diary mood
+export const updateDiaryMood = async (req, res) => {
+  try {
+    const { name, icon } = req.body;
+    const { id } = req.params;
+    
+    // Check if mood exists
+    const existingMood = await dbAsync.get('SELECT * FROM diary_moods WHERE id = ?', [id]);
+    if (!existingMood) {
+      return res.status(404).json({ error: 'Mood not found' });
+    }
+    
+    await dbAsync.run(
+      'UPDATE diary_moods SET name = ?, icon = ? WHERE id = ?',
+      [name, icon || null, id]
+    );
+    
+    const updatedMood = await dbAsync.get('SELECT * FROM diary_moods WHERE id = ?', [id]);
+    res.json(updatedMood);
+  } catch (error) {
+    console.error(`Error updating diary mood ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to update diary mood' });
+  }
+};
+
+// Delete diary mood
+export const deleteDiaryMood = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if mood exists
+    const existingMood = await dbAsync.get('SELECT * FROM diary_moods WHERE id = ?', [id]);
+    if (!existingMood) {
+      return res.status(404).json({ error: 'Mood not found' });
+    }
+    
+    await dbAsync.run('DELETE FROM diary_moods WHERE id = ?', [id]);
+    res.json({ message: 'Mood deleted successfully' });
+  } catch (error) {
+    console.error(`Error deleting diary mood ${req.params.id}:`, error);
+    res.status(500).json({ error: 'Failed to delete diary mood' });
+  }
+};
