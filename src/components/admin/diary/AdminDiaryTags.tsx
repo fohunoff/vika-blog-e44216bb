@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
-import { DiaryTag } from "@/types/models";
+import { DiaryTag } from "@/types/diary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -22,23 +22,24 @@ const AdminDiaryTags = () => {
     name: ''
   });
 
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const tagsData = await api.diary.getTags();
-        setTags(tagsData);
-      } catch (error) {
-        console.error("Error fetching tags:", error);
-        toast({
-          variant: "destructive",
-          title: "Ошибка загрузки данных",
-          description: "Не удалось загрузить теги. Пожалуйста, попробуйте позже."
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchTags = async () => {
+    try {
+      setIsLoading(true);
+      const tagsData = await api.diary.getTags();
+      setTags(tagsData);
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка загрузки данных",
+        description: "Не удалось загрузить теги. Пожалуйста, попробуйте позже."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchTags();
   }, [api]);
 
@@ -72,24 +73,27 @@ const AdminDiaryTags = () => {
 
   const handleSave = async () => {
     try {
-      // This would be an API call in a real application
-      toast({
-        title: "Изменения сохранены",
-        description: selectedTag 
-          ? "Тег успешно обновлен" 
-          : "Новый тег успешно создан"
-      });
-      
-      // Mock update tags list
       if (selectedTag) {
+        // Update existing tag
+        await api.diary.updateTag(selectedTag, { name: formData.name });
+        toast({
+          title: "Тег обновлен",
+          description: "Тег успешно обновлен"
+        });
+        
+        // Update tags list
         setTags(tags.map(tag => 
           tag.id === selectedTag ? { ...tag, name: formData.name } : tag
         ));
       } else {
-        const newTag = {
-          id: `tag-diary-${Date.now()}`,
-          name: formData.name
-        };
+        // Create new tag
+        const newTag = await api.diary.createTag({ name: formData.name });
+        toast({
+          title: "Тег создан",
+          description: "Новый тег успешно создан"
+        });
+        
+        // Add new tag to the list
         setTags([...tags, newTag]);
       }
       
@@ -105,14 +109,16 @@ const AdminDiaryTags = () => {
   };
 
   const handleDelete = async () => {
+    if (!selectedTag) return;
+    
     try {
-      // This would be an API call in a real application
+      await api.diary.deleteTag(selectedTag);
       toast({
         title: "Тег удален",
         description: "Тег успешно удален"
       });
       
-      // Mock update tags list
+      // Remove the deleted tag from the list
       setTags(tags.filter(tag => tag.id !== selectedTag));
       setIsDeleteDialogOpen(false);
     } catch (error) {

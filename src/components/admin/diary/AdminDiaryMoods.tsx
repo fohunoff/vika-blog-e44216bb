@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
-import { DiaryMood } from "@/types/models";
+import { DiaryMood } from "@/types/diary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -19,26 +19,28 @@ const AdminDiaryMoods = () => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     id: '',
-    name: ''
+    name: '',
+    icon: ''
   });
 
-  useEffect(() => {
-    const fetchMoods = async () => {
-      try {
-        const moodsData = await api.diary.getMoods();
-        setMoods(moodsData);
-      } catch (error) {
-        console.error("Error fetching moods:", error);
-        toast({
-          variant: "destructive",
-          title: "Ошибка загрузки данных",
-          description: "Не удалось загрузить настроения. Пожалуйста, попробуйте позже."
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchMoods = async () => {
+    try {
+      setIsLoading(true);
+      const moodsData = await api.diary.getMoods();
+      setMoods(moodsData);
+    } catch (error) {
+      console.error("Error fetching moods:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка загрузки данных",
+        description: "Не удалось загрузить настроения. Пожалуйста, попробуйте позже."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMoods();
   }, [api]);
 
@@ -50,7 +52,8 @@ const AdminDiaryMoods = () => {
   const openCreateDialog = () => {
     setFormData({
       id: '',
-      name: ''
+      name: '',
+      icon: ''
     });
     setSelectedMood(null);
     setIsDialogOpen(true);
@@ -59,7 +62,8 @@ const AdminDiaryMoods = () => {
   const openEditDialog = (mood: DiaryMood) => {
     setFormData({
       id: mood.id,
-      name: mood.name
+      name: mood.name,
+      icon: mood.icon || ''
     });
     setSelectedMood(mood.id);
     setIsDialogOpen(true);
@@ -72,24 +76,32 @@ const AdminDiaryMoods = () => {
 
   const handleSave = async () => {
     try {
-      // This would be an API call in a real application
-      toast({
-        title: "Изменения сохранены",
-        description: selectedMood 
-          ? "Настроение успешно обновлено" 
-          : "Новое настроение успешно создано"
-      });
-      
-      // Mock update moods list
+      const moodData = {
+        name: formData.name,
+        icon: formData.icon || undefined
+      };
+
       if (selectedMood) {
+        // Update existing mood
+        await api.diary.updateMood(selectedMood, moodData);
+        toast({
+          title: "Настроение обновлено",
+          description: "Настроение успешно обновлено"
+        });
+        
+        // Update moods list
         setMoods(moods.map(mood => 
-          mood.id === selectedMood ? { ...mood, name: formData.name } : mood
+          mood.id === selectedMood ? { ...mood, ...moodData } : mood
         ));
       } else {
-        const newMood = {
-          id: `mood-${Date.now()}`,
-          name: formData.name
-        };
+        // Create new mood
+        const newMood = await api.diary.createMood(moodData);
+        toast({
+          title: "Настроение создано",
+          description: "Новое настроение успешно создано"
+        });
+        
+        // Add new mood to the list
         setMoods([...moods, newMood]);
       }
       
@@ -105,14 +117,16 @@ const AdminDiaryMoods = () => {
   };
 
   const handleDelete = async () => {
+    if (!selectedMood) return;
+    
     try {
-      // This would be an API call in a real application
+      await api.diary.deleteMood(selectedMood);
       toast({
         title: "Настроение удалено",
         description: "Настроение успешно удалено"
       });
       
-      // Mock update moods list
+      // Remove the deleted mood from the list
       setMoods(moods.filter(mood => mood.id !== selectedMood));
       setIsDeleteDialogOpen(false);
     } catch (error) {
@@ -151,6 +165,7 @@ const AdminDiaryMoods = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Название</TableHead>
+                <TableHead>Иконка</TableHead>
                 <TableHead className="text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
@@ -158,6 +173,7 @@ const AdminDiaryMoods = () => {
               {moods.map((mood) => (
                 <TableRow key={mood.id}>
                   <TableCell className="font-medium">{mood.name}</TableCell>
+                  <TableCell>{mood.icon || '—'}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" size="sm" onClick={() => openEditDialog(mood)}>
@@ -192,6 +208,16 @@ const AdminDiaryMoods = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="icon">Иконка (опционально)</label>
+              <Input
+                id="icon"
+                name="icon"
+                value={formData.icon}
+                onChange={handleInputChange}
+                placeholder="Например: 😊, 😢, 😎"
               />
             </div>
           </div>

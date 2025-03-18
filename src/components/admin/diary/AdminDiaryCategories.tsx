@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/useApi";
-import { DiaryCategory } from "@/types/models";
+import { DiaryCategory } from "@/types/diary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -22,23 +22,24 @@ const AdminDiaryCategories = () => {
     name: ''
   });
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const categoriesData = await api.diary.getCategories();
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        toast({
-          variant: "destructive",
-          title: "Ошибка загрузки данных",
-          description: "Не удалось загрузить категории. Пожалуйста, попробуйте позже."
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchCategories = async () => {
+    try {
+      setIsLoading(true);
+      const categoriesData = await api.diary.getCategories();
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка загрузки данных",
+        description: "Не удалось загрузить категории. Пожалуйста, попробуйте позже."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchCategories();
   }, [api]);
 
@@ -72,24 +73,27 @@ const AdminDiaryCategories = () => {
 
   const handleSave = async () => {
     try {
-      // This would be an API call in a real application
-      toast({
-        title: "Изменения сохранены",
-        description: selectedCategory 
-          ? "Категория успешно обновлена" 
-          : "Новая категория успешно создана"
-      });
-      
-      // Mock update categories list
       if (selectedCategory) {
+        // Update existing category
+        await api.diary.updateCategory(selectedCategory, { name: formData.name });
+        toast({
+          title: "Категория обновлена",
+          description: "Категория успешно обновлена"
+        });
+        
+        // Update categories list
         setCategories(categories.map(category => 
           category.id === selectedCategory ? { ...category, name: formData.name } : category
         ));
       } else {
-        const newCategory = {
-          id: `category-diary-${Date.now()}`,
-          name: formData.name
-        };
+        // Create new category
+        const newCategory = await api.diary.createCategory({ name: formData.name });
+        toast({
+          title: "Категория создана",
+          description: "Новая категория успешно создана"
+        });
+        
+        // Add new category to the list
         setCategories([...categories, newCategory]);
       }
       
@@ -105,14 +109,16 @@ const AdminDiaryCategories = () => {
   };
 
   const handleDelete = async () => {
+    if (!selectedCategory) return;
+    
     try {
-      // This would be an API call in a real application
+      await api.diary.deleteCategory(selectedCategory);
       toast({
         title: "Категория удалена",
         description: "Категория успешно удалена"
       });
       
-      // Mock update categories list
+      // Remove the deleted category from the list
       setCategories(categories.filter(category => category.id !== selectedCategory));
       setIsDeleteDialogOpen(false);
     } catch (error) {
