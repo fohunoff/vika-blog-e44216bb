@@ -30,6 +30,9 @@ const DiaryEntryCard = ({ entry, moods, index }: DiaryEntryCardProps) => {
 
   const currentMood = moods.find(x => x.id === entry.moodIds[0])?.name;
 
+  console.log('entry.moodIds', entry.moodIds)
+  console.log('currentMood', currentMood)
+
   return (
     <article
       className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 animate-fade-up"
